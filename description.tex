@@ -33,7 +33,7 @@
 	\begin{titlepage}
 		\vspace*{\stretch{2}}
 		\begin{center}
-			\large\bfseries\itshape Projet ETE 2015\\
+			\large\bfseries\itshape Stage ETE 2015\\
 		\end{center}
 		\noindent\rule{\linewidth}{3pt}
 
@@ -79,11 +79,13 @@ Le travail comprend principalement 2 tâches:
 \subsection{Filter}
 	Filter est soit un bitmap, soit un filtre de Bloom. La taille de ce filtre ou ce bitmap est configurable selon le besoin du système. 
 	
+\subsection{Couple}
+	Couple est un couple de valeur \textbf{<bitmap, Next\_hop>}	
+	
 \subsection{VA}
 	Cette structure est une liste des couples \textit{<bitmap, Next\_hop>}. Chaque noeud de l'arbre contient cette structure avec bitmap qui est une chaîne de bits, c'est une "instance de \textbf{Filter}" et Next\_hop qui est soit NULL soit égal à un identifiant d'un noeud, ce ID est aussi une "instance de \textbf{Filter}". Cette structure contient également le nombre maximum de couples qu'elle peut stocker. 
 	
-\section{Les classes}
-\subsection{Class Node}
+\section{Class Node}
 	Cette classe joue le rôle à la fois d'un noeud et à la fois d'une feuille dans l'arbre.
 	
 \subsection{Variables locales}
@@ -91,18 +93,161 @@ Le travail comprend principalement 2 tâches:
 		\item[ID] identifiant de ce noeud, cet id est unique.
 		\item[IP] l'adresse IP de ce noeud.
 		\item[rang] le rang de ce noeud dans l'arbre.
-		\item[leaf] indique si ce noeud est une feuille, c-à-d si ce noeud a déjà fait \textbf{\textit{split()}}.
+		\item[leaf] indique si ce noeud est une feuille, c-à-d si ce noeud a déjà fait \textbf{\textit{split()}}. Initialisé à \textbf{true}.
 		\item[father] le père de ce noeud dans l'arbre.
 		\item[va] cette variable est une structure VA qui contient des couples \textit{<bitmap, Next\_hop>}.
-		\item[root] l'adresse du serveur central
+		\item[root] l'adresse du serveur central.
 	\end{description}
 	
 \subsection{Méthodes}
 \subsubsection{split()}
-	
+	Cette méthode est appellée par la méthode \textbf{\textit{add(Filter)}} dès que la limit de nombre de couples dans la structure VA \textit{va} a été atteinte. Cette méthode va créer une nouvelle structure VA \textit{va\_new}, elle parcourt toute la structure \textit{va}, pour chaque élement, elle calcule l'identifiant de rang \textit{i+1} $ID_{i+1}$ et demande au serveur central pour créer un nouveau noeud de $ID_{i+1}$, le serveur répond en envoyant l'adresse IP du nouveau noeud créé $IP_{ID_{i+1}}$. Elle envoie cet élement au nouveau noeud. Ensuite, elle ajoute le couple \textit{<$ID_{i+1}$;$IP_{ID_{i+1}}$>} dans \textit{va\_new}. Après, elle supprime \textit{va} et renomme \textit{va\_new} en \textit{va}. Elle change la valeur de la variable locale \textbf{leaf} en \textbf{false}.
+
+\newtheorem{algorithme}{Algorithme}
+\begin{algorithme}
+	split()
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{INPUT:} $\emptyset$\\
+		\textbf{OUTPUT:} $\emptyset$
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item VA \textit{va\_new = new VA()}
+			\item Couple \textit{couple = va.getFirstElement()}
+			\item Filter \textit{f = couple.getFilter()}
+			\item int \textit{id = 0}
+			\item 
+		\begin{tabbing}
+			TANT QUE (\= \textit{couple != null})\\
+					\> \textit{f = couple.getFilter()}\\
+					\> \textit{id = f.createIDAtRang(i + 1)}\\
+					\> \textit{send(root, CREATE, id)}\\
+					\> int \textit{IP = receive(root, CREATE, id)}\\
+					\> \textit{va\_new.add(<id, IP>)}\\
+					\> \textit{send(IP, ADD, f)}\\
+					\> \textit{couple = va.getNextElement()}\\
+			FIN TANT QUE\\
+	    \end{tabbing}
+		\end{enumerate}
+	\end{framed}
+\end{flushleft}
 
 \subsubsection{add(Filter)}
-	Dès que ce noeud reçoit la commande d'ajout d'un filtre dans sa base de données, ce noeud appelle cette méthode. Elle va créer un fragment de ce filtre qui correspond avec le rand de ce noeud, si ce fragment n'est pas identique avec l'ID de ce noeud, il jette la commande. Sinon, elle cherche dans la structure VA, s'il y a des places libres, si oui, elle ajoute dans cette structure le filtre, sinon, elle appelle la méthode \textbf{\textit{split()}}.
+	Dès que ce noeud reçoit la commande d'ajout d'un filtre dans sa base de données, ce noeud appelle cette méthode. Elle va créer un fragment de ce filtre qui correspond avec le rang \textbf{i} de ce noeud, si ce fragment n'est pas identique avec l'identifiant de ce noeud, il jette la commande. Si ce noeud est un noed, elle calcule l'identifiant du noeud au rang \textbf{i+1} $ID_{i+1}$, elle cherche dans \textit{va}, s'il existe un fils qui a le même identifiant, elle renvoie ce filtre au fils. Sinon, elle demande au serveur central pour créer un nouveau noeud de $ID_{i+1}$, le serveur répond en envoyant l'adresse IP du nouveau noeud crée $IP_{ID_{i+1}}$. Elle envoie ce filtre au noeud reçu. Ensuite, elle ajoute le couple \textit{<$ID_{i+1}$;$IP_{ID_{i+1}}$>} dans \textit{va}. Si c'est une feuille, elle cherche dans la structure VA, s'il y a des places libres, si oui, elle ajoute dans cette structure le filtre, sinon, elle appelle la méthode \textbf{\textit{split()}}. Après le lancement de la méthode \textbf{split()}, elle calcule l'identifiant du noeud au rang \textbf{i+1} $ID_{i+1}$ et recherche dans la structure VA \textit{va}, s'il existe, elle envoie à l'adresse indiquée, sinon, elle demande au serveur central pour créer un nouveau noeud de $ID_{i+1}$, le serveur répond en envoyant l'adresse IP du nouveau noeud crée $IP_{ID_{i+1}}$. Elle envoie ce filtre au noeud reçu. Ensuite, elle ajoute le couple \textit{<$ID_{i+1}$;$IP_{ID_{i+1}}$>} dans \textit{va}.
 
+\begin{algorithme}
+	add(Filter)
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{INPUT:} Filter f\\
+		\textbf{OUTPUT:} $\emptyset$
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item int \textit{id = f.createIDAtRang(i)}
+			\item
+			\begin{tabbing}
+				SI\= (\textit{!id.equals(ID)})\\
+					\> \textit{return}\\
+				FIN SI
+			\end{tabbing}
+			\item \textit{id = f.createIDAtRang(i+1)}
+			\item
+			\begin{tabbing}
+				SI\= (\textit{!leaf})\\
+					\> SI \= \textit{(va.existe(id))} \\
+					\> \> \textit{send(va.getIP(id), ADD, f)}\\
+					\> ELSE\\
+					\> \> \textit{send(root, CREATE, id)} \\
+					\> \> int \textit{IP = receive(root, CREATE, id)}\\
+					\> \> \textit{va.add(<id, IP>)}\\
+					\> \> \textit{send(IP, ADD, f)}\\
+					\> FIN SI\\
+				ELSE\\
+					\> SI\= \textit{(!va.add(<f, null>))}\\
+					\> \> \textit{\textbf{split()}}\\
+					\> \> SI \= \textit{(va.existe(id))} \\
+					\> \> \> \textit{send(va.getIP(id), ADD, f)}\\
+					\> \> ELSE\\
+					\> \> \> \textit{send(root, CREATE, id)} \\
+					\> \> \> int \textit{IP = receive(root, CREATE, id)}\\
+					\> \> \> \textit{va.add(<id, IP>)}\\
+					\> \> \> \textit{send(IP, ADD, f)}\\
+					\> \> FIN SI\\
+					\> FIN SI\\
+				FIN SI
+			\end{tabbing}
+		\end{enumerate}
+	\end{framed}
+\end{flushleft}
+
+\subsubsection{search(Filter)}
+	D'abord, cette méthode calcule si ce filtre correspond avec l'identifiant de ce noeud au rang \textbf{i}, si ce filtre ne l'appartient pas, il renvoies \textit{null} au père. Si oui, elle calcule l'identifiant de ce filter au rang \textbf{i+1} $ID_{i+1}$, elle parcourt tous les élements dans la structure VA \textit{va}. Si ce noeud est un noeud, elle va chercher tous les élements qui contient $ID_{i+1}$ et envoye la commande \textbf{search(Filter)} vers le fils qui gère. Elle attend la réponse de tous les fils auxquels elle a envoyé. Dès qu'elle reçoit toutes les réponses soit elle affiche les réponse, le cas du root, soit elle les renvoie au père. Si ce noeud est une feuille, elle va collecter tous les filtres qui contiennent la requête et les renvoyer au père.
+
+\begin{algorithme}
+	search(Filter)
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{INPUT:} Filter f\\
+		\textbf{OUTPUT:} $\emptyset$
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item int \textit{id = f.createIDAtRang(i)}
+			\item
+			\begin{tabbing}
+				SI \= \textit{(!id.in(ID))}\\
+					\> \textit{send(father, SEARCH, null)}\\
+				FIN SI
+			\end{tabbing}
+			\item 
+			\begin{tabbing}
+				SI \= \textit{(leaf)}\\
+					\> Couple \textit{couple = va.getFirstElement()}\\
+					\> Filter \textit{tmp}\\
+					\> ArrayList<Filter> \textit{listeFiltre = new ArrayList<Filter>()}\\
+					\> TANT QUE \= \textit{(couple != null)}\\
+					\> \> \textit{tmp = couple.getFilter()}\\
+					\> \> SI \= (f.in(tmp)) \\
+					\> \> \> \textit{listeFiltre.add(tmp)}\\
+					\> \> FIN SI\\
+					\> \> \textit{couple = va.getNextElement()}\\
+					\> FIN TANT QUE\\ 
+					\> send(father, SEARCH, listeFiltre)\\
+				ELSE\\
+					\> \textit{id = f.createIDAtRang(i+1)}\\
+					\> Couple \textit{couple = va.getFirstElement()}\\
+					\> int \textit{tmp}\\
+					\> int \textit{fils = 0}\\
+					\> ArrayList<Filter> \textit{listeFiltre = new ArrayList<Filter>()}\\
+					\> TANT QUE \= \textit{(couple != null)}\\
+					\> \> \textit{tmp = couple.getID()}\\
+					\> \> SI \= (id.in(tmp)) \\
+					\> \> \> \textit{lsend(couple.getIP(), SEARCH, f)}\\
+					\> \> \> \textit{fils++}\\
+					\> \> FIN SI\\
+					\> \> \textit{couple = va.getNextElement()}\\
+					\> FIN TANT QUE\\ 
+					\> TANT QUE \= \textit{(fils != 0)}\\
+					\> \> \textit{listeFiltre.add(receive(*, SEARCH, f))}\\
+					\> \> \textit{fils---}\\
+					\> FIN TANT QUE\\
+					\> SI \= \textit{(father != null)}\\
+					\> \> send(father, SEARCH, listeFiltre)\\
+					\> ELSE\\
+					\> \> send(root, SEARCH, listeFiltre)\\
+					\> FIN SI\\
+				FIN SI
+			\end{tabbing}
+		\end{enumerate}
+	\end{framed}
+\end{flushleft}
 
 \end{document}
