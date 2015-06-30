@@ -1,12 +1,15 @@
 package node;
 
+import java.net.Socket;
+
 import simulateur.Simulateur;
 
-public class Node extends Thread{
+public class Node implements Runnable{
 	private char[] ID;
 	private int level = 0;
+	private boolean feuille = true;
+	private ConnectRoot connectRoot = new ConnectRoot();
 	private int IP = -1;
-	@SuppressWarnings("unused")
 	private int root = Simulateur.ROOT;
 	private int father = -1;
 	private VA va = new VA();

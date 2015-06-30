@@ -4,12 +4,13 @@ import java.io.FileNotFoundException;
 
 import node.Filter;
 
-public class Simulateur {
+public class Simulateur implements Runnable{
 	public static final int ROOT = 0;
 	public static final int SIZE = 512;
 	public static final int FRAGMENTS = 64;
 	public static final int LIMIT = 1000;
 	public static final String DIRECTORY = "/Users/dcs/vrac/test/";
+	
 	public Simulateur() 
 	{
 	}
@@ -41,5 +42,11 @@ public class Simulateur {
 		{
 			e.printStackTrace();
 		}	
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 }

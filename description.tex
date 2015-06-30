@@ -1,0 +1,108 @@
+\documentclass[a4paper,11pt]{report}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{tabulary}
+\usepackage{framed}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usepackage{graphicx}
+\usepackage{pst-all}
+\usepackage{xcolor}
+
+%\usepackage{nopageno}
+
+\newcommand{\latin}[1]{\textit{#1}}
+
+\pagestyle{empty}
+
+\pagestyle{fancy}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0.5pt}
+\fancyhead[R]{\textit{\nouppercase{\rightmark}}}
+\fancyfoot{}
+\renewcommand{\footrulewidth}{0.5pt}
+\fancyfoot[L]{\textit{\nouppercase{\leftmark}}}
+\fancyfoot[R]{\thepage}
+  
+\begin{document}
+	\begin{titlepage}
+		\vspace*{\stretch{2}}
+		\begin{center}
+			\large\bfseries\itshape Projet ETE 2015\\
+		\end{center}
+		\noindent\rule{\linewidth}{3pt}
+
+		\begin{center}
+			\Huge\bfseries\itshape Description du système\\
+		\end{center}
+		
+		\noindent\rule{\linewidth}{3pt}
+		\begin{center}
+			\bfseries
+			\large F-PHT \\
+			\large Un système d'index de filtres de Bloom pour la recherche d'information par mots clés
+		\end{center}
+		\vspace*{\stretch{2}}
+		\begin{center}
+			Réalisé par \textbf{DOAN} Cao Sang \\
+			Encadrant: M. \textbf{MAKPANGOU} Mesaac, Regal
+		\end{center}
+		\vspace*{\stretch{0.5}}
+		\begin{center}
+			26 Mars 2015
+		\end{center}
+	\end{titlepage}
+
+\tableofcontents
+
+\chapter{Demande du travail}
+Le travail comprend principalement 2 tâches:
+\begin{itemize}
+	\item La programmation des primitives de base de F-PHT: add(), split(), remove() et search().
+	\item L'évaluation des performances du système F-PHT pour une configuration donnée (\textit{m} = 512;\textit{f} = 64; $\gamma$ = 1000)
+			\begin{enumerate}
+				\item coûts des insertions;
+				\item coût d'une recherche;
+				\item overhead mémoire;
+				\item qualité de l'arbre(notamment équilibrage ou déséquilibrage de l'arbre)
+			\end{enumerate}
+\end{itemize}
+
+\chapter{Spécification du système}
+\section{Structure de données spécifiques}
+
+\subsection{Filter}
+	Filter est soit un bitmap, soit un filtre de Bloom. La taille de ce filtre ou ce bitmap est configurable selon le besoin du système. 
+	
+\subsection{VA}
+	Cette structure est une liste des couples \textit{<bitmap, Next\_hop>}. Chaque noeud de l'arbre contient cette structure avec bitmap qui est une chaîne de bits, c'est une "instance de \textbf{Filter}" et Next\_hop qui est soit NULL soit égal à un identifiant d'un noeud, ce ID est aussi une "instance de \textbf{Filter}". Cette structure contient également le nombre maximum de couples qu'elle peut stocker. 
+	
+\section{Les classes}
+\subsection{Class Node}
+	Cette classe joue le rôle à la fois d'un noeud et à la fois d'une feuille dans l'arbre.
+	
+\subsection{Variables locales}
+	\begin{description}
+		\item[ID] identifiant de ce noeud, cet id est unique.
+		\item[IP] l'adresse IP de ce noeud.
+		\item[rang] le rang de ce noeud dans l'arbre.
+		\item[leaf] indique si ce noeud est une feuille, c-à-d si ce noeud a déjà fait \textbf{\textit{split()}}.
+		\item[father] le père de ce noeud dans l'arbre.
+		\item[va] cette variable est une structure VA qui contient des couples \textit{<bitmap, Next\_hop>}.
+		\item[root] l'adresse du serveur central
+	\end{description}
+	
+\subsection{Méthodes}
+\subsubsection{split()}
+	
+
+\subsubsection{add(Filter)}
+	Dès que ce noeud reçoit la commande d'ajout d'un filtre dans sa base de données, ce noeud appelle cette méthode. Elle va créer un fragment de ce filtre qui correspond avec le rand de ce noeud, si ce fragment n'est pas identique avec l'ID de ce noeud, il jette la commande. Sinon, elle cherche dans la structure VA, s'il y a des places libres, si oui, elle ajoute dans cette structure le filtre, sinon, elle appelle la méthode \textbf{\textit{split()}}.
+
+
+\end{document}
