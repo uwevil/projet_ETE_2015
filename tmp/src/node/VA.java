@@ -2,6 +2,7 @@ package node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import simulateur.Simulateur;
@@ -46,6 +47,18 @@ public class VA implements Serializable{
 		
 		list.add(couple);
 		return true;
+	}
+	
+	public boolean exist(Filter f)
+	{
+		Iterator<Couple> iterator = list.iterator();
+		while (iterator.hasNext())
+		{
+			Couple couple = iterator.next();
+			if (couple.getReference().equals(f))
+				return true;
+		}
+		return false;
 	}
 	
 }

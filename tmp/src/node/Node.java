@@ -79,7 +79,7 @@ public class Node implements Runnable{
 	public void add(Filter filter)
 	{
 		Filter tmp = new Filter(ID);
-		Filter tmp2 = filter.createIndex(rang);
+		Filter tmp2 = filter.createIDAtRang(rang);
 		if (!tmp2.in(tmp))
 			return;
 		if (va.add(new Couple(filter)))

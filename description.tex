@@ -157,11 +157,11 @@ Le travail comprend principalement 2 tâches:
 			\item VA \textit{va\_new = new VA()}
 			\item Couple \textit{couple = va.getFirstElement()}
 			\item Filter \textit{f = couple.getFilter()}
-			\item int \textit{id = 0}
+			\item Filter \textit{id}
 			\item 
 		\begin{tabbing}
 			\textbf{while} (\= \textit{couple != null})\\
-					\> \textit{f = couple.getFilter()}\\
+					\> \textit{f = couple.getReference()}\\
 					\> \textit{id = f.createIDAtRang(i + 1)}\\
 					\> \textit{send(root, CREATE, id)}\\
 					\> int \textit{IP = receive(root, CREATE, id)}\\
@@ -188,7 +188,7 @@ Le travail comprend principalement 2 tâches:
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
-			\item int \textit{id = f.createIDAtRang(i)}
+			\item Filter \textit{id = f.createIDAtRang(i)}
 			\item
 			\begin{tabbing}
 				\textbf{if}\= (\textit{!id.equals(ID)})\\
@@ -199,7 +199,7 @@ Le travail comprend principalement 2 tâches:
 			\item
 			\begin{tabbing}
 				\textbf{if}\= (\textit{!leaf})\\
-					\> \textbf{if} \= \textit{(va.existe(id))} \\
+					\> \textbf{if} \= \textit{(va.exist(id))} \\
 					\> \> \textit{send(va.getIP(id), ADD, f)}\\
 					\> \textbf{else}\\
 					\> \> \textit{send(root, CREATE, id)} \\
@@ -239,7 +239,7 @@ Le travail comprend principalement 2 tâches:
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
-			\item int \textit{id = f.createIDAtRang(i)}
+			\item Filter \textit{id = f.createIDAtRang(i)}
 			\item
 			\begin{tabbing}
 				SI \= \textit{(!id.in(ID))}\\
@@ -263,11 +263,11 @@ Le travail comprend principalement 2 tâches:
 				\textbf{else}\\
 					\> \textit{id = f.createIDAtRang(i+1)}\\
 					\> Couple \textit{couple = va.getFirstElement()}\\
-					\> int \textit{tmp}\\
+					\> Filter \textit{tmp}\\
 					\> int \textit{fils = 0}\\
 					\> ArrayList<Filter> \textit{listeFiltre = new ArrayList<Filter>()}\\
 					\> \textbf{while} \= \textit{(couple != null)}\\
-					\> \> \textit{tmp = couple.getID()}\\
+					\> \> \textit{tmp = couple.getReference()}\\
 					\> \> \textbf{if} \= (id.in(tmp)) \\
 					\> \> \> \textit{send(couple.getIP(), SEARCH, f)}\\
 					\> \> \> \textit{fils++}\\

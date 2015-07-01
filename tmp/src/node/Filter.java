@@ -132,6 +132,13 @@ public class Filter implements Serializable{
 		return new Filter(tmp2);
 	}
 	
+	public boolean equals(Filter f)
+	{
+		char[] tmp = f.toString().toCharArray();
+
+		return tmp.equals(filter);
+	}
+	
 	public String toString()
 	{
 		return new String(filter);

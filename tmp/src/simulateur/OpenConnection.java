@@ -14,7 +14,7 @@ public class OpenConnection {
 	public OpenConnection() {
 		// TODO Auto-generated constructor stub
 		try {
-			socket = new ServerSocket(8080);
+			socket = new ServerSocket(9632);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
