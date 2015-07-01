@@ -8,18 +8,18 @@ public class Couple implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	private Filter reference;
-	private Filter ID;
+	private int IP;
 
 	public Couple(Filter reference) {
 		// TODO Auto-generated constructor stub
 		this.reference = reference;
-		ID = null;
+		IP = 0;
 	}
 	
-	public Couple(Filter reference, Filter ID) {
+	public Couple(Filter reference, int IP) {
 		// TODO Auto-generated constructor stub
 		this.reference = reference;
-		this.ID = ID;
+		this.IP = IP;
 	}
 	
 	public Filter getReference()
@@ -27,9 +27,9 @@ public class Couple implements Serializable{
 		return this.reference;
 	}
 	
-	public Filter getID()
+	public int getIP()
 	{
-		return this.ID;
+		return this.IP;
 	}
 	
 	public void setReference(Filter reference)
@@ -37,14 +37,14 @@ public class Couple implements Serializable{
 		this.reference = reference;
 	}
 	
-	public void setID(Filter ID)
+	public void setIP(int IP)
 	{
-		this.ID = ID;
+		this.IP = IP;
 	}
 	
 	public String toString()
 	{
-		return "(" + reference.toString() + "," + ID.toString() + ")";
+		return "(" + reference.toString() + "," + IP + ")";
 	}
 
 }

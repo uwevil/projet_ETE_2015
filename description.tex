@@ -54,7 +54,7 @@
 		\end{center}
 		\vspace*{\stretch{0.5}}
 		\begin{center}
-			26 Mars 2015
+			30 June 2015
 		\end{center}
 	\end{titlepage}
 
@@ -79,28 +79,67 @@ Le travail comprend principalement 2 tâches:
 \subsection{Filter}
 	Filter est soit un bitmap, soit un filtre de Bloom. La taille de ce filtre ou ce bitmap est configurable selon le besoin du système. 
 	
+\subsubsection{\underline{Variables locales}}
+	\begin{description}
+		\item[{Char[] filter :}] filter est un tableau de caractères \{0,1\} de taille fixe qui est fixée et configurable par le système.
+	\end{description}
+	
+\subsubsection{\underline{Méthodes}}
+	\begin{description}
+		\item[Filter Filter(String description, int size)] utilise 3 fonctions de hachage pour générer les bits à 1 et les remplir dans le tableau de caractères \textit{filter} à la position correspondante. Ici, la taille de filtre doit être précisé grâce au argument \textit{size}.
+		\item[Filter Filter(String s) :] crée \textit{filter} à partir d'une chaine de caractères \{0,1\}. 
+		\item[Filter Filter(char{[]} c) :] crée \textit{filter} à partir d'un tableau de caractères \{0,1\}. 
+		\item[boolean in(Object o) :] teste si ce \textit{filter} est dans l'objet \textit{o}.
+		\item[boolean isFilter() :] retourne \textbf{true} si \textit{filter} est un filtre de Bloom, sinon \textbf{false}.
+		\item[Filter createIDAtRang(int rang) :] crée un identifiant à partir d'un filtre au rang \textbf{i}.
+	\end{description}
+	
 \subsection{Couple}
 	Couple est un couple de valeur \textbf{<bitmap, Next\_hop>}	
+
+\subsubsection{\underline{Variables locales}}
+	\begin{description}
+		\item[Filter reference :] un filtre soit le filtre de Bloom, soit l'identifiant d'un noeud dans le système.
+		\item[int IP :] l'adresse IP du noeud qui gère cette référence ou 0 si cette référence est un filtre de Bloom.
+	\end{description}
+	
+\subsubsection{\underline{Méthodes}}
+	\begin{description}
+		\item[Couple Couple(Filter reference) :] crée un couple \textbf{<reference, null>}.
+		\item[Couple Couple(Filter reference, int IP) :] crée un couple \textbf{<reference, IP>}.
+	\end{description}
 	
 \subsection{VA}
 	Cette structure est une liste des couples \textit{<bitmap, Next\_hop>}. Chaque noeud de l'arbre contient cette structure avec bitmap qui est une chaîne de bits, c'est une "instance de \textbf{Filter}" et Next\_hop qui est soit NULL soit égal à un identifiant d'un noeud, ce ID est aussi une "instance de \textbf{Filter}". Cette structure contient également le nombre maximum de couples qu'elle peut stocker. 
+	
+\subsubsection{\underline{Variables locales}}
+	\begin{description}
+		\item[ArrayList<Couple> list :] la liste des couples \textit{<reference, IP>}.
+		\item[int limit :] le nombre maximum des éléments que la liste peut contenir.
+	\end{description}
+	
+\subsubsection{\underline{Méthodes}}
+	\begin{description}
+		\item[void VA(int max) :] initialise le nombre maximum des éléments dans \textit{list}.
+		\item[boolean add(Couple c) :] ajout le couple \textit{c} dans la liste des couples \textit{list}, renvoie \textbf{true} si réussi, sinon \textbf{false}. 
+	\end{description}
 	
 \section{Class Node}
 	Cette classe joue le rôle à la fois d'un noeud et à la fois d'une feuille dans l'arbre.
 	
 \subsection{Variables locales}
 	\begin{description}
-		\item[ID] identifiant de ce noeud, cet id est unique.
-		\item[IP] l'adresse IP de ce noeud.
-		\item[rang] le rang de ce noeud dans l'arbre.
-		\item[leaf] indique si ce noeud est une feuille, c-à-d si ce noeud a déjà fait \textbf{\textit{split()}}. Initialisé à \textbf{true}.
-		\item[father] le père de ce noeud dans l'arbre.
-		\item[va] cette variable est une structure VA qui contient des couples \textit{<bitmap, Next\_hop>}.
-		\item[root] l'adresse du serveur central.
+		\item[Filter ID] identifiant de ce noeud, cet id est unique.
+		\item[int IP] l'adresse IP de ce noeud.
+		\item[int rang] le rang de ce noeud dans l'arbre.
+		\item[boolean leaf] indique si ce noeud est une feuille, c-à-d si ce noeud a déjà fait \textbf{\textit{split()}}. Initialisé à \textbf{true}.
+		\item[int father] le père de ce noeud dans l'arbre.
+		\item[VA va] cette variable est une structure VA qui contient des couples \textit{<bitmap, Next\_hop>}.
+		\item[int root] l'adresse du serveur central.
 	\end{description}
 	
 \subsection{Méthodes}
-\subsubsection{split()}
+\subsubsection{void split()}
 	Cette méthode est appellée par la méthode \textbf{\textit{add(Filter)}} dès que la limit de nombre de couples dans la structure VA \textit{va} a été atteinte. Cette méthode va créer une nouvelle structure VA \textit{va\_new}, elle parcourt toute la structure \textit{va}, pour chaque élement, elle calcule l'identifiant de rang \textit{i+1} $ID_{i+1}$ et demande au serveur central pour créer un nouveau noeud de $ID_{i+1}$, le serveur répond en envoyant l'adresse IP du nouveau noeud créé $IP_{ID_{i+1}}$. Elle envoie cet élement au nouveau noeud. Ensuite, elle ajoute le couple \textit{<$ID_{i+1}$;$IP_{ID_{i+1}}$>} dans \textit{va\_new}. Après, elle supprime \textit{va} et renomme \textit{va\_new} en \textit{va}. Elle change la valeur de la variable locale \textbf{leaf} en \textbf{false}.
 
 \newtheorem{algorithme}{Algorithme}
@@ -121,7 +160,7 @@ Le travail comprend principalement 2 tâches:
 			\item int \textit{id = 0}
 			\item 
 		\begin{tabbing}
-			TANT QUE (\= \textit{couple != null})\\
+			\textbf{while} (\= \textit{couple != null})\\
 					\> \textit{f = couple.getFilter()}\\
 					\> \textit{id = f.createIDAtRang(i + 1)}\\
 					\> \textit{send(root, CREATE, id)}\\
@@ -129,7 +168,7 @@ Le travail comprend principalement 2 tâches:
 					\> \textit{va\_new.add(<id, IP>)}\\
 					\> \textit{send(IP, ADD, f)}\\
 					\> \textit{couple = va.getNextElement()}\\
-			FIN TANT QUE\\
+			\textbf{end}\\
 	    \end{tabbing}
 		\end{enumerate}
 	\end{framed}
@@ -152,35 +191,35 @@ Le travail comprend principalement 2 tâches:
 			\item int \textit{id = f.createIDAtRang(i)}
 			\item
 			\begin{tabbing}
-				SI\= (\textit{!id.equals(ID)})\\
-					\> \textit{return}\\
-				FIN SI
+				\textbf{if}\= (\textit{!id.equals(ID)})\\
+					\> \textbf{return}\\
+				\textbf{end}
 			\end{tabbing}
 			\item \textit{id = f.createIDAtRang(i+1)}
 			\item
 			\begin{tabbing}
-				SI\= (\textit{!leaf})\\
-					\> SI \= \textit{(va.existe(id))} \\
+				\textbf{if}\= (\textit{!leaf})\\
+					\> \textbf{if} \= \textit{(va.existe(id))} \\
 					\> \> \textit{send(va.getIP(id), ADD, f)}\\
-					\> ELSE\\
+					\> \textbf{else}\\
 					\> \> \textit{send(root, CREATE, id)} \\
 					\> \> int \textit{IP = receive(root, CREATE, id)}\\
 					\> \> \textit{va.add(<id, IP>)}\\
 					\> \> \textit{send(IP, ADD, f)}\\
-					\> FIN SI\\
-				ELSE\\
-					\> SI\= \textit{(!va.add(<f, null>))}\\
+					\> \textbf{end}\\
+				\textbf{else}\\
+					\> \textbf{if}\= \textit{(!va.add(<f, null>))}\\
 					\> \> \textit{\textbf{split()}}\\
-					\> \> SI \= \textit{(va.existe(id))} \\
+					\> \> \textbf{if}\= \textit{(va.existe(id))} \\
 					\> \> \> \textit{send(va.getIP(id), ADD, f)}\\
-					\> \> ELSE\\
+					\> \> \textbf{else}\\
 					\> \> \> \textit{send(root, CREATE, id)} \\
 					\> \> \> int \textit{IP = receive(root, CREATE, id)}\\
 					\> \> \> \textit{va.add(<id, IP>)}\\
 					\> \> \> \textit{send(IP, ADD, f)}\\
-					\> \> FIN SI\\
-					\> FIN SI\\
-				FIN SI
+					\> \> \textbf{end}\\
+					\> \textbf{end}\\
+				\textbf{end}
 			\end{tabbing}
 		\end{enumerate}
 	\end{framed}
@@ -209,42 +248,42 @@ Le travail comprend principalement 2 tâches:
 			\end{tabbing}
 			\item 
 			\begin{tabbing}
-				SI \= \textit{(leaf)}\\
+				\textbf{if} \= \textit{(leaf)}\\
 					\> Couple \textit{couple = va.getFirstElement()}\\
 					\> Filter \textit{tmp}\\
 					\> ArrayList<Filter> \textit{listeFiltre = new ArrayList<Filter>()}\\
-					\> TANT QUE \= \textit{(couple != null)}\\
+					\> \textbf{while} \= \textit{(couple != null)}\\
 					\> \> \textit{tmp = couple.getFilter()}\\
-					\> \> SI \= (f.in(tmp)) \\
+					\> \> \textbf{if} \= (f.in(tmp)) \\
 					\> \> \> \textit{listeFiltre.add(tmp)}\\
-					\> \> FIN SI\\
+					\> \> \textbf{end}\\
 					\> \> \textit{couple = va.getNextElement()}\\
-					\> FIN TANT QUE\\ 
+					\> \textbf{end}\\ 
 					\> send(father, SEARCH, listeFiltre)\\
-				ELSE\\
+				\textbf{else}\\
 					\> \textit{id = f.createIDAtRang(i+1)}\\
 					\> Couple \textit{couple = va.getFirstElement()}\\
 					\> int \textit{tmp}\\
 					\> int \textit{fils = 0}\\
 					\> ArrayList<Filter> \textit{listeFiltre = new ArrayList<Filter>()}\\
-					\> TANT QUE \= \textit{(couple != null)}\\
+					\> \textbf{while} \= \textit{(couple != null)}\\
 					\> \> \textit{tmp = couple.getID()}\\
-					\> \> SI \= (id.in(tmp)) \\
-					\> \> \> \textit{lsend(couple.getIP(), SEARCH, f)}\\
+					\> \> \textbf{if} \= (id.in(tmp)) \\
+					\> \> \> \textit{send(couple.getIP(), SEARCH, f)}\\
 					\> \> \> \textit{fils++}\\
-					\> \> FIN SI\\
+					\> \> \textbf{end}\\
 					\> \> \textit{couple = va.getNextElement()}\\
-					\> FIN TANT QUE\\ 
-					\> TANT QUE \= \textit{(fils != 0)}\\
+					\> \textbf{end}\\ 
+					\> \textbf{while} \= \textit{(fils != 0)}\\
 					\> \> \textit{listeFiltre.add(receive(*, SEARCH, f))}\\
 					\> \> \textit{fils---}\\
-					\> FIN TANT QUE\\
-					\> SI \= \textit{(father != null)}\\
+					\> \textbf{end}\\
+					\> \textbf{if} \= \textit{(father != null)}\\
 					\> \> send(father, SEARCH, listeFiltre)\\
-					\> ELSE\\
+					\> \textbf{else}\\
 					\> \> send(root, SEARCH, listeFiltre)\\
-					\> FIN SI\\
-				FIN SI
+					\> \textbf{end}\\
+				\textbf{end}
 			\end{tabbing}
 		\end{enumerate}
 	\end{framed}

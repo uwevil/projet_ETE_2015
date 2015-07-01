@@ -12,9 +12,9 @@ public class Filter implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private char[] filter;
 	
-	public Filter(String index)
+	public Filter(String filter)
 	{
-		this.filter = index.toCharArray();
+		this.filter = filter.toCharArray();
 	}
 	
 	public Filter(char[] filter)
@@ -114,15 +114,20 @@ public class Filter implements Serializable{
 	
 	public boolean isFilter()
 	{
+		for (int i = 0; i < filter.length; i++)
+		{
+			if ((filter[i] != '0') && (filter[i] != '1'))
+				return false;
+		}
 		return this.filter.length == Simulateur.SIZE;
 	}
 	
-	public Filter createIndex(int index)
+	public Filter createIDAtRang(int rang)
 	{
 		String tmp = filter.toString();
 		int taille = Simulateur.SIZE / Simulateur.FRAGMENTS;
 	
-		String tmp2 = tmp.substring(taille*index, taille*index + taille);
+		String tmp2 = tmp.substring(taille*rang, taille*rang + taille);
 		
 		return new Filter(tmp2);
 	}
