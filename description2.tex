@@ -11,9 +11,8 @@
 \usepackage{amsmath}
 \usepackage{bbm}
 \usepackage{graphicx}
-\usepackage{pst-all}
-\usepackage{xcolor}
-
+%\usepackage{pst-all}
+%\usepackage{xcolor}
 %\usepackage{nopageno}
 
 \newcommand{\latin}[1]{\textit{#1}}
@@ -72,6 +71,7 @@
 	\centering
 	\includegraphics[width=12cm]{PHT.eps}
 	\caption{Un arbre de préfixe}
+	\label{PHT}
 \end{figure}	
 
 \newpage
@@ -123,31 +123,67 @@
 	\end{table}
 	
 \section{F-PHT}
-	F-PHT est une sorte d'arbre préfixe, il utilise  les filtres de Bloom  de taille \textit{m} comme clés de stockage. Cet arbre utilise l'identifiant d'un fragment de filtre de Bloom à la place de préfixe. Chaque nœud de l'arbre stocke un ensemble de couple \textbf{<prefix, identifiant>} avec \textbf{préfix} est la valeur d'un fragment de rang \textit{i} et \textbf{identifiant} est soit l'identifiant d'un nœud, soit \textit{null}. Si \textbf{identifiant} est égal à \textit{null}, \textbf{prefix} est un filtre de Bloom. Sinon, ce couple désigne où sont stockés les filtres de Bloom ayant \textbf{prefix} comme valeur du fragment de rang \textbf{i}, où \textit{i} correspond au niveau de ce nœud dans l'arbre.
+	F-PHT est une sorte d'arbre préfixe, il utilise  les filtres de Bloom  de taille \textit{m} comme clés de stockage. Cet arbre utilise l'identifiant d'un fragment de filtre de Bloom à la place de préfixe. Chaque nœud de l'arbre stocke un ensemble de couple \textit{<R, id\_R>} avec \textit{R} est la valeur d'un fragment de rang \textit{i} et \textit{id\_R} est soit l'identifiant d'un nœud, soit \textit{null}. Si \textit{id\_R} est égal à \textit{null}, \textit{R} est un filtre de Bloom. Sinon, ce couple désigne où sont stockés les filtres de Bloom ayant \textit{R} comme valeur du fragment de rang \textit{i}, où \textit{i} correspond au niveau de ce nœud dans l'arbre.
 
-	Chaque nœud de rang \textbf{i} contient une table \textbf{RouteEntry}, qui contient les couples stockés par ce nœud. Chaque nœud stocke au plus $\gamma$ couples, avec $\gamma$ inférieur ou égal à $2^{\frac{m}{f}}$. 0 l'initialisation du système, cette table est vide, elle sont remplit au fur et à mesure automatiquement. Une fois, la capacité a été débordée, le système éclate ce nœud en créant des nouveaux fils de rang \textit{i+1} et met à jour la table \textbf{RouteEntry}.
+	Chaque nœud de rang \textit{i} contient une table \textit{RouteEntry}, qui contient les couples stockés par ce nœud. Chaque nœud stocke au plus $\gamma$ couples, avec $\gamma \leq 2^{\frac{m}{f}}$. A l'initialisation du système, cette table est vide, elle sont remplit au fur et à mesure automatiquement. Une fois, la capacité a été débordée, le système éclate ce nœud en créant des nouveaux fils de rang \textit{i+1} et met à jour la table \textit{RouteEntry}.
 	
-\section{Système d'indexation}
-	Le système d'indexation est un système qui indexe les données pour faciliter la recherche de données, il gère en général une très grande quantité de données. Dans le cadre de mon travail, ce système arrange les données dans un arbre F-PHT en utilisant le filtre de Bloom pour générer les clés de stockage et aussi les données.
+\chapter{Système d'indexation}
+	Le système d'indexation est un système qui indexe les données pour faciliter la recherche de données, il gère en général une très grande quantité de données. Il existe plusieurs façon d'indexation des données comme table de hachage distribué, arbre binaire, arbre de préfixe... Mais le problème est que plupart des techniques sont destinés à la recherche exacte, c-à-d que le résultat obtenu est une chose précise et exactement égal à la requête.
 	
-	Ce système dispose les actions comme:
+	Reprenez la figure \ref{PHT}, on veut chercher un mot qui se termine par "000", cette technique doit obligatoirement chercher tous les chemins en descendant jusqu'à chaque feuille. Elle est incapable de réduire le nombre de chemins qui ont fortement de chance de trouver le résultat. 
+	
+	Dans le cadre de mon travail, ce système arrange les données dans un arbre F-PHT en utilisant le filtre de Bloom pour générer les clés de stockage et aussi les données. F-PHT est une évaluation de son frère, nous permet de chercher moins de chemins sans laisser passer aucun élément.
+	
+	Ce système dispose les actions principales comme:
 	\begin{itemize}
 		\item Ajout d'un filtre de Bloom dans le système.
-		\item Cherche d'un filtre de Bloom.
+		\item Cherche des filtres de Bloom.
 		\item Suppression d'un filtre de Bloom.
 	\end{itemize}
 	
-\subsection{Ajout d'un filtre de Bloom dans F-PHT}
-	Comme le F-PHT utilise des fragments d'un filtre de Bloom comme clés de stockage, le système crée un fragment \textit{$R_i$} de niveau \textit{i}, au départ \textit{i = 0} comme le rang de la racine. Ensuite, à partir de ce fragment, un couple \textit{<$R_i$,null>} est soumit à la racine pour ajout dans l'arbre. La façon de traitement dans chaque nœud dépend la nature de ce nœud, un nœud ou une feuille.
+\section{Ajout d'un filtre de Bloom dans F-PHT}
+	Comme le F-PHT utilise des fragments d'un filtre de Bloom comme clés de stockage, le système crée un fragment \textit{$R_i$} de niveau \textit{i}, au départ \textit{i = 0} comme le rang de la racine. Ensuite, à partir de ce fragment, un couple \textit{<$R_i$, null>} est soumit à la racine pour ajout dans l'arbre. La façon de traitement dans chaque nœud dépend la nature de ce nœud, un nœud ou une feuille.
 
-\subsubsection{Cas d'un nœud feuille de rang i dans F-PHT}
-	Tant que la capacité de la table \textbf{RouteEntry} qui stocke les couples terminaux dans ce nœud feuille est inférieure à $\gamma$, chaque nouveau couple terminal qui arrive sur ce nœud feuille est simplement ajouté dans \textbf{RouteEntry}.
+\subsection{Cas d'un nœud feuille de rang i dans F-PHT}
+	Tant que la capacité de la table \textit{RouteEntry} qui stocke les couples terminaux \textit{<R, null>} dans ce nœud feuille est inférieure à $\gamma$, chaque nouveau couple terminal qui arrive sur ce nœud feuille est simplement ajouté dans \textit{RouteEntry}.
 
 	Une fois, la capacité de cette table atteint, elle ne peut plus stocker des nouveaux couples qui arrivent. Donc, dans ce cas, le nœud feuille exécute une opération interne du système d'indexation pour qu'elle puisse les ajouter. \textbf{split()} est une opération utilisée lors que le système veut éclater un nœud, les étapes sont:
 	\begin{enumerate}
-		\item 
+		\item Le système crée une nouvelle instance de \textit{RouteEntry} initialisée à vide.
+		\item Le système regroupe tous les éléments qui ont la même valeur de fragment de rang \textit{i+1} \textit{$R_{i+1}$}, cette valeur est calculée à partir du couple terminaux dans l'ancienne table \textit{RouteEntry}.
+		\item Pour chaque valeur différente de fragment trouvée, le système crée un nœud fils qui a l'identifiant \textit{id\_$R_{i+1}$} unique calculé à partir de \textit{$R_{i+1}$} et lui transfère l'ensemble des éléments qui ont même \textit{$R_{i+1}$}, puis ajoute le couple \textit{<$R_{i+1}$, id\_$R_{i+1}$>} dans la nouvelle table \textit{RouteEntry}.
+		\item Une fois tous les nœuds fils crées et les couples terminaux sont transférés vers les fils correspondants, l'ancienne table \textit{RouteEntry} est remplacé par cette nouvelle.
+		\item Enfin, le système traite la nouvelle demande.
 	\end{enumerate}
-\subsubsection{Cas d'un nœud de rang i dans F-PHT}
+	
+\subsection{Cas d'un nœud interne de rang i dans F-PHT}
+	Lorsqu'un nœud interne reçoit un couple terminal \textit{<R, null>}, le système vérifie si le fragment de rang \textit{i} \textit{$R_{i}$} de ce couple est égal au sien, sinon, il jette ce couple. Si oui, il calcul le fragment de rang \textit{i+1} \textit{$R_{i+1}$} de ce couple et cherche dans sa propre table \textit{RouteEntry}, s'il existe un fils qui gère les couples de ce fragment, il lui envoie ce couple terminal. S'il n'existe pas dans la table, le systèmre crée le nœud fils qui a l'identifiant \textit{id\_$R_{i+1}$} calculé automatiquement à partir de \textit{$R_{i+1}$} et ajoute le couple \textit{<\textit{$R_{i+1}$}, \textit{id\_$R_{i+1}$}>} dans sa table \textit{RouteEntry}, puis route le couple terminal vers  le fils qui vient d'être créé.
+	
+\section{Recherche des filtres de Bloom dans F-PHT}
+	On considère que la requête \textit{Q}, un filtre de Bloom de taille identique avec ceux qui sont stockés dans F-PHT. Le système doit trouver tous les filtres stockés qui satisfont la requête \textit{Q}, c-à-d les filtres qui ont fortement de chance d'avoir les mots de la requête dans leur description. Les faux positifs sont inévitables.
+	
+	La requête de recherche doit s'adresser à la racine de F-PHT. Chaque nœud commence par déterminer s'il est un nœud interne ou un nœud  feuille  après la réception de la requête. Car comme l'ajout d'un filtre dans F-PHT, la nature de nœud décide la méthode de traitement de la requête.
+	
+\subsection{Cas d'un nœud feuille de rang i dans F-PHT}
+	Dès qu'un nœud feuille reçoit la requête \textit{Q}, son rôle est de parcourir sa propre table \textit{RouteEntry}, pour chaque couple \textit{<R, null>} il examine si $Q \in R$, s'il y a succès, le nœud ajoute \textit{R} dans l'ensemble de réponses. Après le parcours de \textit{RouteEntry}, il renvoie cet ensemble au père même s'il est vide.
+	
+\subsection{Cas d'un nœud interne de rang i dans F-PHT}
+	Quand un nœud interne reçoit la requête \textit{Q}, le système fait :
+	\begin{enumerate}
+		\item D'abord, il détermine la valeur de fragment de rang \textit{i} de la requête \textit{$Q_i$}. Si ce nœud contient probablement la requête, il continue, sinon il renvoie \textit{null} au nœud père.
+		\item Ensuite, il détermine la valeur de fragment de rang \textit{i+1} de la requête \textit{$Q_{i+1}$}.
+		\item Puis, il examine la table \textit{RouteEntry}, pour chaque couple \textit{<R, id\_R>}, si $Q_{i+1} \in R$, il transfère la requête au fils qui a l'identifiant \textit{id\_R}.
+		\item Après la réception la réponse de tous ses fils auxquels il l'ont envoyé, il rassemble toutes les réponses et répond au nœud père. Donc, à la fin, la racine a reçu le résultat final de la requête.
+	\end{enumerate}
+	
+\section{Suppression d'un filtre de Bloom de F-PHT}
+	Afin de supprimer un filtre de Bloom dans F-PHT, le système exécute une recherche exacte en prenant ce filtre comme la requête \textit{Q}. Il faut trouver exactement le nœud feuille qui stocke cette requête, il doit d'abord calculer le fragment de la requête au rang \textit{i} \textit{$Q_i$}. Ensuite, le nœud interne de rang \textit{i} qui a sa propre valeur de fragment de rang \textit{i} qui est identique avec \textit{$Q_i$} est chargé de chercher dans sa propre table \textit{RouteEntry} le fils qui gère le fragment de rang \textit{i+1} et sa valeur est égale à celle de la requête \textit{$Q_{i+1}$}. S'il n'a pas trouvé, cela veut dire qu'il n'existe pas ce filtre de Bloom dans F-PHT. Sinon, il transfère cette requête à ce fils.
+	
+	Une fois, on trouve la feuille qui stocke la requête \textit{Q}, elle peut trouver facilement dans sa table \textit{RouteEntry} et supprime le couple qui satisfait la requête. A la fin, en regardant la table, si c'est vide, elle demande le système de détruire ce nœud feuille et elle signale le père que ce fils n'existe plus dans l'arbre. Une fois, le père constate que son fils n'existe plus, il supprime le couple de valeur correspondante dans sa propre table \textit{RouteEntry}. Si après la suppression, cette table est vide, ce nœud demande le système de le détruire et notifier son père. Ce procédure continue jusqu'à quand il n'y a pas une table \textit{RouteEntry} vide.
+	
+\chapter{Architecture d'un système d'indexation}
+
+	Le système que nous avons décrit ci-dessus est une vue logique à l'extérieur. En réalité, ce système est réparti sur plusieurs sites, sur un réseau pair-à-pair. Mais un site joue le rôle de la racine, par conséquence, tous les autres le connaissent.
 	
 	
 
