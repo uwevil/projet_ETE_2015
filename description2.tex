@@ -72,7 +72,7 @@
 	\includegraphics[width=12cm]{PHT.eps}
 	\caption{Un arbre de préfixe}
 	\label{PHT}
-\end{figure}	
+	\end{figure}	
 
 \newpage
 
@@ -126,6 +126,15 @@
 	F-PHT est une sorte d'arbre préfixe, il utilise  les filtres de Bloom  de taille \textit{m} comme clés de stockage. Cet arbre utilise l'identifiant d'un fragment de filtre de Bloom à la place de préfixe. Chaque nœud de l'arbre stocke un ensemble de couple \textit{<R, id\_R>} avec \textit{R} est la valeur d'un fragment de rang \textit{i} et \textit{id\_R} est soit l'identifiant d'un nœud, soit \textit{null}. Si \textit{id\_R} est égal à \textit{null}, \textit{R} est un filtre de Bloom. Sinon, ce couple désigne où sont stockés les filtres de Bloom ayant \textit{R} comme valeur du fragment de rang \textit{i}, où \textit{i} correspond au niveau de ce nœud dans l'arbre.
 
 	Chaque nœud de rang \textit{i} contient une table \textit{RouteEntry}, qui contient les couples stockés par ce nœud. Chaque nœud stocke au plus $\gamma$ couples, avec $\gamma \leq 2^{\frac{m}{f}}$. A l'initialisation du système, cette table est vide, elle sont remplit au fur et à mesure automatiquement. Une fois, la capacité a été débordée, le système éclate ce nœud en créant des nouveaux fils de rang \textit{i+1} et met à jour la table \textit{RouteEntry}.
+	
+	Dans cette exemple, nous montrons un F-PHT avec le filtre de Bloom de taille \textit{m = 6} bits, découpé en \textit{f = 3} fragments de taille \textit{a = 2} bits, chaque nœud contient au maximum $\gamma = 2^{2}$ éléments.
+	
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=15cm]{F-PHT.eps}
+	\caption{La vue logique du système de F-PHT}
+	\label{F-PHT}
+	\end{figure}	
 	
 \chapter{Système d'indexation}
 	Le système d'indexation est un système qui indexe les données pour faciliter la recherche de données, il gère en général une très grande quantité de données. Il existe plusieurs façon d'indexation des données comme table de hachage distribué, arbre binaire, arbre de préfixe... Mais le problème est que plupart des techniques sont destinés à la recherche exacte, c-à-d que le résultat obtenu est une chose précise et exactement égal à la requête.
@@ -185,8 +194,14 @@
 
 	Le système que nous avons décrit ci-dessus est une vue logique à l'extérieur. En réalité, ce système est réparti sur plusieurs sites, sur un réseau pair-à-pair. Mais un site joue le rôle de la racine, par conséquence, tous les autres le connaissent.
 	
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=14cm]{systeme-F-PHT.eps}
+	\caption{Un système de F-PHT}
+	\label{systemeF-PHT}
+	\end{figure}	
 	
-
+	
 \end{document}
 
 
