@@ -151,7 +151,33 @@ public class BF implements Serializable
 	
 	public String toString()
 	{
-		return bitset.toString();
+		String s = new String();
+		
+		for (int i = 0; i < bitSetSize; i++)
+		{
+			s += (bitset.get(i)) ? "1" : "0";
+		}
+		
+		return s;
+	}
+	
+	public boolean in(Object o)
+	{
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
+		final BF other = (BF) o;
+		
+		if (this.bitSetSize != other.bitSetSize)
+			return false;
+		if (this.bitsPerElement != other.bitsPerElement)
+			return false;
+		
+		for (int i = 0; i < bitSetSize; i++)
+			if (this.bitset.get(i) && !other.getBit(i))
+				return false;
+		return true;
 	}
 	
 
