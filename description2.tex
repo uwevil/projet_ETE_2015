@@ -15,8 +15,22 @@
 %\usepackage{xcolor}
 %\usepackage{nopageno}
 
-\newcommand{\latin}[1]{\textit{#1}}
+%\newcommand{\latin}[1]{\textit{#1}}
 
+\usepackage[margin=1.0in]{geometry}
+
+%%%%%%%%%%%%%%
+%\usepackage{geometry}
+ %\geometry{
+% a4paper,
+ %total={210mm,297mm},
+ %left=20mm,
+ %right=20mm,
+ %top=20mm,
+ %bottom=20mm,
+ %}
+ %%%%%%%%%%%%%%
+ 
 \pagestyle{empty}
 
 \pagestyle{fancy}
@@ -70,17 +84,15 @@
 	\begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=12cm]{PHT.eps}
-	\caption{Un arbre de préfixe}
+	\caption{Arbre de préfixe}
 	\label{PHT}
 	\end{figure}	
 
-\newpage
-
-\section{Fragment}
-	On considère un filtre de Bloom de taille \textit{m}. Le système découpe ce filtre en \textit{f} fragments de taille identique. Par convention, ces fragments sont numérotés de \textit{0} à \textit{f-1}, en commençant par le fragment le plus à gauche. L'identifiant de chaque fragment est défini de façon unique.
+\newpage	
 	
-		Par exemple, un filtre de Bloom de taille \textit{m = 16} bits, il s'est découpé en \textit{f = 4} fragments, donc chaque fragment est de taille $a = \frac{m}{f} = 4$ bits.
-
+\section{F-PHT}
+	Un fragment est un morceau de bits. On considère un filtre de Bloom de taille \textit{m}. Le système découpe ce filtre en \textit{f} fragments de taille identique. Par convention, ces fragments sont numérotés de \textit{0} à \textit{f-1}, en commençant par le fragment le plus à gauche. L'identifiant de chaque fragment est défini de façon unique.
+	
 	\begin{table}[!h]
 		\centering		
 		\begin{tabular}{|l|*{14}{c|}r|}
@@ -98,61 +110,59 @@
 		\caption{Exemple le filtre de Bloom}
 		\label{fragment/filtredeBloom}
 	\end{table}
-
-	\begin{table}[!h]
-		\centering		
-		\begin{tabular}{|l|*{2}{c|}r|}
-		\hline
-			1 & 0 & 0 & 0 \\
-		\hline
-		\end{tabular}
-		\caption{Exemple la valeur de fragment \textit{0}}
-		\label{fragement/exemple1}
-	\end{table}
-
-	\begin{table}[!h]
-		\centering
-		\begin{tabular}{|l|c|c|r|}
-		\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}\\
-		\hline
-			1 & 0 & 1 & 0 \\
-		\hline
-		\end{tabular}
-		\caption{Exemple la valeur de fragment \textit{3}}
-		\label{fragement/exemple2}
-	\end{table}
 	
-\section{F-PHT}
-	F-PHT est une sorte d'arbre préfixe, il utilise  les filtres de Bloom  de taille \textit{m} comme clés de stockage. Cet arbre utilise la valeur d'un fragment de filtre de Bloom de rang \textit{i} à la place de préfixe. Chaque nœud de l'arbre stocke un ensemble de couple \textit{<R, id\_R>} avec \textit{R} est la valeur d'un fragment de rang \textit{i} et \textit{id\_R} est soit l'identifiant d'un nœud, soit \textit{null}. Si \textit{id\_R} est égal à \textit{null}, \textit{R} est un filtre de Bloom. Sinon, ce couple désigne où sont stockés les filtres de Bloom ayant \textit{R} comme valeur du fragment de rang \textit{i}, où \textit{i} correspond au niveau de ce nœud dans l'arbre.
+	Par exemple, un filtre de Bloom de taille \textit{m = 16} bits, il s'est découpé en \textit{f = 4} fragments, donc chaque fragment est de taille $a = \frac{m}{f} = 4$ bits. Le premier fragment est l'ensemble de bits \textit{"1000"} qui se trouve les 4 bits les plus à gauche du filtre. Le dernier est \textit{"1010"}.
 
-	Chaque nœud de rang \textit{i} contient une table \textit{RouteEntry}, qui contient les couples stockés par ce nœud. Chaque nœud stocke au plus $\gamma$ couples, avec $\gamma \leq 2^{\frac{m}{f}}$. A l'initialisation du système, cette table est vide, elle sont remplit au fur et à mesure automatiquement. Une fois, la capacité a été débordée, le système éclate ce nœud en créant des nouveaux fils de rang \textit{i+1} et met à jour la table \textit{RouteEntry}.
+	F-PHT est une sorte d'arbre préfixe, au lieu d'utiliser un seul bit, il utilise "multibit", un fragment, qui stocke des filtres de Bloom de taille \textit{m}. Chaque nœud dans l'arbre a la valeur de son fragment de rang \textit{i} comme clé. Comme le PHT, les données sont stockées uniquement dans les feuilles. Pour stocker une donnée, on prend le premier fragment de cette donnée, cherche le chemin étiqueté par cette valeur. Pour chaque rang \textit{i}, on calcule le fragment correspondant au rang \textit{i} et le chemin convenable. A la fin du chemin, la feuille où on doit stocker cette donnée est trouvée.
 	
-	Dans cette exemple, nous montrons un F-PHT avec le filtre de Bloom de taille \textit{m = 6} bits, découpé en \textit{f = 3} fragments de taille \textit{a = 2} bits, chaque nœud contient au maximum $\gamma = 2^{2}$ éléments.
+\chapter{Architecture d'un système d'indexation}
+\section{Indexation}
+	L'indexation consiste à donner accès aux documents à partir d'une indication concernant leur contenu et/ou leur nature (forme, type) \footnote{combot.univ-tln.fr}. La technique utilisée dans ce systèmre est le F-PHT. On construit un arbre logique réparti sur plusieurs machines/serveurs. Tout le monde peut connaître la racine de cet arbre en appliquant une fonction de hachage sur le nom du racine. Le nom de chaque nœud est unique et généré aussi par cette même fonction. 
+	
+	Plusieurs nœud peut se trouver sur un seul site, chaque nœud maintient ses propres structures de données qui le caractérisent: un identifiant unique \textit{ID} de ce nœud et une table nommée \textit{LocalRoute}.
+	\begin{itemize}
+		\item Cet \textit{ID} est le chemin unique qui mène au nœud.
+		\item La table \textit{LocalRoute} contient soit les données si c'est un nœud feuille soit la route vers ses fils en descendant.
+	\end{itemize}
+	
+	Un nœud se charge de stocker un ensemble de données qui a la même valeur de fragment de rang \textit{i}. Il gère une table \textit{LocaleRoute} qui contient d'un couple de données. Le premier élément est la valeur d'un fragment, le deuxième est l'identifiant de nœud qui gère ce fragment de rang suivant. Ces éléments sont organisés dans la table \textit{LocalRoute<Frag, ID>} de façon suivant:
+	\begin{enumerate}
+		\item Si c'est une feuille
+			\begin{itemize}
+				\item L'indice des entrées dans cette table est correspondant avec la valeur de fragment de rang \textit{i+1}. Donc, le premier élément dans le couple stocké est seulement le reste de filtre de Bloom à partir du rang \textit{i+2} jusqu'à la fin. En plus, une seule entrée peut stocker plusieurs couples. Par contre, une entrée peut stocker au plus $\gamma$ éléments. Cette feuille devient un nœud interne en créant des fils de rang \textit{i+1} qui correspondent à chaque entrée dans la table \textit{LocalRoute}. Après le transfert des données vers les fils, cette table sera remplacée par celle d'un nœud, détaillée en dessous.
+				\item L'identifiant dans ce cas là est \textit{null}.
+			\end{itemize}
+		\item Si c'est un nœud, l'indice des entrées est maintenant la valeur de fragment de rang \textit{i+1}, la donnée est l'identifiant de nœud qui se charge de ce fragment.
+	\end{enumerate}	
+		
+	\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=14cm]{F-PHT.eps}
+	\caption{Arbre de préfixe}
+	\label{F-PHT}
+	\end{figure}	
+
+\newpage	
+
+	Dans cette exemple, nous utilisons le filtre de Bloom de taille \textit{m = 8}, il y a 4 fragments de taille \textit{i = 2} bits et $\gamma = 3$. Le nœud \textit{"/10/"} est le résultat après l'éclatement de la feuille \textit{"/10"} car il y a au moins une indice de la table \textit{LocalRoute} contient plus de 3 éléments, par exemple, dans ce cas là, l'indice "00" et "10".
+
+\section{Interface API}
+	Ce système offre au utilisateur des fonctions comme créer un nouveau nœud, créer un nouveau index...
 	
 	\begin{figure}[!htbp]
 	\centering
-	\includegraphics[width=15cm]{F-PHT.eps}
-	\caption{La vue logique du système de F-PHT}
-	\label{F-PHT}
+	\includegraphics[width=14cm]{systeme-F-PHT.eps}
+	\caption{API}
+	\label{systeme-F-PHT}
 	\end{figure}	
 	
-\chapter{Système d'indexation}
-	Le système d'indexation est un système qui indexe les données pour faciliter la recherche de données, il gère en général une très grande quantité de données. Il existe plusieurs façon d'indexation des données comme table de hachage distribuée, arbre binaire, arbre de préfixe... Mais le problème est que le plupart des techniques sont destinés à la recherche exacte, c-à-d que le résultat obtenu est une chose précise et exactement égal à la requête.
+	\newpage
 	
-	Reprenez la figure \ref{PHT}, on veut chercher un mot qui se termine par "000", cette technique doit obligatoirement chercher tous les chemins en descendant jusqu'à chaque feuille. Elle est incapable de réduire le nombre de chemins qui ont fortement de chance de trouver le résultat. 
 	
-	Dans le cadre de mon travail, ce système arrange les données dans un arbre F-PHT en utilisant le filtre de Bloom pour générer les clés de stockage et aussi les données. F-PHT est une évaluation de son frère PHT, nous permet de chercher moins de chemins sans laisser passer aucun élément.
-	
-	Ce système dispose les actions principales comme:
-	\begin{itemize}
-		\item Ajout d'un filtre de Bloom dans le système.
-		\item Recherche des filtres de Bloom.
-		\item Suppression d'un filtre de Bloom.
-	\end{itemize}
-	
+\chapter{Protocole}
 \section{Ajout d'un filtre de Bloom dans F-PHT}
 	Comme le F-PHT utilise des fragments d'un filtre de Bloom comme clés de stockage, le système crée un fragment \textit{$R_i$} de rang \textit{i}, au départ \textit{i = 0} comme le rang de la racine. Ensuite, à partir de ce fragment, un couple \textit{<$R_i$, null>} est soumit à la racine pour ajout dans l'arbre. La façon de traitement dans chaque nœud dépend la nature de ce nœud, soit un nœud soit une feuille.
-
+2015-07-03 00.22.31
 \subsection{Cas d'un nœud feuille de rang i dans F-PHT}
 	Tant que la capacité de la table \textit{RouteEntry} qui stocke les couples terminaux \textit{<R, null>} dans ce nœud feuille est inférieure à $\gamma$, chaque nouveau couple terminal qui arrive sur ce nœud feuille est simplement ajouté dans \textit{RouteEntry}.
 
@@ -189,22 +199,8 @@
 	Afin de supprimer un filtre de Bloom dans F-PHT, le système exécute une recherche exacte en prenant ce filtre comme la requête \textit{Q}. Il faut trouver exactement le nœud feuille qui stocke cette requête, il doit d'abord calculer le fragment de la requête au rang \textit{i} \textit{$Q_i$}. Ensuite, le nœud interne de rang \textit{i} qui a sa propre valeur de fragment de rang \textit{i} qui est identique avec \textit{$Q_i$} est chargé de chercher dans sa propre table \textit{RouteEntry} le fils qui gère le fragment de rang \textit{i+1} et sa valeur est égale à celle de la requête \textit{$Q_{i+1}$}. S'il n'a pas trouvé, cela veut dire qu'il n'existe pas ce filtre de Bloom dans F-PHT. Sinon, il transfère cette requête à ce fils.
 	
 	Une fois, on trouve la feuille qui stocke la requête \textit{Q}, elle peut trouver facilement dans sa table \textit{RouteEntry} et supprime le couple qui satisfait la requête. A la fin, en regardant la table, si c'est vide, elle demande le système de détruire ce nœud feuille et elle signale le père que ce fils n'existe plus dans l'arbre. Une fois, le père constate que son fils n'existe plus, il supprime le couple de valeur correspondante dans sa propre table \textit{RouteEntry}. Si après la suppression, cette table est vide, ce nœud demande le système de le détruire et notifier son père. Ce procédure continue jusqu'à quand il n'y a pas une table \textit{RouteEntry} vide.
-	
-\chapter{Architecture d'un système d'indexation}
 
-	Le système que nous avons décrit ci-dessus est une vue logique à l'extérieur. En réalité, ce système est réparti sur plusieurs sites, sur un réseau pair-à-pair. Mais un site joue le rôle de la racine, par conséquence, tous les autres le connaissent.
-	
-	\begin{figure}[!htbp]
-	\centering
-	\includegraphics[width=14cm]{systeme-F-PHT.eps}
-	\caption{Un système de F-PHT}
-	\label{systemeF-PHT}
-	\end{figure}	
-	
-\newpage
 
-	Un site munie une interface API pour faciliter la communication avec l'utilisateur, un endroit où il stocke les données \textit{DataStore} et un système d'indexation. Le \textit{DataStore} stocke les documents avec leurs descriptions, nous n'entrons pas au détail dans notre travail. Tous les sites implémentent un même système d'indexation et se communiquent via le réseau.
-	
 \end{document}
 
 
