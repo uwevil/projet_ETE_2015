@@ -180,6 +180,12 @@ public class BF implements Serializable
 		return true;
 	}
 	
+	public BitSet getFragment(int index)
+	{
+		if (index * this.bitsPerElement >= bitSetSize)
+			return null;
+		return bitset.get(index*bitsPerElement, (index + 1)*bitsPerElement);
+	}
 
 }
 

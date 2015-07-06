@@ -91,7 +91,9 @@
 \newpage	
 	
 \section{F-PHT}
-	Un fragment est un morceau de bits. On considère un filtre de Bloom de taille \textit{m}. Le système découpe ce filtre en \textit{f} fragments de taille identique. Par convention, ces fragments sont numérotés de \textit{0} à \textit{f-1}, en commençant par le fragment le plus à gauche. L'identifiant de chaque fragment est défini de façon unique.
+	F-PHT est un arbre préfixe de "multibit". Pour stocker une clé, on suit le chemin étiqueté par les fragments successifs de cette clé (dans l'ordre de leur rang) jusqu'à ce qu'on arrive sur une feuille pouvant stocker cette clé.
+
+	Un fragment est un morceau d'une clé (sous-ensemble de bits). Si on considère les clés de taille \textit{m}, le système découpe chaque clé en \textit{f} fragments de taille identique. Par convention, ces fragments sont numérotés de \textit{0} à \textit{f-1}.
 	
 	\begin{table}[!h]
 		\centering		
@@ -111,62 +113,34 @@
 		\label{fragment/filtredeBloom}
 	\end{table}
 	
-	Par exemple, un filtre de Bloom de taille \textit{m = 16} bits, il s'est découpé en \textit{f = 4} fragments, donc chaque fragment est de taille $a = \frac{m}{f} = 4$ bits. Le premier fragment est l'ensemble de bits \textit{"1000"} qui se trouve les 4 bits les plus à gauche du filtre. Le dernier est \textit{"1010"}.
-
-	F-PHT est une sorte d'arbre préfixe, au lieu d'utiliser un seul bit, il utilise "multibit", un fragment, qui stocke des filtres de Bloom de taille \textit{m}. Chaque nœud dans l'arbre a la valeur de son fragment de rang \textit{i} comme clé. Comme le PHT, les données sont stockées uniquement dans les feuilles. Pour stocker une donnée, on prend le premier fragment de cette donnée, cherche le chemin étiqueté par cette valeur. Pour chaque rang \textit{i}, on calcule le fragment correspondant au rang \textit{i} et le chemin convenable. A la fin du chemin, la feuille où on doit stocker cette donnée est trouvée.
-	
-\chapter{Architecture d'un système d'indexation}
-\section{Indexation}
-	L'indexation consiste à donner accès aux documents à partir d'une indication concernant leur contenu et/ou leur nature (forme, type) \footnote{combot.univ-tln.fr}. La technique utilisée dans ce systèmre est le F-PHT. On construit un arbre logique réparti sur plusieurs machines/serveurs. Tout le monde peut connaître la racine de cet arbre en appliquant une fonction de hachage sur le nom du racine. Le nom de chaque nœud est unique et généré aussi par cette même fonction. 
-	
-	Plusieurs nœud peut se trouver sur un seul site, chaque nœud maintient ses propres structures de données qui le caractérisent: un identifiant unique \textit{ID} de ce nœud et une table nommée \textit{LocalRoute}.
-	\begin{itemize}
-		\item Cet \textit{ID} est le chemin unique qui mène au nœud.
-		\item La table \textit{LocalRoute} contient soit les données si c'est un nœud feuille soit la route vers ses fils en descendant.
-	\end{itemize}
-	
-	Un nœud se charge de stocker un ensemble de données qui a la même valeur de fragment de rang \textit{i}. Il gère une table \textit{LocaleRoute} qui contient d'un couple de données. Le premier élément est la valeur d'un fragment, le deuxième est l'identifiant de nœud qui gère ce fragment de rang suivant. Ces éléments sont organisés dans la table \textit{LocalRoute<Frag, ID>} de façon suivant:
-	\begin{enumerate}
-		\item Si c'est une feuille
-			\begin{itemize}
-				\item L'indice des entrées dans cette table est correspondant avec la valeur de fragment de rang \textit{i+1}. Donc, le premier élément dans le couple stocké est seulement le reste de filtre de Bloom à partir du rang \textit{i+2} jusqu'à la fin. En plus, une seule entrée peut stocker plusieurs couples. Par contre, une entrée peut stocker au plus $\gamma$ éléments. Cette feuille devient un nœud interne en créant des fils de rang \textit{i+1} qui correspondent à chaque entrée dans la table \textit{LocalRoute}. Après le transfert des données vers les fils, cette table sera remplacée par celle d'un nœud, détaillée en dessous.
-				\item L'identifiant dans ce cas là est \textit{null}.
-			\end{itemize}
-		\item Si c'est un nœud, l'indice des entrées est maintenant la valeur de fragment de rang \textit{i+1}, la donnée est l'identifiant de nœud qui se charge de ce fragment.
-	\end{enumerate}	
-		
-	\begin{figure}[!htbp]
-	\centering
-	\includegraphics[width=14cm]{F-PHT.eps}
-	\caption{Arbre de préfixe}
-	\label{F-PHT}
-	\end{figure}	
-
-\newpage	
-
-	Dans cette exemple, nous utilisons le filtre de Bloom de taille \textit{m = 8}, il y a 4 fragments de taille \textit{i = 2} bits et $\gamma = 3$. Le nœud \textit{"/10/"} est le résultat après l'éclatement de la feuille \textit{"/10"} car il y a au moins une indice de la table \textit{LocalRoute} contient plus de 3 éléments, par exemple, dans ce cas là, l'indice "00" et "10".
-
-\section{Interface API}
-	Ce système offre au utilisateur des fonctions comme :
-	\begin{itemize}
-		\item créer un nouveau nœud.
-		\item supprimer un nœud.
-		\item créer un nouveau index.
-	\end{itemize}
+	La table \ref{fragment/filtredeBloom} représente une clé de taille \textit{m = 16} bits, elle est ensuite découpée en \textit{f = 4} fragments. Le premier fragment est la suite de bits \textit{"1000"} qui se trouve les plus à gauche de cette clé. Le dernier est \textit{"1010"}.
 	
 	\begin{figure}[!htbp]
 	\centering
-	\includegraphics[width=14cm]{systeme-F-PHT.eps}
-	\caption{API}
-	\label{systeme-F-PHT}
+	\includegraphics[scale=0.70]{F-PHT_2.eps}
+	\caption{Arbre F-PHT}
+	\label{F-PHT2}
 	\end{figure}	
 	
-	\newpage
+	La figure \ref{F-PHT2} représente l'arbre F-PHT qui stocke une clé de taille \textit{m = 8} bits, la taille d'un fragment est de 2 bits. Au dessus de chaque nœud (interne ou feuille) se trouve son identifiant unique et il caractérise également le chemin unique conduit vers ce nœud.
 	
-\chapter{Protocole}
+\chapter{Système d'indexation}
+\section{Objectif}
+	Les clés indexées sont des filtres de Bloom de taille \textit{m}.
+	L'objectif du système est d'une part de stocker les filtres de Bloom donnés par les utilisateurs, d'autre part de permettre de rechercher tous les filtres de Bloom (stockés dans le système) qui sont sur-ensemble d'un filtre de Bloom caractérisant des mots clés d'une requête.
+
+\section{Architecture d'un système d'indexation}
+	Le système d'indexation est sur un ensemble de serveurs d'index répartis sur plusieurs machines. Chaque serveurs gère un ou plusieurs nœuds de ce système.
+
+\section{API du système d'indexation}
+	
+	
+\chapter{Fonctionnement du système}
+\section{Données de chaque nœud dans l'arbre}
+\section{Protocole}
+
 	Ce protocole porte des actions entre le client et le système comme : add, search, remove.
 	
-\section{Ajout d'un filtre de Bloom}
 	Lors que le système reçoit un filtre de Bloom à indexer, il appelle simplement cette méthode \textbf{add}. Cette méthode envoie un message d'ajout à la racine. Ensuite, la racine route ce message jusqu'à la feuille qui s'occupe ce filtre grâce à la valeur de fragment de rang \textit{i}.
 
 \subsection{Cas d'un nœud feuille}
