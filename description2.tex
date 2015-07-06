@@ -147,7 +147,12 @@
 	Dans cette exemple, nous utilisons le filtre de Bloom de taille \textit{m = 8}, il y a 4 fragments de taille \textit{i = 2} bits et $\gamma = 3$. Le nœud \textit{"/10/"} est le résultat après l'éclatement de la feuille \textit{"/10"} car il y a au moins une indice de la table \textit{LocalRoute} contient plus de 3 éléments, par exemple, dans ce cas là, l'indice "00" et "10".
 
 \section{Interface API}
-	Ce système offre au utilisateur des fonctions comme créer un nouveau nœud, créer un nouveau index...
+	Ce système offre au utilisateur des fonctions comme :
+	\begin{itemize}
+		\item créer un nouveau nœud.
+		\item supprimer un nœud.
+		\item créer un nouveau index.
+	\end{itemize}
 	
 	\begin{figure}[!htbp]
 	\centering
@@ -158,48 +163,29 @@
 	
 	\newpage
 	
-	
 \chapter{Protocole}
-\section{Ajout d'un filtre de Bloom dans F-PHT}
-	Comme le F-PHT utilise des fragments d'un filtre de Bloom comme clés de stockage, le système crée un fragment \textit{$R_i$} de rang \textit{i}, au départ \textit{i = 0} comme le rang de la racine. Ensuite, à partir de ce fragment, un couple \textit{<$R_i$, null>} est soumit à la racine pour ajout dans l'arbre. La façon de traitement dans chaque nœud dépend la nature de ce nœud, soit un nœud soit une feuille.
-2015-07-03 00.22.31
-\subsection{Cas d'un nœud feuille de rang i dans F-PHT}
-	Tant que la capacité de la table \textit{RouteEntry} qui stocke les couples terminaux \textit{<R, null>} dans ce nœud feuille est inférieure à $\gamma$, chaque nouveau couple terminal qui arrive sur ce nœud feuille est simplement ajouté dans \textit{RouteEntry}.
+	Ce protocole porte des actions entre le client et le système comme : add, search, remove.
+	
+\section{Ajout d'un filtre de Bloom}
+	Lors que le système reçoit un filtre de Bloom à indexer, il appelle simplement cette méthode \textbf{add}. Cette méthode envoie un message d'ajout à la racine. Ensuite, la racine route ce message jusqu'à la feuille qui s'occupe ce filtre grâce à la valeur de fragment de rang \textit{i}.
 
-	Une fois, la capacité de cette table atteinte, elle ne peut plus stocker des nouveaux couples qui arrivent. Donc, dans ce cas, le nœud feuille exécute une opération interne du système d'indexation pour qu'elle puisse les ajouter. \textbf{split()} est une opération utilisée lors que le système veut éclater un nœud, les étapes sont:
-	\begin{enumerate}
-		\item Le système crée une nouvelle instance de \textit{RouteEntry} initialisée à vide.
-		\item Le système regroupe tous les éléments qui ont la même valeur de fragment de rang \textit{i+1} \textit{$R_{i+1}$}, cette valeur est calculée à partir du couple terminaux dans l'ancienne table \textit{RouteEntry}.
-		\item Pour chaque valeur différente de fragment trouvée, le système crée un nœud fils qui a l'identifiant \textit{id\_$R_{i+1}$} unique calculé à partir de \textit{$R_{i+1}$} et lui transfère l'ensemble des éléments qui ont même \textit{$R_{i+1}$}, puis ajoute le couple \textit{<$R_{i+1}$, id\_$R_{i+1}$>} dans la nouvelle table \textit{RouteEntry}.
-		\item Une fois tous les nœuds fils crées et les couples terminaux sont transférés vers les fils correspondants, l'ancienne table \textit{RouteEntry} est remplacé par cette nouvelle.
-		\item Enfin, le système traite la nouvelle demande.
-	\end{enumerate}
+\subsection{Cas d'un nœud feuille}
+	Lors qu'une feuille reçoit la demande \textbf{add} d'un filtre de Bloom, elle cherche l'indice où le met dans la table \textit{LocalRoute}. Si l'entrée est pleine, pour chaque entrée de la table, elle demande le système de créer un nœud correspondant, et ajoute son identifiant dans la nouvelle table \textit{LocalRoute}. Cette nouvelle table remplace l'autre après les transferts des données vers les fils convenables. Si l'entrée est libre, la feuille ajoute simplement. Elle devient un nœud.
 	
-\subsection{Cas d'un nœud interne de rang i dans F-PHT}
-	Lorsqu'un nœud interne reçoit un couple terminal \textit{<R, null>}, le système vérifie si le fragment de rang \textit{i} \textit{$R_{i}$} de ce couple est égal au sien, sinon, il jette ce couple. Si oui, il calcul le fragment de rang \textit{i+1} \textit{$R_{i+1}$} de ce couple et cherche dans sa propre table \textit{RouteEntry}, s'il existe un fils qui gère les couples de ce fragment, il lui envoie ce couple terminal. S'il n'existe pas dans la table, le systèmre crée le nœud fils qui a l'identifiant \textit{id\_$R_{i+1}$} calculé automatiquement à partir de \textit{$R_{i+1}$} et ajoute le couple \textit{<\textit{$R_{i+1}$}, \textit{id\_$R_{i+1}$}>} dans sa table \textit{RouteEntry}, puis route le couple terminal vers  le fils qui vient d'être créé.
+\subsection{Cas d'un nœud}
+	Un nœud reçoit la demande d'ajout d'un filtre de Bloom est simple, en regardant dans sa table \textit{LocalRoute}, trouve une entrée qui satisfait la requête et la route vers ce fils.
 	
-\section{Recherche des filtres de Bloom dans F-PHT}
-	On considère que la requête \textit{Q}, un filtre de Bloom de taille identique avec ceux qui sont stockés dans F-PHT. Le système doit trouver tous les filtres stockés qui satisfont la requête \textit{Q}, c-à-d les filtres qui ont fortement de chance d'avoir les mots de la requête dans leur description. Les faux positifs sont inévitables.
+\section{Recherche des filtres de Bloom}
+	Cette commande \textbf{search} est aussi envoyée vers la racine, par contre, elle renvoie cette requête vers tous les fils qui contient.
 	
-	La requête de recherche doit s'adresser à la racine de F-PHT. Chaque nœud commence par déterminer sa nature s'il est un nœud interne ou un nœud  feuille  après la réception de la requête. Car comme l'ajout d'un filtre dans F-PHT, la nature de nœud décide la méthode de traitement de la requête.
-	
-\subsection{Cas d'un nœud feuille de rang i dans F-PHT}
-	Dès qu'un nœud feuille reçoit la requête \textit{Q}, son rôle est de parcourir sa propre table \textit{RouteEntry}, pour chaque couple \textit{<R, null>} il examine si $Q \in R$, s'il y a succès, le nœud ajoute \textit{R} dans l'ensemble de réponses. Après le parcours de \textit{RouteEntry}, il renvoie cet ensemble au père même s'il est vide.
-	
-\subsection{Cas d'un nœud interne de rang i dans F-PHT}
-	Quand un nœud interne reçoit la requête \textit{Q}, le système fait :
-	\begin{enumerate}
-		\item D'abord, il détermine la valeur de fragment de rang \textit{i} de la requête \textit{$Q_i$}. Si ce nœud contient probablement la requête, il continue, sinon il renvoie \textit{null} au nœud père.
-		\item Ensuite, il détermine la valeur de fragment de rang \textit{i+1} de la requête \textit{$Q_{i+1}$}.
-		\item Puis, il examine la table \textit{RouteEntry}, pour chaque couple \textit{<R, id\_R>}, si $Q_{i+1} \in R$, il transfère la requête au fils qui a l'identifiant \textit{id\_R}.
-		\item Après la réception de la réponse de tous ses fils auxquels il l'ont envoyé, il rassemble toutes les réponses et répond au nœud père. Donc, à la fin, la racine a reçu le résultat final de la requête.
-	\end{enumerate}
-	
-\section{Suppression d'un filtre de Bloom de F-PHT}
-	Afin de supprimer un filtre de Bloom dans F-PHT, le système exécute une recherche exacte en prenant ce filtre comme la requête \textit{Q}. Il faut trouver exactement le nœud feuille qui stocke cette requête, il doit d'abord calculer le fragment de la requête au rang \textit{i} \textit{$Q_i$}. Ensuite, le nœud interne de rang \textit{i} qui a sa propre valeur de fragment de rang \textit{i} qui est identique avec \textit{$Q_i$} est chargé de chercher dans sa propre table \textit{RouteEntry} le fils qui gère le fragment de rang \textit{i+1} et sa valeur est égale à celle de la requête \textit{$Q_{i+1}$}. S'il n'a pas trouvé, cela veut dire qu'il n'existe pas ce filtre de Bloom dans F-PHT. Sinon, il transfère cette requête à ce fils.
-	
-	Une fois, on trouve la feuille qui stocke la requête \textit{Q}, elle peut trouver facilement dans sa table \textit{RouteEntry} et supprime le couple qui satisfait la requête. A la fin, en regardant la table, si c'est vide, elle demande le système de détruire ce nœud feuille et elle signale le père que ce fils n'existe plus dans l'arbre. Une fois, le père constate que son fils n'existe plus, il supprime le couple de valeur correspondante dans sa propre table \textit{RouteEntry}. Si après la suppression, cette table est vide, ce nœud demande le système de le détruire et notifier son père. Ce procédure continue jusqu'à quand il n'y a pas une table \textit{RouteEntry} vide.
+\subsection{Cas d'un nœud feuille}
+	Une feuille reçoit la requête, elle compare la requête avec les filtres dans sa table \textit{LocalRoute}, et collecte tous les filtres qui contiennent la requête. Une fois, tous les filtres satisfaisants sont renvoyés vers la racine.
 
+\subsection{Cas d'un nœud}
+	Un nœud compare aussi la requête avec les entrées dans \textit{LocalRoute}, toutes les entrées qui contiennent la requête sont sélectionnées pour récupérer tous les nœuds afin de leur renvoyer la requête.
+	
+\section{Suppression d'un filtre de Bloom}
+	Cette action fonctionne exactement comme l'ajout d'un filtre de Bloom, la racine route la requête de suppression vers le fils qui gère cette requête. Dès qu'elle arrive à la feuille, cette feuille cherche dans sa propre table \textit{LocalRoute} une entrée correspondante et la supprime. Si cette table devient vide après la suppression, elle demande de la supprimer au système, en plus, le système se charge de notifier son père la disparition de son fils pour qu'il puisse supprimer l'entrée de son fils dans sa table de routage \textit{LocalRoute}. Du coup, si sa propre table \textit{LocalRoute} devient vide après la suppression de son fils, il aussi demande de se supprimer au système et notifie son père. Ces opérations continuent jusqu'à quand il n'y a plus de table \textit{LocalRoute} vide.
 
 \end{document}
 
