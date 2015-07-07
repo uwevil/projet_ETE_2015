@@ -122,44 +122,86 @@
 	\label{F-PHT2}
 	\end{figure}	
 	
-	La figure \ref{F-PHT2} représente l'arbre F-PHT qui stocke une clé de taille \textit{m = 8} bits, la taille d'un fragment est de 2 bits. Au dessus de chaque nœud (interne ou feuille) se trouve son identifiant unique et il caractérise également le chemin unique conduit vers ce nœud.
+	La figure \ref{F-PHT2} représente l'arbre F-PHT qui stocke une clé de taille \textit{m = 8} bits, la taille d'un fragment est de 2 bits. Au dessus de chaque nœud (interne ou feuille) se trouve son identifiant unique et il caractérise également le chemin unique qui conduit vers ce nœud.
 	
 \chapter{Système d'indexation}
 \section{Objectif}
 	Les clés indexées sont des filtres de Bloom de taille \textit{m}.
 	L'objectif du système est d'une part de stocker les filtres de Bloom donnés par les utilisateurs, d'autre part de permettre de rechercher tous les filtres de Bloom (stockés dans le système) qui sont sur-ensemble d'un filtre de Bloom caractérisant des mots clés d'une requête.
 
-\section{Architecture d'un système d'indexation}
-	Le système d'indexation est sur un ensemble de serveurs d'index répartis sur plusieurs machines. Chaque serveurs gère un ou plusieurs nœuds de ce système.
+\section{Architecture du système d'indexation}
+	Le système d'indexation est réalisé par un ensemble de serveurs d'index répartis sur plusieurs machines. Chaque serveur gère un ou plusieurs nœuds de l'arbre F-PHT. Ce système permet de créer plusieurs index, chaque index maintient  un F-PHT qui stocke les clés.
+	
+	On suppose qu'il y a un serveur central connu qui gère tous les index créés. Il utilise une table des index, chaque entrée sert à sauvegarder l'identifiant de l'index \textit{indexID} et le serveur \textit{rootNodeID} qui héberge sa racine. Lorsqu'un utilisateur veut créer/supprimer un index, il demande le serveur central d'ajout/suppression une entrée dans la table des index.
 
 \section{API du système d'indexation}
-	
+	Ce système offre aux utilisateurs des services suivants :
+	\begin{description}
+		\item[	createIndex() 	 :] créer un nouveau index et rend aux l'utilisateur l'identifiant d'index créé \textit{indexID}.
+		\item[	removeIndex(indexID)	 :] supprime un index identifié par \textit{indexID}.
+		\item[	add(indexID, key) 		 :] ajoute dans l'index identifié par \textit{indexID} une clé \textit{key}.
+		\item[	remove(indexID, key)  :] supprime une clé \textit{key} dans l'index identifié par \textit{indexID}.
+		\item[	search(indexID, key\_req) 	 :] recherche dans l'index identifié par \textit{indexID} des sur-ensembles qui satisfont la requête \textit{key\_req}.
+	\end{description}
+
 	
 \chapter{Fonctionnement du système}
 \section{Données de chaque nœud dans l'arbre}
+	\begin{description}
+		\item[Identifiant d'un nœud] caractérise le nœud. Cet identifiant est calculé grâce au chemin vers ce nœud, et ce chemin est unique.
+		\item[Niveau d'un nœud (rang)]  est l'hauteur dans l'arbre F-PHT.
+		\item[Table de routage (LocalRoute)] sert :
+			\begin{itemize}
+				\item soit à router chaque requête vers le nœud fils responsable de la traiter.
+				\item soit à déterminer l'adresse du conteneur local. Ce conteneur stocke au maximum $\gamma$ éléments.
+			\end{itemize}
+	\end{description}
+
+
 \section{Protocole}
+\subsection{Ajout d'un filtre de Bloom dans F-PHT}
+	Lorsqu'un nœud reçoit une requête d'ajout d'un filtre de Bloom (c'est-à-dire d'une clé), il effectue deux actions :
+	\begin{enumerate}
+		\item Premièrement, il détermine la valeur du fragment numéro \textit{i} de la clé à ajoutée, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
+		\item Une fois le fragment de la clé de rang \textit{i} déterminé, il consulte l'entrée de la table de routage \textit{LocalRoute} associée à cette valeur. Trois cas sont à distinguer :
+		\begin{enumerate}
+			\item Si l'entrée est nulle (aucune clé ayant la même valeur pour le fragment de rang \textit{i} a été ajoutée auparavant), le nœud crée un conteneur local, ajoute son adresse dans cette entrée et stocke la clé reçue dans ce conteneur.
+			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
+			\item Si l'entrée contient l'adresse d'un conteneur local, on ajoute la clé reçue dans ce conteneur. Si après ajout, le nombre d'éléments stockés dépasse le seuil fixé, le nœud crée un nœud fils, lui transmet le conteneur, et met à jour l'entrée correspondante l'adresse de son nouveau fils.
+		\end{enumerate}
+	\end{enumerate}
+		
+\subsection{Recherche des filtres de Bloom dans F-PHT}
+	Lorsqu'un nœud reçoit une requête de recherche des sur-ensembles d'un filtre de Bloom, il effectue les étapes suivantes :
+	\begin{enumerate}
+		\item D'abord, il détermine la valeur du fragment numéro \textit{i} de la clé de requête, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
+		\item Ensuite, il consulte toutes les entrées de la table de routage \textit{LocalRoute} contiennent la valeur du fragment déterminée précédente. Pour chaque entrée, il y a 3 cas à traiter :
+		\begin{enumerate}
+			\item Si l'entrée est nulle (aucune clé contenant cette valeur du fragment de rang \textit{i}), le nœud continue.
+			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
+			\item Si l'entrée contient l'adresse d'un conteneur local, on collecte tous les filtres qui correspondent à la requête et ajoute dans l'ensemble des résultats de la requête.
+		\end{enumerate}
+		\item Puis, il attend toutes les réponses des fils auxquels il ont transmis la requête. Une fois, il reçoit toutes les réponses et réunit avec son ensemble des résultats, il transmet le résultat au père.
+	\end{enumerate}
+	
+\subsection{Suppression d'un filtre de Bloom dans F-PHT}
+	Les étapes de la suppression d'un filtre de Bloom dans F-PHT effectuées par un nœud sont :
+	\begin{enumerate}
+		\item Il détermine la valeur du fragment numéro \textit{i} de la clé de requête, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
+		\item Ensuite, il consulte l'entrée de la table de routage \textit{LocalRoute} associée à cette valeur. Trois cas sont à distinguer :
+		\begin{enumerate}
+			\item Si l'entrée est null (aucune clé ayant la même valeur pour le frament numéro \textit{i} a été ajoutée auparavant), le nœud rejette la requête.
+			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
+			\item Si l'entrée contient l'adresse d'un conteneur local, on supprime la clé de requête dans ce conteneur. Si après suppression, ce conteneur devient vide, on supprime ce conteneur et cette entrée dans la table \textit{LocalRoute}. Si cette table devient vide, il notifie le père de la suppression de son fils et demande le système de supprimer ce nœud. Si le père reçoit la notification de son fils, il vide l'entrée où stocke son adresse. En plus, si la table de routage \textit{LocalRoute} de son père devient aussi vide, il fait la même procédure comme son fils : notifie son père, demande la suppression du système.
+		\end{enumerate}
+	\end{enumerate}
 
-	Ce protocole porte des actions entre le client et le système comme : add, search, remove.
+\chapter{Implémentation du système}
+\section{Plateforme de simulation}
+	Cette plateforme est destinée à simuler le système d'indexation, dans un premier temps, il est centralisé sur une seule machine. Elle crée un index, ensuite ajoute des données dans cet index. A la fin, une suite de requête de recherche des données est lancée pour tester le fonctionnement du système. Elle peut également simuler la suppression des données dans le système.
 	
-	Lors que le système reçoit un filtre de Bloom à indexer, il appelle simplement cette méthode \textbf{add}. Cette méthode envoie un message d'ajout à la racine. Ensuite, la racine route ce message jusqu'à la feuille qui s'occupe ce filtre grâce à la valeur de fragment de rang \textit{i}.
-
-\subsection{Cas d'un nœud feuille}
-	Lors qu'une feuille reçoit la demande \textbf{add} d'un filtre de Bloom, elle cherche l'indice où le met dans la table \textit{LocalRoute}. Si l'entrée est pleine, pour chaque entrée de la table, elle demande le système de créer un nœud correspondant, et ajoute son identifiant dans la nouvelle table \textit{LocalRoute}. Cette nouvelle table remplace l'autre après les transferts des données vers les fils convenables. Si l'entrée est libre, la feuille ajoute simplement. Elle devient un nœud.
+\section{Implémentation du système}
 	
-\subsection{Cas d'un nœud}
-	Un nœud reçoit la demande d'ajout d'un filtre de Bloom est simple, en regardant dans sa table \textit{LocalRoute}, trouve une entrée qui satisfait la requête et la route vers ce fils.
-	
-\section{Recherche des filtres de Bloom}
-	Cette commande \textbf{search} est aussi envoyée vers la racine, par contre, elle renvoie cette requête vers tous les fils qui contient.
-	
-\subsection{Cas d'un nœud feuille}
-	Une feuille reçoit la requête, elle compare la requête avec les filtres dans sa table \textit{LocalRoute}, et collecte tous les filtres qui contiennent la requête. Une fois, tous les filtres satisfaisants sont renvoyés vers la racine.
-
-\subsection{Cas d'un nœud}
-	Un nœud compare aussi la requête avec les entrées dans \textit{LocalRoute}, toutes les entrées qui contiennent la requête sont sélectionnées pour récupérer tous les nœuds afin de leur renvoyer la requête.
-	
-\section{Suppression d'un filtre de Bloom}
-	Cette action \textbf{remove} fonctionne exactement comme l'ajout d'un filtre de Bloom, la racine route la requête de suppression vers le fils qui gère cette requête. Dès qu'elle arrive à la feuille, cette feuille cherche dans sa propre table \textit{LocalRoute} une entrée correspondante et la supprime. Si cette table devient vide après la suppression, elle demande de la supprimer au système, en plus, le système se charge de notifier son père la disparition de son fils pour qu'il puisse supprimer l'entrée de son fils dans sa table de routage \textit{LocalRoute}. Du coup, si sa propre table \textit{LocalRoute} devient vide après la suppression de son fils, il aussi demande de se supprimer au système et notifie son père. Ces opérations continuent jusqu'à quand il n'y a plus de table \textit{LocalRoute} vide.
 
 \end{document}
 
