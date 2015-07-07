@@ -1,8 +1,8 @@
 package test;
 
 import exception.ErrorException;
-import projet.BF;
-import projet.Fragment;
+import systeme.BF;
+import systeme.Fragment;
 
 public class Test {
 
