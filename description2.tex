@@ -179,7 +179,7 @@
 		\begin{enumerate}
 			\item Si l'entrée est nulle (aucune clé contenant cette valeur du fragment de rang \textit{i}), le nœud continue.
 			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
-			\item Si l'entrée contient l'adresse d'un conteneur local, on collecte tous les filtres qui correspondent à la requête et ajoute dans l'ensemble des résultats de la requête.
+			\item Si l'entrée contient l'adresse d'un conteneur local, on collecte tous les filtres qui contiennent la requête. L'ensemble des filtres collectés est retourné comme réponse.
 		\end{enumerate}
 		\item Puis, il attend toutes les réponses des fils auxquels il ont transmis la requête. Une fois, il reçoit toutes les réponses et réunit avec son ensemble des résultats, il transmet le résultat au père.
 	\end{enumerate}
@@ -199,6 +199,13 @@
 \chapter{Implémentation du système}
 \section{Plateforme de simulation}
 	Cette plateforme est destinée à simuler le système d'indexation, dans un premier temps, il est centralisé sur une seule machine. Elle crée un index, ensuite ajoute des données dans cet index. A la fin, une suite de requête de recherche des données est lancée pour tester le fonctionnement du système. Elle peut également simuler la suppression des données dans le système.
+	
+	Le simulateur maintient une table des des instances de serveurs existants dans ce système, il joue aussi le serveur de localisation des index.
+	
+	L'application interagit avec le système via l'API.
+	
+\section{Serveur}
+	Les serveurs se communique via une interface de réseau qui permet d'envoyer et recevoir des messages.
 	
 \section{Implémentation du système}
 	

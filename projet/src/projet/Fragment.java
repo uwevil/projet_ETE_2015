@@ -75,6 +75,16 @@ public class Fragment implements Serializable{
 		return true;
 	}
 	
+	public int toInt()
+	{
+		int res = 0;
+		for (int i = 0; i < this.size; i++)
+		{
+			res += this.bitset.get(i) ? (int)Math.pow(2, i) : 0;
+		}
+		return res;
+	}
+	
 	public boolean get(int index)
 	{
 		return bitset.get(index);

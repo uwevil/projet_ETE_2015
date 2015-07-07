@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.BitSet;
 
+import exception.ErrorException;
+
 public class BF implements Serializable
 {
 
@@ -20,6 +22,27 @@ public class BF implements Serializable
 		this.bitset = new BitSet(bitSetSize);
 		this.bitSetSize = bitSetSize;
 		this.bitsPerElement = bitsPerElement;
+	}
+	
+	public BF(String chaineBits, int bitsPerElement) throws ErrorException
+	{
+		char[] chararray = chaineBits.toCharArray();
+	
+		this.bitsPerElement = bitsPerElement;
+		
+		this.bitset = new BitSet(chararray.length);
+		this.bitSetSize = chararray.length;
+		for (int i = 0; i< this.bitSetSize; i++)
+		{
+			if (chararray[i] != '0' && chararray[i] != '1')
+			{
+				throw new ErrorException("chaineBits contient des caractères spéciales");
+			}
+			
+			if (chararray[i] == '1')
+				this.bitset.set(i, true);
+		}
+		
 	}
 	
 	public boolean equals(Object o)

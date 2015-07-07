@@ -1,5 +1,6 @@
 package test;
 
+import exception.ErrorException;
 import projet.BF;
 import projet.Fragment;
 
@@ -9,26 +10,24 @@ public class Test {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ErrorException {
 		// TODO Auto-generated method stub
-		BF bf = new BF(512, 512/2);
-		BF bf2 = new BF(512, 512/2);
+		BF bf = new BF("1111000000101010", 4);
+		BF bf2 = new BF(16, 4);
+	
+		bf2.addAll("aaaa,dsq,gdg");
 		
-		bf.addAll("aaaa,bbb,dsqd,sdq,gfdg,ytu(§,dterterg");
-		bf2.addAll("aaaa,bbb");
-
+		BF bf3 = new BF(bf2.toString(), 4);
+		
+		Fragment f = bf.getFragment(0);
+		Fragment f2 = bf2.getFragment(3);
+		
+		
 		System.out.println(bf.toString());
 		System.out.println(bf2.toString());
-		
-		Fragment f = bf2.getFragment(1);
-		System.out.println(bf2.toString());
-		System.out.println(bf.getFragment(1));
-		
-		if (f.in(bf.getFragment(1)))
-			System.out.println("ok");
-		
-		if (bf2.in(bf))
-			System.out.println("okkk");
+		System.out.println(bf3.toString());
+		System.out.println(f.toString() + " " + f.toInt());
+		System.out.println(f2.toString() + " " + f2.toInt());
 	}
 
 }
