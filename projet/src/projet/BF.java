@@ -141,7 +141,12 @@ public class BF implements Serializable
 	
 	public BitSet getBitSet(int start, int stop)
 	{
-		return bitset.get(start, stop);
+		BitSet res = new BitSet(stop - start);
+		
+		for (int i = start; i < stop; i++)
+			res.set(i, this.getBit(i));
+				
+		return res;
 	}
 	
 	public int getBitsPerElement()
@@ -180,11 +185,18 @@ public class BF implements Serializable
 		return true;
 	}
 	
-	public BitSet getFragment(int index)
+	public Fragment getFragment(int index)
 	{
 		if (index * this.bitsPerElement >= bitSetSize)
 			return null;
-		return bitset.get(index*bitsPerElement, (index + 1)*bitsPerElement);
+		
+		Fragment f = new Fragment(bitsPerElement);
+		
+		int j = 0;
+		for (int i = index*bitsPerElement ; i < (index + 1)*bitsPerElement; i++)
+			f.setBit(j++, this.getBit(i));
+			
+		return  f;
 	}
 
 }

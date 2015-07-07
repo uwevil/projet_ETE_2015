@@ -11,27 +11,24 @@ public class Test {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		BF bf = new BF(512, 512/64);
-		BF req = new BF(512, 512/64);
+		BF bf = new BF(512, 512/2);
+		BF bf2 = new BF(512, 512/2);
 		
 		bf.addAll("aaaa,bbb,dsqd,sdq,gfdg,ytu(§,dterterg");
-		req.add("aaaa");
-		req.add("bb");
-		
-		Fragment bf1 = new Fragment(bf.getFragment(63));
-		Fragment req1 = new Fragment(req.getFragment(63));
-		
+		bf2.addAll("aaaa,bbb");
+
 		System.out.println(bf.toString());
-		System.out.println(req.toString());
+		System.out.println(bf2.toString());
 		
-		System.out.println(bf1.toString());
-		System.out.println(req1.toString());
+		Fragment f = bf2.getFragment(1);
+		System.out.println(bf2.toString());
+		System.out.println(bf.getFragment(1));
 		
-		if (req.in(bf))
-			System.out.println("innnn loll");
+		if (f.in(bf.getFragment(1)))
+			System.out.println("ok");
 		
-		if (req1.in(bf1))
-			System.out.println("frag in lolll");
+		if (bf2.in(bf))
+			System.out.println("okkk");
 	}
 
 }

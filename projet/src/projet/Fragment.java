@@ -1,39 +1,41 @@
 package projet;
 
+import java.io.Serializable;
 import java.util.BitSet;
 
-public class Fragment extends BitSet{
+public class Fragment implements Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public Fragment() {
-		// TODO Auto-generated constructor stub
-		super();
-	}
+	private BitSet bitset;
+	private int size;
 	
 	public Fragment(int nbits)
 	{
-		super(nbits);
+		bitset = new BitSet(nbits);
+		this.size = nbits;
 	}
 	
-	public Fragment (BitSet b)
+	public BitSet getBitSet()
 	{
-		super(b.size());
-		
-		for (int i = 0; i < this.size(); i++)
-			this.set(i, b.get(i));
+		return this.bitset;
+	}
+	
+	public void setBit(int index, boolean value)
+	{
+		bitset.set(index, value);
+			
 	}
 	
 	public String toString()
 	{
 		String s = new String();
 		
-		for (int i = 0; i < this.size(); i++)
+		for (int i = 0; i < this.size; i++)
 		{
-			s += (this.get(i)) ? "1" : "0";
+			s += (bitset.get(i)) ? "1" : "0";
 		}
 		
 		return s;
@@ -48,13 +50,41 @@ public class Fragment extends BitSet{
 		
 		final Fragment other = (Fragment) o;
 		
-		if (this.size() != other.size())
+		if (this.size != other.size())
 			return false;
 		
 		for (int i = 0; i < this.size(); i++)
-			if (this.get(i) && !other.get(i))
+			if (bitset.get(i) && !other.get(i))
 				return false;
 		return true;
 	}
+	
+	public boolean equals(Object o)
+	{
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
+		final Fragment other = (Fragment) o;
+		
+		if (this.size != other.size())
+			return false;
+		
+		if (this.bitset != other.getBitSet() && (this.bitset == null || !this.bitset.equals(other.getBitSet())))
+			return false;
+		return true;
+	}
+	
+	public boolean get(int index)
+	{
+		return bitset.get(index);
+	}
+	
+	public int size()
+	{
+		return this.size;
+	}
+	
+	
 
 }
