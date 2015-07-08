@@ -133,10 +133,7 @@ public class Node {
 							listReponse.add(bf_tmp);
 					}
 				case "java.lang.String":
-					rep.setType("search");
-					rep.setData1(bf);
-					rep.setData2(o);
-					rep = server.treatMessage(rep);
+					rep = server.treatMessage(m);
 					
 					listReponse.addAll((ArrayList<Object>) rep.getData2());
 				}
@@ -164,7 +161,40 @@ public class Node {
 	private Message remove(Message m)
 	{
 		Message rep = new Message();
+		BF bf = (BF) m.getData1();
+		Fragment f = bf.getFragment(this.rang + 1);
 		
+		if (!localRoute.contains(f))
+		{
+			rep.setType("OK");
+			rep.setData1(bf);
+			return rep;
+		}
+		
+		Object o = localRoute.get(f);
+		switch(o.getClass().getName())
+		{
+		case "systeme.ContainerLocal":
+			localRoute.remove(f);
+			if (localRoute.isEmpty())
+			{
+				rep.setType("removeNode");
+				rep.setData1(path);
+				server.treatMessage(rep);
+				return null;
+			}
+		case "java.lang.String":
+			rep = server.treatMessage(m);	
+			if (rep.getType().equals("removeNode"))
+				localRoute.remove(f);
+			if (localRoute.isEmpty())
+			{
+				rep.setType("removeNode");
+				rep.setData1(path);
+				server.treatMessage(rep);
+				return null;
+			}	
+		}
 		return rep;
 	}
 	

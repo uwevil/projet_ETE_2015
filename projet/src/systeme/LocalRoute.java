@@ -121,5 +121,10 @@ public class LocalRoute {
 		
 		return s;
 	}
+	
+	public boolean isEmpty()
+	{
+		return localRoute.isEmpty();
+	}
 
 }
