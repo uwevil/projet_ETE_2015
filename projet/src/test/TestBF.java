@@ -4,9 +4,9 @@ import exception.ErrorException;
 import systeme.BF;
 import systeme.Fragment;
 
-public class Test {
+public class TestBF {
 
-	public Test() {
+	public TestBF() {
 		// TODO Auto-generated constructor stub
 	}
 
