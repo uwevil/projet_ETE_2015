@@ -1,7 +1,7 @@
 package test;
 
+import serveur.NameToServerID;
 import serveur.ServerRoot;
-import systeme.NameToServerID;
 import systeme.Node;
 
 public class TestNode {

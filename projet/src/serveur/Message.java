@@ -11,8 +11,6 @@ public class Message {
 	 * createNode
 	 * removeNode
 	 * 
-	 * forward
-	 * 
 	 * OK
 	 * */
 	private String type = "";

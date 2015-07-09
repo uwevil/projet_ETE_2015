@@ -1,28 +1,28 @@
 package systeme;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class LocalRoute {
 	/* LocalRoute contient soit un Container soit un String 
 	 * */
 	private int limit;
-	private ArrayList<Object> localRoute;
+	private Hashtable<Integer, Object> localRoute;
 	
 	public LocalRoute(int limit) {
 		// TODO Auto-generated constructor stub
 		this.limit = limit;
-		localRoute = new ArrayList<Object>();
+		localRoute = new Hashtable<Integer, Object>();
 	}
 	
 	public void add(Fragment f, ContainerLocal o)
 	{
 		if (!this.contains(f))
 		{
-			localRoute.add(f.toInt(), (Object) o);
+			localRoute.put(f.toInt(), (Object) o);
 		}else{
 			localRoute.remove(f.toInt());
-			localRoute.add(f.toInt(), o);
+			localRoute.put(f.toInt(), o);
 		}
 	}
 	
@@ -32,7 +32,7 @@ public class LocalRoute {
 		{
 			ContainerLocal c = new ContainerLocal(limit);
 			c.add(bf);
-			localRoute.add(f.toInt(), c);
+			localRoute.put(f.toInt(), c);
 			return true;
 		}else{
 			if (this.get(f).getClass().getName().equals("java.lang.String"))
@@ -48,10 +48,10 @@ public class LocalRoute {
 	{
 		if (!this.contains(f))
 		{
-			localRoute.add(f.toInt(), path);
+			localRoute.put(f.toInt(), path);
 		}else{
 			localRoute.remove(f.toInt());
-			localRoute.add(f.toInt(), path);
+			localRoute.put(f.toInt(), path);
 		}
 	}
 	
@@ -79,7 +79,8 @@ public class LocalRoute {
 	{
 		try
 		{
-			localRoute.get(f.toInt());
+			if ( null == localRoute.get(f.toInt()))
+				return false;
 		}catch(Exception e){
 			return false;
 		}
@@ -111,14 +112,37 @@ public class LocalRoute {
 	{
 		String s = new String();
 		
-		Iterator<Object> iterator = localRoute.iterator();
+		Enumeration<Integer> e = localRoute.keys();
 		
-		while(iterator.hasNext())
+		while(e.hasMoreElements())
 		{
-			Object o = iterator.next();
-			s += o.toString() + "\n";
-		}
+			Integer o = e.nextElement();
+			s += " ContainerLocal n° " + o.toString() + " : " + localRoute.get(o).toString() + "\n";
+		}		
+		return s;
+	}
+	
+	public String overView()
+	{
+		String s = new String();
 		
+		Enumeration<Integer> e = localRoute.keys();
+		
+		while(e.hasMoreElements())
+		{
+			Integer i = e.nextElement();
+			Object o = localRoute.get(i);
+			
+			if (o.getClass().getName().equals("systeme.ContainerLocal"))
+			{
+				s += " ContainerLocal n° " + i.toString() + " : " 
+						+ ((ContainerLocal)localRoute.get(i)).overView() + "\n";
+			}else{
+				s += " ContainerLocal n° " + i.toString() + " : " + localRoute.get(i).toString() + "\n";
+			}
+			
+			
+		}		
 		return s;
 	}
 	

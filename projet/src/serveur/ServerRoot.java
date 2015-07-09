@@ -7,9 +7,27 @@ public class ServerRoot implements Server {
 	}
 
 	@Override
-	public Message treatMessage(Message m) {
+	public void treatMessage(Message m) {
 		// TODO Auto-generated method stub
-		return null;
+		return;
+	}
+
+	@Override
+	public int getID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setNumberOfServer(int nbrServeurs) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void add(Server server) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

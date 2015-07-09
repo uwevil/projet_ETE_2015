@@ -83,16 +83,22 @@ public class ContainerLocal{
 	{
 		String s = new String();
 		Iterator<BF> iterator = container.iterator();
-		
 		while(iterator.hasNext())
 		{
 			BF bf = iterator.next();
-			s += bf;
-			if (iterator.hasNext())
+			s += "   " +bf + "\n";
+			/*if (iterator.hasNext())
 				s += ",";
+			*/
 		}
-		
+
 		return s;
+	}
+	
+	public String overView()
+	{
+		test.TestSystemIndex.numberOfBF += container.size();
+		return container.size() + " BF";
 	}
 	
 	public Iterator<BF> iterator()
