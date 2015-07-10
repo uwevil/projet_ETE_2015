@@ -50,9 +50,12 @@ public class Node {
 	public Object add(BF bf)
 	{
 		Fragment f = bf.getFragment(rang);
+		
 		if(localRoute.add(f, bf))
+		{
 			return null;
-	
+		}
+		
 		return localRoute.get(f);
 	}
 	
@@ -76,7 +79,7 @@ public class Node {
 			{
 				Object bf_tmp = localRoute.get(i);
 				
-				if (bf_tmp.getClass().getName().equals("java.lang.String"))
+				if (((bf_tmp.getClass()).getName()).equals("java.lang.String"))
 				{
 					rep.add(bf_tmp);
 				}else{
@@ -98,13 +101,33 @@ public class Node {
 		return rep;
 	}
 	
+	public Object searchExact(BF bf)
+	{
+		Fragment f = bf.getFragment(rang);
+		if (localRoute.contains(f))
+		{
+			Object o = localRoute.get(f);
+			if (((o.getClass()).getName()).equals("java.lang.String"))
+			{
+				return (String)o;
+			}else{
+				if (((ContainerLocal)o).contains(bf))
+				{
+					return ((ContainerLocal)o);
+				}
+				return null;
+			}
+		}
+		return null;
+	}
+	
 	public Object remove(BF bf)
 	{
 		Fragment f = bf.getFragment(rang);
 		if (!localRoute.contains(f))
 			return null;
 		
-		if (localRoute.get(f).getClass().getName().equals("systeme.ContainerLocal"))
+		if ((((localRoute.get(f)).getClass()).getName()).equals("systeme.ContainerLocal"))
 		{
 			ContainerLocal c = (ContainerLocal) localRoute.get(f);
 			c.remove(bf);

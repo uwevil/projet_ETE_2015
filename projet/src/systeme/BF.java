@@ -216,8 +216,11 @@ public class BF implements Serializable
 	public Fragment getFragment(int index)
 	{
 		if (index * this.bitsPerElement >= bitSetSize)
+		{
+			System.out.println("HEREEEEEE PROB " + index*this.bitsPerElement + " >= " + bitSetSize);
 			return null;
-		
+		}
+			
 		Fragment f = new Fragment(bitsPerElement);
 		
 		int j = 0;

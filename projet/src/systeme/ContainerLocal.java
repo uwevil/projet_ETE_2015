@@ -26,8 +26,11 @@ public class ContainerLocal{
 	public boolean add(BF e)
 	{
 		if (this.container.size() == this.limit)
+		{
+			container.add(e);
 			return false;
-		
+		}
+			
 		if (!this.container.contains(e))
 		{
 			container.add(e);

@@ -35,10 +35,14 @@ public class LocalRoute {
 			localRoute.put(f.toInt(), c);
 			return true;
 		}else{
-			if (this.get(f).getClass().getName().equals("java.lang.String"))
+			if ((((this.get(f)).getClass()).getName()).equals("java.lang.String"))
 			{
 				return false;
 			}else{
+				//boolean rep = ((ContainerLocal) this.get(f)).add(bf);
+				//System.out.println("contains key " + rep);
+
+				//return rep;
 				return ((ContainerLocal) this.get(f)).add(bf);
 			}
 		}
@@ -77,25 +81,12 @@ public class LocalRoute {
 	
 	public boolean contains(Fragment f)
 	{
-		try
-		{
-			if ( null == localRoute.get(f.toInt()))
-				return false;
-		}catch(Exception e){
-			return false;
-		}
-		return true;
+		return localRoute.containsKey(f.toInt());
 	}
 	
 	public boolean contains(int index)
 	{
-		try
-		{
-			localRoute.get(index);
-		}catch(Exception e){
-			return false;
-		}
-		return true;
+		return localRoute.containsKey(index);
 	}
 	
 	public void remove(Fragment f)
@@ -138,7 +129,7 @@ public class LocalRoute {
 			Integer i = e.nextElement();
 			Object o = localRoute.get(i);
 			
-			if (o.getClass().getName().equals("systeme.ContainerLocal"))
+			if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
 			{
 				s += " ContainerLocal n° " + i.toString() + " : " 
 						+ ((ContainerLocal)localRoute.get(i)).overView() + "\n";

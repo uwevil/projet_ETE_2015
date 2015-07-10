@@ -28,14 +28,16 @@ public class SystemIndex {
 		Node n =  (Node)listNode.get("");
 		
 		Object o = n.add(bf);
+		if (o == null)
+			return;
+		
 		while (o != null)
 		{
-			if ((o.getClass().getName()).equals("systeme.ContainerLocal"))
-			{
+			if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
+			{				
 				this.split(n, (ContainerLocal)o);
-				break;
-			}
-			else if ((o.getClass().getName()).equals("java.lang.String"))
+				o = null;
+			} else if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
 				n = (Node)listNode.get(o);
 				o = n.add(bf);
@@ -46,17 +48,22 @@ public class SystemIndex {
 	private void split(Node father, ContainerLocal c)
 	{
 		Iterator<BF> iterator = c.iterator();
-		
 		while (iterator.hasNext())
 		{
 			BF bf = iterator.next();
 			Fragment f = bf.getFragment(father.getRang());
-			Node n = new Node(null, father.getPath()+"/"+f.toInt(), father.getRang() + 1, gamma);
-			n.add(bf);
-			father.getLocalRoute().add(f, father.getPath()+"/"+f.toInt());
-			this.listNode.put(father.getPath()+"/"+f.toInt(), n);
+			String path = father.getPath() + "/" + f.toInt();
+			
+			if (!listNode.containsKey(path))
+			{
+				Node n = new Node(null, path, father.getRang() + 1, gamma);
+				n.add(bf);
+				father.add(bf,path);
+				this.listNode.put(path, n);
+			}else{
+				(listNode.get(path)).add(bf);
+			}			
 		}
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -71,7 +78,7 @@ public class SystemIndex {
 		{
 			Object o = list.get(i);
 			
-			if (o.getClass().getName().equals("systeme.BF"))
+			if (((o.getClass()).getName()).equals("systeme.BF"))
 			{
 				resultat.add((BF)o);
 			}else{
@@ -80,10 +87,34 @@ public class SystemIndex {
 			}
 			i++;
 		}
-		
 		return resultat;
 	}
 	 
+	
+	public Object searchExact(BF bf)
+	{
+		Node n = (Node)listNode.get("");
+		Object o = n.searchExact(bf);
+		
+		while(o != null)
+		{
+			if (((o.getClass()).getName()).equals("java.lang.String"))
+			{
+				n = listNode.get((String)o);
+				o = n.searchExact(bf);
+			}else{
+				Iterator<BF> iterator = ((ContainerLocal)o).iterator();
+				
+				while (iterator.hasNext())
+				{
+					BF tmp = iterator.next();
+					if (bf.equals(tmp))
+						return tmp;
+				}
+			}
+		}
+		return null;
+	}
 	public int size()
 	{
 		return this.listNode.size();
