@@ -1,11 +1,16 @@
 package systeme;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-public class SystemIndex {
+public class SystemIndex implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int indexID;
 	private int gamma;
 	private Hashtable<String, Node> listNode;

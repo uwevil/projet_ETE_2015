@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import exception.ErrorException;
 import systeme.BF;
+import systeme.Serializer;
 import systeme.SystemIndex;
 
 public class TestSystemIndex {
@@ -85,15 +86,18 @@ public class TestSystemIndex {
 					+ sizeOfBF + "_"
 					+ numberOfFragment + "_"
 					+ gamma
-					+ "(3)");
+					+ "(4)");
 			pw.print(s);
 			pw.close();
 			
 			System.out.println("Temps d'écriture: " 
 					+ (System.currentTimeMillis() - time)/(1000) + " s");
+
+			System.out.println("Test Serialization");
+			Serializer serializable = new Serializer();
+			serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/serializer");
+			System.out.println("Serializable OK");
 			
-			//System.out.println("nombre de filtres = " + numberOfBF);
-						
 		} 
 		catch (FileNotFoundException e) 
 		{

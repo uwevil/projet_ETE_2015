@@ -1,9 +1,14 @@
 package systeme;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class ContainerLocal{
+public class ContainerLocal implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int limit;
 	private ArrayList<BF> container;
 	

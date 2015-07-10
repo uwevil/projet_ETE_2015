@@ -1,12 +1,17 @@
 package systeme;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
 import serveur.Server;
 
-public class Node {
+public class Node implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Server server;
 	private String path;
 	private int rang;
@@ -145,7 +150,9 @@ public class Node {
 
 	public String toString()
 	{
-		return "NodeID : " + path + "\n" + localRoute.toString();
+		return "NodeID : " + path + "\n"
+			 + "Rang : " + rang + "\n"
+			 + localRoute.toString();
 	}
 	
 	public String overView()

@@ -1,9 +1,14 @@
 package systeme;
 
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-public class LocalRoute {
+public class LocalRoute implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/* LocalRoute contient soit un Container soit un String 
 	 * */
 	private int limit;
