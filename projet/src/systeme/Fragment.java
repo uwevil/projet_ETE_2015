@@ -85,6 +85,23 @@ public class Fragment implements Serializable{
 		return res;
 	}
 	
+	public Fragment intToFragment(int nbits, int a)
+	{
+		int val = a;
+		Fragment f = new Fragment(nbits);
+		
+		for (int i = 0; i < nbits; i++)
+		{
+			if (1<<(nbits - i - 1) <= val)
+			{
+				f.setBit(nbits - i - 1, true);
+				val = val - (1<<(nbits - i - 1));
+			}
+		}
+		
+		return f;
+	}
+	
 	public boolean get(int index)
 	{
 		return bitset.get(index);

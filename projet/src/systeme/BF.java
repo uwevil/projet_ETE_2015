@@ -75,30 +75,33 @@ public class BF implements Serializable
 
 			for (int i = 0; i < s.length; i++)
 			{
-				byte[] tmp = md.digest(s[i].getBytes("UTF-8"));
-				double n = 0;
+				if (!s[i].equals(""))
+				{
+					byte[] tmp = md.digest(s[i].getBytes("UTF-8"));
+					double n = 0;
 
-				for (int j = 0; j < tmp.length; j++)
-				{
-					n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
+					for (int j = 0; j < tmp.length; j++)
+					{
+						n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
+					}
+					bitset.set((int) (n % this.bitSetSize), true);
+					
+					tmp = md256.digest(s[i].getBytes("UTF-8"));
+					n = 0;
+					for (int j = 0; j < tmp.length; j++)
+					{
+						n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
+					}
+					bitset.set((int) (n % this.bitSetSize), true);
+					
+					tmp = md512.digest(s[i].getBytes("UTF-8"));
+					n = 0;
+					for (int j = 0; j < tmp.length; j++)
+					{
+						n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
+					}
+					bitset.set((int) (n % this.bitSetSize), true);
 				}
-				bitset.set((int) (n % this.bitSetSize), true);
-				
-				tmp = md256.digest(s[i].getBytes("UTF-8"));
-				n = 0;
-				for (int j = 0; j < tmp.length; j++)
-				{
-					n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
-				}
-				bitset.set((int) (n % this.bitSetSize), true);
-				
-				tmp = md512.digest(s[i].getBytes("UTF-8"));
-				n = 0;
-				for (int j = 0; j < tmp.length; j++)
-				{
-					n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.bitSetSize + n;
-				}
-				bitset.set((int) (n % this.bitSetSize), true);
 			}
 		}
 		catch (Exception e)
@@ -109,6 +112,8 @@ public class BF implements Serializable
 	
 	public void add(String a)
 	{
+		if (a.equals(""))
+			return;
 		MessageDigest md256, md512, md;
 		try
 		{

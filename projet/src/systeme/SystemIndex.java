@@ -1,5 +1,6 @@
 package systeme;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -58,6 +59,30 @@ public class SystemIndex {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Object search(BF bf)
+	{
+		Node n = (Node)listNode.get("");
+		ArrayList<BF> resultat = new ArrayList<BF>();
+		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
+		
+		int i = 0;
+		while (i < list.size())
+		{
+			Object o = list.get(i);
+			
+			if (o.getClass().getName().equals("systeme.BF"))
+			{
+				resultat.add((BF)o);
+			}else{
+				Node node_tmp = (Node)listNode.get((String)o);
+				list.addAll((ArrayList<Object>) node_tmp.search(bf));
+			}
+			i++;
+		}
+		
+		return resultat;
+	}
 	 
 	public int size()
 	{

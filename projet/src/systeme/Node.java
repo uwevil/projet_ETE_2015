@@ -1,5 +1,9 @@
 package systeme;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+
 import serveur.Server;
 
 public class Node {
@@ -59,16 +63,39 @@ public class Node {
 	
 	public Object search(BF bf)
 	{
-		/*
-		 * 
-		 * 
-		 * 
-		 * 
-		 * */
+		Fragment f = bf.getFragment(rang);
+		ArrayList<Object> rep = new ArrayList<Object>();
+		Enumeration<Integer> list = localRoute.getKeyAll();
 		
-		
-		
-		return null;
+		while (list.hasMoreElements())
+		{
+			Integer i = list.nextElement();
+			Fragment f_tmp = (new Fragment(0)).intToFragment(bf.getBitsPerElement(), i);
+			
+			if (f.in(f_tmp))
+			{
+				Object bf_tmp = localRoute.get(i);
+				
+				if (bf_tmp.getClass().getName().equals("java.lang.String"))
+				{
+					rep.add(bf_tmp);
+				}else{
+					ContainerLocal c = (ContainerLocal) bf_tmp;
+					Iterator<BF> iterator = c.iterator();
+					
+					while (iterator.hasNext())
+					{
+						BF tmp = iterator.next();
+						
+						if (bf.in(tmp))
+							rep.add(tmp);
+					}
+				}
+
+			}
+		}
+			
+		return rep;
 	}
 	
 	public Object remove(BF bf)

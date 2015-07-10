@@ -108,6 +108,11 @@ public class LocalRoute {
 		this.localRoute.remove(index);
 	}
 	
+	public Enumeration<Integer> getKeyAll()
+	{
+		return localRoute.keys();
+	}
+	
 	public String toString()
 	{
 		String s = new String();
@@ -117,7 +122,7 @@ public class LocalRoute {
 		while(e.hasMoreElements())
 		{
 			Integer o = e.nextElement();
-			s += " ContainerLocal n° " + o.toString() + " : " + localRoute.get(o).toString() + "\n";
+			s += "  ContainerLocal n° " + o.toString() + " : " + localRoute.get(o).toString() + "\n";
 		}		
 		return s;
 	}
