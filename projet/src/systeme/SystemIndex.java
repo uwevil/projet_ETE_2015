@@ -72,6 +72,7 @@ public class SystemIndex {
 		Node n = (Node)listNode.get("");
 		ArrayList<BF> resultat = new ArrayList<BF>();
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
+		test.TestSystemIndex.nodeVisited++;
 		
 		int i = 0;
 		while (i < list.size())
@@ -83,6 +84,7 @@ public class SystemIndex {
 				resultat.add((BF)o);
 			}else{
 				Node node_tmp = (Node)listNode.get((String)o);
+				test.TestSystemIndex.nodeVisited++;
 				list.addAll((ArrayList<Object>) node_tmp.search(bf));
 			}
 			i++;

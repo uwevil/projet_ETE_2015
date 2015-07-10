@@ -82,6 +82,7 @@ public class Node {
 				if (((bf_tmp.getClass()).getName()).equals("java.lang.String"))
 				{
 					rep.add(bf_tmp);
+					test.TestSystemIndex.nodeMatched++;
 				}else{
 					ContainerLocal c = (ContainerLocal) bf_tmp;
 					Iterator<BF> iterator = c.iterator();
@@ -149,7 +150,7 @@ public class Node {
 	
 	public String overView()
 	{
-		return "NodeID : " + path + "\n  " + localRoute.overView();
+		return "NodeID : " + path + "\n" + localRoute.overView();
 	}
 	
 }

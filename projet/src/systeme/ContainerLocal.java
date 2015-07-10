@@ -36,6 +36,7 @@ public class ContainerLocal{
 			container.add(e);
 			return true;
 		}
+		test.TestSystemIndex.doublon++;
 		return true;
 	}
 	
