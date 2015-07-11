@@ -87,17 +87,29 @@ public class Node implements Serializable{
 				if (((bf_tmp.getClass()).getName()).equals("java.lang.String"))
 				{
 					rep.add(bf_tmp);
-					systeme.Configuration.nodeMatched++;
 				}else{
 					ContainerLocal c = (ContainerLocal) bf_tmp;
 					Iterator<BF> iterator = c.iterator();
 					
+					boolean ok = true;
 					while (iterator.hasNext())
 					{
 						BF tmp = iterator.next();
 						
 						if (bf.in(tmp))
+						{
 							rep.add(tmp);
+							if (ok)
+							{
+								 if(!systeme.Configuration.nodeMatched.contains(this.path))
+								 {
+									systeme.Configuration.nodeMatched.add(this.path);
+									ok = false;
+								 }else{
+									 ok = false;
+								 }
+							}
+						}
 					}
 				}
 
