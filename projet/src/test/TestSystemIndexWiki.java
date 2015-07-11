@@ -9,6 +9,7 @@ import systeme.Serializer;
 import systeme.SystemIndex;
 import exception.ErrorException;
 
+@SuppressWarnings("unused")
 public class TestSystemIndexWiki {
 	public static int nodeVisited = 0;
 	public static int nodeMatched = 0;
@@ -36,7 +37,7 @@ public class TestSystemIndexWiki {
 				bf.addAll(tmp[1]);
 			//	systemIndex.add(bf);
 				
-				w.write(bf.toString() + ";" + s + "\n");
+				w.write(bf.toString() + ";" + tmp[1] + "\n");
 				i++;
 			}
 			reader.close();

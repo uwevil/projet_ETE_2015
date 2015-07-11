@@ -77,7 +77,7 @@ public class SystemIndex implements Serializable{
 		Node n = (Node)listNode.get("");
 		ArrayList<BF> resultat = new ArrayList<BF>();
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
-		test.TestSystemIndex.nodeVisited++;
+		systeme.Configuration.nodeVisited++;
 		
 		int i = 0;
 		while (i < list.size())
@@ -89,7 +89,7 @@ public class SystemIndex implements Serializable{
 				resultat.add((BF)o);
 			}else{
 				Node node_tmp = (Node)listNode.get((String)o);
-				test.TestSystemIndex.nodeVisited++;
+				systeme.Configuration.nodeVisited++;
 				list.addAll((ArrayList<Object>) node_tmp.search(bf));
 			}
 			i++;
@@ -108,6 +108,7 @@ public class SystemIndex implements Serializable{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
 				n = listNode.get((String)o);
+				systeme.Configuration.nodeVisited++;
 				o = n.searchExact(bf);
 			}else{
 				Iterator<BF> iterator = ((ContainerLocal)o).iterator();
@@ -122,6 +123,51 @@ public class SystemIndex implements Serializable{
 		}
 		return null;
 	}
+	
+	public void remove(BF bf)
+	{
+		Node n = (Node)listNode.get("");
+		Object o = n.remove(bf);
+		
+		while (o != null)
+		{
+			if (((o.getClass()).getName()).equals("java.lang.String"))
+			{
+				n = listNode.get((String)o);
+				systeme.Configuration.nodeVisited++;
+				o = n.remove(bf);
+			}else{
+				String path = n.getPath();
+				int rang = n.getRang();
+
+				listNode.remove(path);
+
+				if (path == "")
+					return;
+				int lastIndex = path.lastIndexOf('/');
+				n = (Node)listNode.get(path.substring(0, lastIndex));
+				while(true)
+				{
+					if (n.remove(bf.getFragment(rang)))
+					{
+						return;
+					}else{
+						path = n.getPath();
+						rang = n.getRang();
+						
+						listNode.remove(path);
+
+						if (path == "")
+							return;
+						lastIndex = path.lastIndexOf('/');
+						listNode.remove(path);
+						n = (Node)listNode.get(path.substring(0, lastIndex));
+					}
+				}
+			}
+		}
+	}
+	
 	public int size()
 	{
 		return this.listNode.size();

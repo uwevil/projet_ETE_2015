@@ -10,14 +10,6 @@ import systeme.Serializer;
 import systeme.SystemIndex;
 
 public class TestSystemIndex {
-
-	public static int nodeVisited = 0;
-	public static int nodeMatched = 0;
-	public static int doublon = 0;
-	public static int numberOfBF = 0;
-	private static int sizeOfBF = 512;
-	private static int numberOfFragment = 64;
-	private static int gamma = 1000;
 	
 	public static void main(String[] args) throws ErrorException 
 	{
@@ -28,13 +20,14 @@ public class TestSystemIndex {
 			
 			System.out.println(r2.size() + " données lues");
 			
-			SystemIndex systemIndex = new SystemIndex(0, gamma);
+			SystemIndex systemIndex = new SystemIndex(0, systeme.Configuration.gamma);
 			
 			long time = System.currentTimeMillis();
 
 			for (int i = 0; i < r2.size(); i++)
 			{
-				BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
+				BF bf = new BF(systeme.Configuration.sizeOfBF, 
+						systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 				String s = r2.getDescription(i);
 				bf.addAll(s);
 			//	w.write(bf.toString() + ";" + s + "\n");
@@ -54,7 +47,8 @@ public class TestSystemIndex {
 			
 			
 			String requete = "reference,education,organizations";
-			BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
+			BF bf = new BF(systeme.Configuration.sizeOfBF, 
+					systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 			bf.addAll(requete);
 				
 			time = System.currentTimeMillis();
@@ -67,25 +61,25 @@ public class TestSystemIndex {
 			
 			//String s1 = systemIndex.overView();
 			String s = "Total : " + r2.size() + " filtres\n"
-					+ "Doublon : " + doublon + "\n"
-					+ "Effective : " + numberOfBF + "\n\n"
+					+ "Doublon : " + systeme.Configuration.doublon + "\n"
+					+ "Effective : " + systeme.Configuration.numberOfBF + "\n\n"
 					+ "Requete : " + requete + "\n"
 					+ "RequeteBF : " + bf.toString() + "\n"
 					+ "Temps de recherche: " + (System.currentTimeMillis() - time)/(1000) + " s\n" 
 					+ "Nœuds total : " + systemIndex.size() + "\n"
-					+ "Nœuds visités : " + nodeVisited + " nœuds\n"
-					+ "Nœuds matched : " + nodeMatched + " nœuds\n\n" 
+					+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
+					+ "Nœuds matched : " + systeme.Configuration.nodeMatched + " nœuds\n\n" 
 					+ s1;
 			
 			System.out.println("Temps de recherche: " 
 							+ (System.currentTimeMillis() - time)/(1000) + " s\n" 
-							+ "Nœuds visités : " + nodeVisited + " nœuds");
+							+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds");
 			
 			time = System.currentTimeMillis();
 			PrintWriter pw = new PrintWriter("/Users/dcs/vrac/test/resultat-search-perf-10-07-"
-					+ sizeOfBF + "_"
-					+ numberOfFragment + "_"
-					+ gamma
+					+ systeme.Configuration.sizeOfBF + "_"
+					+ systeme.Configuration.numberOfFragment + "_"
+					+ systeme.Configuration.gamma
 					+ "(4)");
 			pw.print(s);
 			pw.close();

@@ -87,7 +87,7 @@ public class Node implements Serializable{
 				if (((bf_tmp.getClass()).getName()).equals("java.lang.String"))
 				{
 					rep.add(bf_tmp);
-					test.TestSystemIndex.nodeMatched++;
+					systeme.Configuration.nodeMatched++;
 				}else{
 					ContainerLocal c = (ContainerLocal) bf_tmp;
 					Iterator<BF> iterator = c.iterator();
@@ -146,6 +146,18 @@ public class Node implements Serializable{
 			return null;
 		}
 		return localRoute.get(f);
+	}
+	
+	public boolean remove(Fragment f)
+	{
+		if (!localRoute.contains(f))
+			return true;
+		
+		localRoute.remove(f);
+		
+		if (localRoute.isEmpty())
+			return false;
+		return true;
 	}
 
 	public String toString()

@@ -41,7 +41,7 @@ public class ContainerLocal implements Serializable{
 			container.add(e);
 			return true;
 		}
-		test.TestSystemIndex.doublon++;
+		systeme.Configuration.doublon++;
 		return true;
 	}
 	
@@ -106,7 +106,7 @@ public class ContainerLocal implements Serializable{
 	
 	public String overView()
 	{
-		test.TestSystemIndex.numberOfBF += container.size();
+		systeme.Configuration.numberOfBF += container.size();
 		return container.size() + " BF";
 	}
 	
