@@ -1,7 +1,6 @@
 package test;
 
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import systeme.BF;
@@ -10,6 +9,7 @@ import systeme.SystemIndex;
 
 public class TestDeserializer {
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		
@@ -21,12 +21,56 @@ public class TestDeserializer {
 		
 		System.out.println("Temps de désérilisation = " + (System.currentTimeMillis() - time)/(1000) + " s\n");
 		
-		String requete = "oregon,5392,2010";
-		BF bf = new BF(systeme.Configuration.sizeOfBF, 
-				systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
-		bf.addAll(requete);
+		String requete = "";
+		BF bf = null;
 		
 		time = System.currentTimeMillis();
+		
+		String path = "/Users/dcs/vrac/test/queries/wiki/";
+		String fileName = "exactQuriesWDocs";
+		ReadFile r = new ReadFile(path + fileName + ".csv");
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/12-07-search-Wiki-"
+				+ systeme.Configuration.sizeOfBF + "_"
+				+ systeme.Configuration.numberOfFragment + "_"
+				+ systeme.Configuration.gamma + "_"
+				+ fileName, false);
+		
+		for (int i = 0; i < r.size(); i++)
+		{
+			bf = new BF(systeme.Configuration.sizeOfBF, 
+					systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+			requete = r.getDescription(i);
+			bf.addAll(requete);
+			time = System.currentTimeMillis();
+			Object resultat = systemIndex.search(bf);
+			String s = null;
+			
+			if (resultat != null)
+			{
+				s =  "Requete : " + requete + "\n"
+						+ "RequeteBF : " + bf.toString() + "\n"
+						+ "Temps de recherche: " + (System.currentTimeMillis() - time)/(1000) + " s\n" 
+						+ "Nœuds total : " + systemIndex.size() + "\n"
+						+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
+						+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n\n" 
+						+ ((ArrayList<BF>) resultat).size()
+						+ "\n\n";
+				wf.write(s);
+			}else{
+				s =  "Requete : " + requete + "\n"
+						+ "RequeteBF : " + bf.toString() + "\n"
+						+ "Temps de recherche: " + (System.currentTimeMillis() - time)/(1000) + " s\n" 
+						+ "Nœuds total : " + systemIndex.size() + "\n"
+						+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
+						+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n\n" 
+						+ "0"
+						+ "\n\n";
+				wf.write(s);
+			}
+		}
+		
+		wf.close();
+
 		//System.out.println("        Recherche");
 		
 		//System.out.println(systemIndex.searchExact(bf));
@@ -60,17 +104,7 @@ public class TestDeserializer {
 						+ (System.currentTimeMillis() - time)/(1000) + " s\n" 
 						+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds");
 		*/
-		
-		String s = systemIndex.overView();
-		
-		time = System.currentTimeMillis();
-		PrintWriter pw = new PrintWriter("/Users/dcs/vrac/test/overview-Wiki-11-07-"
-				+ systeme.Configuration.sizeOfBF + "_"
-				+ systeme.Configuration.numberOfFragment + "_"
-				+ systeme.Configuration.gamma
-				+ "");
-		pw.print(s);
-		pw.close();
+				
 		
 		System.out.println("Temps d'écriture: " 
 				+ (System.currentTimeMillis() - time)/(1000) + " s");
