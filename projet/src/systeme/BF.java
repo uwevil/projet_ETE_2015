@@ -38,11 +38,9 @@ public class BF implements Serializable
 			{
 				throw new ErrorException("chaineBits contient des caractères spéciales");
 			}
-			
 			if (chararray[i] == '1')
 				this.bitset.set(i, true);
 		}
-		
 	}
 	
 	public boolean equals(Object o)
@@ -222,7 +220,6 @@ public class BF implements Serializable
 		}
 			
 		Fragment f = new Fragment(bitsPerElement);
-		
 		int j = 0;
 		for (int i = index*bitsPerElement ; i < (index + 1)*bitsPerElement; i++)
 			f.setBit(j++, this.getBit(i));

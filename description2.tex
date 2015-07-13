@@ -149,7 +149,7 @@
 \section{Données de chaque nœud dans l'arbre}
 	\begin{description}
 		\item[Identifiant d'un nœud] caractérise le nœud. Cet identifiant est calculé grâce au chemin vers ce nœud, et ce chemin est unique.
-		\item[Niveau d'un nœud (rang)]  est l'hauteur dans l'arbre F-PHT.
+		\item[Niveau d'un nœud (rang)]  est hauteur dans l'arbre F-PHT.
 		\item[Table de routage (LocalRoute)] sert :
 			\begin{itemize}
 				\item soit à router chaque requête vers le nœud fils responsable de la traiter.
@@ -196,19 +196,81 @@
 		\end{enumerate}
 	\end{enumerate}
 
-\chapter{Implémentation du système}
+\chapter{Implémentation du système (Etape 1)}
 \section{Plateforme de simulation}
-	Cette plateforme est destinée à simuler le système d'indexation, dans un premier temps, il est centralisé sur une seule machine. Elle crée un index, ensuite ajoute des données dans cet index. A la fin, une suite de requête de recherche des données est lancée pour tester le fonctionnement du système. Elle peut également simuler la suppression des données dans le système.
-	
-	Le simulateur maintient une table des des instances de serveurs existants dans ce système, il joue aussi le serveur de localisation des index.
-	
+	Cette plateforme est destinée à simuler le système d'indexation. Elle crée un index, ensuite ajoute des données dans cet index. A la fin, une suite de requête de recherche des données est lancée pour tester le fonctionnement du système. Elle peut également simuler la suppression des données dans le système.
+		
 	L'application interagit avec le système via l'API.
 	
 \section{Serveur}
-	Les serveurs se communique via une interface de réseau qui permet d'envoyer et recevoir des messages. Ce lien est bidirectionnel.
+	Le serveur s'occupe de la communication entre le client et le système via une interface d'utilisateur. Le client donc peut créer des index, ajouter des filtres, rechercher et supprimer les filtres et les index qui lui appartiennent.
+	
+	En plus, le serveur est aussi le lieu où on stocke les nœuds du système. Dans le premier temps, il y a un seul serveur qui gère tous les nœuds du système.
 	
 \section{Implémentation du système}
+	Ce système est implémenté en Java.
+
+\subsection{Données de chaque nœud}
+	\begin{description}
+		\item[Identifiant du nœud (Path)] Car le chemin du nœud est unique, donc, nous avons décidé de le considérer comme ID d'un nœud. Ce chemin est une chaîne de caractères.
+		\item[Niveau du nœud dans le système (Rang)] est hauteur du nœud dans le système.
+		\item[Table de routage (LocalRoute)] est une table d'une dimension, elle contient l'adresse soit d'un conteneur local, soit d'un conteneur à distance, soit aussi du vide. L'index d'ajout des données dans cette table est calculé par le fragment du rang de son nœud.
+	\end{description}
 	
+	En outre, le nœud doit connaître son serveur qui l'héberge.
+	
+\subsection{Nœud}
+	Les actions principales du nœud sont : ajout d'un filtre, recherche des filtres correspondants à une requête et suppression d'un filtre dans le système.
+
+\subsubsection{Ajout'd'un filtre dans le système}
+	L'action d'ajout d'un filtre de Bloom dans le système se déroule selon les étapes suivantes : 
+	\begin{enumerate}
+		\item Il détermine la valeur du fragment de rang \textit{i} du filtre de la requête. Cette valeur est l'index dans la table \textit{LocalRoute}
+		\item Ensuite, il y a 3 cas à distinguer :
+			\begin{enumerate}
+				\item Si cette entrée est vide, donc, il crée un conteneur local auquel il ajoute ce filtre.
+				\item Si cette entrée contient l'adresse d'un nœud fils, ce nœud retourne au système cette adresse.
+				\item Si cette entée contient déjà un conteneur local, si ce conteneur a des places disponibles, il l'ajoute. Sinon, il renvoie ce conteneur au système pour que le système puisse créer un nouveau fils correspondant à cette entrée. Le système appelle la méthode \textbf{spilt()} et répond au nœud appelant l'adresse de son nouveau fils. Cette adresse est ajoutée dans sa table \textit{LocalRoute} en remplaçant le conteneur local précédent.
+			\end{enumerate}
+\end{enumerate}
+
+\newtheorem{algorithme}{Algorithme}
+\begin{algorithme}
+	Ajout d'un filtre de Bloom dans le système
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} Filtre de Bloom \textit{bf}\\
+		\textbf{OUT:} Object \textit{o}\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(rang)
+			\item Object \textit{o} $\leftarrow$ \textit{LocalRoute}.get(\textit{f})
+			\item 
+				\begin{tabbing}
+					\textbf{if }\= \textit{o} = \textit{null}\\
+						\> ContainerLocal \textit{c} $\leftarrow$ new ContainerLocal\\
+						\> \textit{c}.add(\textit{bf})\\
+						\> \textit{LocalRoute}.put(\textit{f}, \textit{c})\\
+						\> \textbf{return} \textit{null}\\
+					\textbf{else}\\
+						\> \textbf{return} \textit{o}\\
+					\textbf{end if} 
+				\end{tabbing}
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
+
+
+\subsubsection{Recherche des filtres dans le système}
+		
+	
+
+\subsubsection{Suppression d'un filtre dans le système}
+	
+
 
 \end{document}
 

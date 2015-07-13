@@ -44,10 +44,6 @@ public class LocalRoute implements Serializable{
 			{
 				return false;
 			}else{
-				//boolean rep = ((ContainerLocal) this.get(f)).add(bf);
-				//System.out.println("contains key " + rep);
-
-				//return rep;
 				return ((ContainerLocal) this.get(f)).add(bf);
 			}
 		}
@@ -141,8 +137,6 @@ public class LocalRoute implements Serializable{
 			}else{
 				s += " ContainerLocal n° " + i.toString() + " : " + localRoute.get(i).toString() + "\n";
 			}
-			
-			
 		}		
 		return s;
 	}

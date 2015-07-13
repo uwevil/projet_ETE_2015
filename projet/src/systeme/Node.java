@@ -106,13 +106,12 @@ public class Node implements Serializable{
 									systeme.Configuration.nodeMatched.add(this.path);
 									ok = false;
 								 }else{
-									 ok = false;
+									ok = false;
 								 }
 							}
 						}
 					}
 				}
-
 			}
 		}
 			
