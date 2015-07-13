@@ -6,18 +6,23 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import serveur.Server;
+
 public class SystemIndex implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int indexID;
+	@SuppressWarnings("unused")
+	private Server serverID;
 	private int gamma;
 	private Hashtable<String, Node> listNode;
 	
-	public SystemIndex(int indexID, int gamma) {
+	public SystemIndex(int indexID, Server serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexID = indexID;
+		this.serverID = serverID;
 		this.gamma = gamma;
 		listNode = new Hashtable<String, Node>();
 		listNode.put("", new Node(null, "", 0, gamma));
@@ -53,21 +58,17 @@ public class SystemIndex implements Serializable{
 	private void split(Node father, ContainerLocal c)
 	{
 		Iterator<BF> iterator = c.iterator();
+		BF bf = c.get(0);
+		Fragment f = bf.getFragment(father.getRang());
+		String path = father.getPath() + "/" + f.toInt();
+		Node n = new Node(null, path, father.getRang() + 1, gamma);
+		father.add(bf,path);
+		this.listNode.put(path, n);
+		
 		while (iterator.hasNext())
 		{
-			BF bf = iterator.next();
-			Fragment f = bf.getFragment(father.getRang());
-			String path = father.getPath() + "/" + f.toInt();
-			
-			if (!listNode.containsKey(path))
-			{
-				Node n = new Node(null, path, father.getRang() + 1, gamma);
-				n.add(bf);
-				father.add(bf,path);
-				this.listNode.put(path, n);
-			}else{
-				(listNode.get(path)).add(bf);
-			}			
+			bf = iterator.next();
+			n.add(bf);	
 		}
 	}
 	

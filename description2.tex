@@ -72,6 +72,8 @@
 	\end{titlepage}
 
 \tableofcontents
+\newtheorem{algorithme}{Algorithme}
+
 
 \chapter{Vue globale}
 \section{Prefix Hash Tree (PHT)}
@@ -150,7 +152,7 @@
 	\begin{description}
 		\item[Identifiant d'un nœud] caractérise le nœud. Cet identifiant est calculé grâce au chemin vers ce nœud, et ce chemin est unique.
 		\item[Niveau d'un nœud (rang)]  est hauteur dans l'arbre F-PHT.
-		\item[Table de routage (LocalRoute)] sert :
+		\item[Table de routage (localRoute)] sert :
 			\begin{itemize}
 				\item soit à router chaque requête vers le nœud fils responsable de la traiter.
 				\item soit à déterminer l'adresse du conteneur local. Ce conteneur stocke au maximum $\gamma$ éléments.
@@ -163,7 +165,7 @@
 	Lorsqu'un nœud reçoit une requête d'ajout d'un filtre de Bloom (c'est-à-dire d'une clé), il effectue deux actions :
 	\begin{enumerate}
 		\item Premièrement, il détermine la valeur du fragment numéro \textit{i} de la clé à ajoutée, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
-		\item Une fois le fragment de la clé de rang \textit{i} déterminé, il consulte l'entrée de la table de routage \textit{LocalRoute} associée à cette valeur. Trois cas sont à distinguer :
+		\item Une fois le fragment de la clé de rang \textit{i} déterminé, il consulte l'entrée de la table de routage \textit{localRoute} associée à cette valeur. Trois cas sont à distinguer :
 		\begin{enumerate}
 			\item Si l'entrée est nulle (aucune clé ayant la même valeur pour le fragment de rang \textit{i} a été ajoutée auparavant), le nœud crée un conteneur local, ajoute son adresse dans cette entrée et stocke la clé reçue dans ce conteneur.
 			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
@@ -175,7 +177,7 @@
 	Lorsqu'un nœud reçoit une requête de recherche des sur-ensembles d'un filtre de Bloom, il effectue les étapes suivantes :
 	\begin{enumerate}
 		\item D'abord, il détermine la valeur du fragment numéro \textit{i} de la clé de requête, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
-		\item Ensuite, il consulte toutes les entrées de la table de routage \textit{LocalRoute} contiennent la valeur du fragment déterminée précédente. Pour chaque entrée, il y a 3 cas à traiter :
+		\item Ensuite, il consulte toutes les entrées de la table de routage \textit{localRoute} contiennent la valeur du fragment déterminée précédente. Pour chaque entrée, il y a 3 cas à traiter :
 		\begin{enumerate}
 			\item Si l'entrée est nulle (aucune clé contenant cette valeur du fragment de rang \textit{i}), le nœud continue.
 			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
@@ -188,15 +190,17 @@
 	Les étapes de la suppression d'un filtre de Bloom dans F-PHT effectuées par un nœud sont :
 	\begin{enumerate}
 		\item Il détermine la valeur du fragment numéro \textit{i} de la clé de requête, avec \textit{i} correspondant au niveau de ce nœud dans l'arbre F-PHT.
-		\item Ensuite, il consulte l'entrée de la table de routage \textit{LocalRoute} associée à cette valeur. Trois cas sont à distinguer :
+		\item Ensuite, il consulte l'entrée de la table de routage \textit{localRoute} associée à cette valeur. Trois cas sont à distinguer :
 		\begin{enumerate}
 			\item Si l'entrée est null (aucune clé ayant la même valeur pour le frament numéro \textit{i} a été ajoutée auparavant), le nœud rejette la requête.
 			\item Si l'entrée associée à la valeur du fragment de rang \textit{i} contient l'identifiant d'un nœud fils, on transmet la requête vers ce fils.
-			\item Si l'entrée contient l'adresse d'un conteneur local, on supprime la clé de requête dans ce conteneur. Si après suppression, ce conteneur devient vide, on supprime ce conteneur et cette entrée dans la table \textit{LocalRoute}. Si cette table devient vide, il notifie le père de la suppression de son fils et demande le système de supprimer ce nœud. Si le père reçoit la notification de son fils, il vide l'entrée où stocke son adresse. En plus, si la table de routage \textit{LocalRoute} de son père devient aussi vide, il fait la même procédure comme son fils : notifie son père, demande la suppression du système.
+			\item Si l'entrée contient l'adresse d'un conteneur local, on supprime la clé de requête dans ce conteneur. Si après suppression, ce conteneur devient vide, on supprime ce conteneur et cette entrée dans la table \textit{localRoute}. Si cette table devient vide, il notifie le père de la suppression de son fils et demande le système de supprimer ce nœud. Si le père reçoit la notification de son fils, il vide l'entrée où stocke son adresse. En plus, si la table de routage \textit{localRoute} de son père devient aussi vide, il fait la même procédure comme son fils : notifie son père, demande la suppression du système.
 		\end{enumerate}
 	\end{enumerate}
 
 \chapter{Implémentation du système (Etape 1)}
+	Ce système est implémenté en Java.
+
 \section{Plateforme de simulation}
 	Cette plateforme est destinée à simuler le système d'indexation. Elle crée un index, ensuite ajoute des données dans cet index. A la fin, une suite de requête de recherche des données est lancée pour tester le fonctionnement du système. Elle peut également simuler la suppression des données dans le système.
 		
@@ -207,69 +211,213 @@
 	
 	En plus, le serveur est aussi le lieu où on stocke les nœuds du système. Dans le premier temps, il y a un seul serveur qui gère tous les nœuds du système.
 	
-\section{Implémentation du système}
-	Ce système est implémenté en Java.
-
+\section{Implémentation du nœud}
+	Les actions principales du nœud sont : ajout d'un filtre, recherche des filtres correspondants à une requête et suppression d'un filtre dans le système.
 \subsection{Données de chaque nœud}
 	\begin{description}
-		\item[Identifiant du nœud (Path)] Car le chemin du nœud est unique, donc, nous avons décidé de le considérer comme ID d'un nœud. Ce chemin est une chaîne de caractères.
-		\item[Niveau du nœud dans le système (Rang)] est hauteur du nœud dans le système.
-		\item[Table de routage (LocalRoute)] est une table d'une dimension, elle contient l'adresse soit d'un conteneur local, soit d'un conteneur à distance, soit aussi du vide. L'index d'ajout des données dans cette table est calculé par le fragment du rang de son nœud.
+		\item[Identifiant du nœud (path)] Car le chemin du nœud est unique, donc, nous avons décidé de le considérer comme ID d'un nœud. Ce chemin est une chaîne de caractères.
+		\item[Niveau du nœud dans le système (rang)] est hauteur du nœud dans le système.
+		\item[Table de routage (localRoute)] est une table d'une dimension, elle contient l'adresse soit d'un conteneur local, soit d'un conteneur à distance, soit aussi du vide. L'index d'ajout des données dans cette table est calculé par le fragment du rang de son nœud.
 	\end{description}
 	
 	En outre, le nœud doit connaître son serveur qui l'héberge.
-	
-\subsection{Nœud}
-	Les actions principales du nœud sont : ajout d'un filtre, recherche des filtres correspondants à une requête et suppression d'un filtre dans le système.
 
-\subsubsection{Ajout'd'un filtre dans le système}
-	L'action d'ajout d'un filtre de Bloom dans le système se déroule selon les étapes suivantes : 
+\subsection{Ajout'd'un filtre dans le nœud}
+	L'action d'ajout d'un filtre de Bloom dans un nœux se déroule selon les étapes suivantes : 
 	\begin{enumerate}
-		\item Il détermine la valeur du fragment de rang \textit{i} du filtre de la requête. Cette valeur est l'index dans la table \textit{LocalRoute}
+		\item Il détermine la valeur du fragment de rang \textit{i} du filtre de la requête. Cette valeur est l'index dans la table \textit{localRoute}
 		\item Ensuite, il y a 3 cas à distinguer :
 			\begin{enumerate}
 				\item Si cette entrée est vide, donc, il crée un conteneur local auquel il ajoute ce filtre.
 				\item Si cette entrée contient l'adresse d'un nœud fils, ce nœud retourne au système cette adresse.
-				\item Si cette entée contient déjà un conteneur local, si ce conteneur a des places disponibles, il l'ajoute. Sinon, il renvoie ce conteneur au système pour que le système puisse créer un nouveau fils correspondant à cette entrée. Le système appelle la méthode \textbf{spilt()} et répond au nœud appelant l'adresse de son nouveau fils. Cette adresse est ajoutée dans sa table \textit{LocalRoute} en remplaçant le conteneur local précédent.
+				\item Si cette entée contient déjà un conteneur local, si ce conteneur a des places disponibles, il l'ajoute. Sinon, il renvoie ce conteneur au système pour que le système puisse créer un nouveau fils correspondant à cette entrée. Le système appelle la méthode \textbf{spilt()} et répond au nœud appelant l'adresse de son nouveau fils. Cette adresse est ajoutée dans sa table \textit{localRoute} en remplaçant le conteneur local précédent.
 			\end{enumerate}
 \end{enumerate}
 
-\newtheorem{algorithme}{Algorithme}
 \begin{algorithme}
-	Ajout d'un filtre de Bloom dans le système
+	Ajout d'un filtre de Bloom dans le nœud \textbf{add}
 \end{algorithme}
 
 \begin{flushleft}
 	\begin{framed}
-		\textbf{IN:} Filtre de Bloom \textit{bf}\\
+		\textbf{IN:} BF \textit{bf}\\
 		\textbf{OUT:} Object \textit{o}\\
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
 			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(rang)
-			\item Object \textit{o} $\leftarrow$ \textit{LocalRoute}.get(\textit{f})
+			\item Object \textit{o} $\leftarrow$ \textit{localRoute}.get(\textit{f})
 			\item 
 				\begin{tabbing}
-					\textbf{if }\= \textit{o} = \textit{null}\\
+					\textbf{if }\= \textit{o} == \textit{null}\\
 						\> ContainerLocal \textit{c} $\leftarrow$ new ContainerLocal\\
 						\> \textit{c}.add(\textit{bf})\\
-						\> \textit{LocalRoute}.put(\textit{f}, \textit{c})\\
+						\> \textit{localRoute}.put(\textit{f}, \textit{c})\\
 						\> \textbf{return} \textit{null}\\
 					\textbf{else}\\
 						\> \textbf{return} \textit{o}\\
-					\textbf{end if} 
+					\textbf{end} 
 				\end{tabbing}
 		\end{enumerate}	
 	\end{framed}
 \end{flushleft}
 
 
-\subsubsection{Recherche des filtres dans le système}
-		
+\subsection{Recherche des filtres dans le nœud}
+	Le nœud reçoit la requête sous forme d'un filtre de Bloom : 
+	\begin{enumerate}
+		\item Comme l'action \textbf{add}, il doit déterminer le fragment de rang \textit{i} de la requête.
+		\item Il parcourt toute la table \textit{localRoute} pour trouver tous les entrées non vides qui contiennent le fragment déterminé de la requête :
+			\begin{enumerate}
+			\item Si l'entrée correspondante contient l'adresse du conteneur local dont il récupère tous les filtres qui contiennent celui de la requête et ajoute dans l'ensemble de résultats.
+			\item Si l'entrée correspondante contient l'adresse du conteneur local, il l'ajoute également dans l'ensemble de résultats.
+			\end{enumerate}
+	\end{enumerate}		
 	
+\begin{algorithme}
+	Recherche des filtres de Bloom dans le nœud \textbf{search}
+\end{algorithme}
 
-\subsubsection{Suppression d'un filtre dans le système}
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} BF \textit{bf}\\
+		\textbf{OUT:} Object \textit{o}\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(rang)
+			\item Object \textit{o} $\leftarrow$ \textit{null}
+			\item Integer i $\leftarrow$ 0
+			\item 
+				\begin{tabbing}
+					\textbf{wh}\=\textbf{ile }\= i $\leq$ \textit{localRoute}.size()\\
+						\> Object \textit{tmp} $\leftarrow$ \textit{null}\\
+						\> \textbf{if }\= (\textit{f} $\in$ \textit{i}) \&\& ((\textit{tmp } $\leftarrow$ \textit{localRoute}.get(i)) $\neq$ \textit{null})\\
+						\> \> \textbf{if }\= \textit{tmp} \textbf{instance of} ContainerLocal\\
+						\> \> \> \textbf{wh}\=\textbf{ile } \textit{tmp}.hasNext()\\
+						\> \> \> \> BF \textit{bf\_tmp} $\leftarrow$ \textit{tmp}.next()\\
+						\> \> \> \> \textbf{if }\= \textit{bf} $\in$ \textit{bf\_tmp}\\
+						\> \> \> \> \> \textit{o}.add(\textit{bf\_tmp})\\
+						\> \> \> \> \textbf{end}\\ 
+						\> \> \> \textbf{end} \\
+						\> \> \textbf{else} /* \textit{tmp} \textbf{instance of} String */\\
+						\> \> \> \textit{o}.add(\textit{tmp})\\
+						\> \> \textbf{end}\\
+						\> \textbf{end}\\ 
+						\> i++\\
+					\textbf{end}
+				\end{tabbing}
+			\item \textbf{return} \textit{o}
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
+
+
+\subsection{Suppression d'un filtre dans le nœud}
+	Lors de la suppression d'un filtre de Bloom dans le nœud, les étapes sont : 
+	\begin{enumerate}
+		\item D'abord, il détermine la valeur de fragment de rang \textit{i} du filtre de la requête.
+		\item Si \textit{localRoute} ne contient pas ce fragment, donc, il n'y a pas ce filtre dans le système.
+		\item S'il existe un entrée non vide dans la table \textit{localRoute}, alors : 
+		\begin{enumerate}
+			\item Si cette entrée contient un conteneur local, alors il supprime le filtre de la requête dans ce conteneur. Si ce conteneur devient vide, il le supprime dans la table \textit{localRoute}. En plus, si cette table devient aussi vide, il renvoie cette table au système pourqu'il puisse supprimer le nœud qui la contient.
+			\item Si cette entrée contient l'adresse d'un conteneur distant, il renvoie cette adresse au système.
+		\end{enumerate}
+	\end{enumerate}
+
+\begin{algorithme}
+	Suppression d'un filtre de Bloom dans le nœud \textbf{remove}
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} BF \textit{bf}\\
+		\textbf{OUT:} Object \textit{o}\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(rang)
+			\item 
+				\begin{tabbing}
+					\textbf{if }\= !\textit{localRoute}.contains(\textit{f})\\
+						\> \textbf{return} \textit{null}\\
+					\textbf{end}
+				\end{tabbing}
+			\item Object \textit{o} $\leftarrow$ \textit{localRoute}.get(\textit{f})
+			\item
+				\begin{tabbing}
+					\textbf{if }\= \textit{o} \textbf{instance of} ContainerLocal\\
+						\> \textit{o}.remove(\textit{bf})\\
+						\> \textbf{if }\= \textit{o}.isEmpty()\\
+						\> \> \textit{localRoute}.remove(\textit{f})\\
+						\> \textbf{end}\\
+						\> \textbf{if }\= \textit{localRoute}.isEmpty()\\
+						\> \> \textbf{return} \textit{localRoute}\\
+						\> \textbf{end}\\
+						\> \textbf{return} \textit{null}\\
+					\textbf{end}
+				\end{tabbing}
+			\item \textbf{return} \textit{localRoute}.get(\textit{f}) /*retourne l'adresse de nœud fils*/
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
+
+\section{Implémentation du système d'index}
+	Le système d'index gère les nœuds. Les actions autorisées pour les utilisateurs sont : ajout d'un filtre de Bloom, recherche des filtres de Bloom et supprime d'un filtre de Bloom. En plus, il existe des actions internes du système comme \textbf{split}.
 	
+\subsection{Données du système d'index}	
+\begin{description}
+	\item[Identifiant de l'index (indexID)] est pour distinguer entre plusieurs index différents.
+	\item[Identifiant du server (serverID)] est l'identifiant du server qui gère cet index.
+	\item[Capacité maximale d'un conteneur local (gamma)] est la taille maximum du conteneur local du système.
+	\item[Table de nœuds (listNode)] contient tous les nœuds dans le système.
+\end{description}		
+	
+	
+\subsection{Eclatement d'un niveau dans le système}
+	Cette méthode est appelée lorsque le conteneur local est plein, elle prend le conteneur local et le nœud père contant ce conteneur en entrée.
+	D'abord, elle crée le nœud qui corresponde au conteneur. Ensuite, pour chaque élément, elle envoie vers ce nouveau nœud en appelant la méthode \textbf{add}. A la fin, elle ajoute l'adresse de ce nouveau nœud dans la table \textit{localRoute} de son père.
+	
+\begin{algorithme}
+	Eclatement d'un niveau dans le système \textbf{split}
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} Node \textit{father}, ContainerLocal \textit{c}\\
+		\textbf{OUT:} null\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item BF \textit{bf} $\leftarrow$ \textit{c}.get(0)
+			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(\textit{father}.getRang())
+			\item String \textit{path} $\leftarrow$ \textit{father}.getPath() + "/" + \textit{f}
+			\item Integer \textit{newRang} $\leftarrow$ \textit{father}.getRang() + 1
+			\item Node \textit{n} $\leftarrow$ new Node(\textit{null}, \textit{path}, \textit{newRang}, \textit{gamma}) /*ici, serverID $\leftarrow$ \textit{null}*/
+			\item \textit{father}.add(\textit{bf}, \textit{path})
+			\item \textit{listNode}.put(\textit{path}, \textit{n})
+			\item Integer \textit{i} $\leftarrow$ 0
+			\item
+				\begin{tabbing}
+					\textbf{wh}\=\textbf{ile }\= \textit{i} $<$ \textit{c}.size()\\
+						\> \textit{n}.add(\textit{c}.get(i))\\
+						\> i++\\
+					\textbf{end}
+				\end{tabbing}									
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
+
+	
+\subsection{Ajout d'un filtre de Bloom dans le système}
+	
+	
+\subsection{Recherche des filtres de Bloom dans le système}
+
+
+\subsection{Suppression d'un filtre de Bloom dans le système}
+
+
 
 
 \end{document}
