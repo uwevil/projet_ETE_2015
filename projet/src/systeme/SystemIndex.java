@@ -135,16 +135,16 @@ public class SystemIndex implements Serializable{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
 				n = listNode.get((String)o);
-				systeme.Configuration.nodeVisited++;
 				o = n.remove(bf);
 			}else{
 				String path = n.getPath();
 				int rang = n.getRang();
 
-				listNode.remove(path);
-
 				if (path == "")
 					return;
+				
+				listNode.remove(path);
+
 				int lastIndex = path.lastIndexOf('/');
 				n = (Node)listNode.get(path.substring(0, lastIndex));
 				while(true)
@@ -155,13 +155,13 @@ public class SystemIndex implements Serializable{
 					}else{
 						path = n.getPath();
 						rang = n.getRang();
-						
-						listNode.remove(path);
 
 						if (path == "")
 							return;
-						lastIndex = path.lastIndexOf('/');
+						
 						listNode.remove(path);
+
+						lastIndex = path.lastIndexOf('/');
 						n = (Node)listNode.get(path.substring(0, lastIndex));
 					}
 				}

@@ -290,11 +290,11 @@
 			\item Integer i $\leftarrow$ 0
 			\item 
 				\begin{tabbing}
-					\textbf{wh}\=\textbf{ile }\= i $\leq$ \textit{localRoute}.size()\\
+					\textbf{wh}\=\textbf{ile }\=i $\leq$ \textit{localRoute}.size()\\
 						\> Object \textit{tmp} $\leftarrow$ \textit{null}\\
 						\> \textbf{if }\= (\textit{f} $\in$ \textit{i}) \&\& ((\textit{tmp } $\leftarrow$ \textit{localRoute}.get(i)) $\neq$ \textit{null})\\
 						\> \> \textbf{if }\= \textit{tmp} \textbf{instance of} ContainerLocal\\
-						\> \> \> \textbf{wh}\=\textbf{ile } \textit{tmp}.hasNext()\\
+						\> \> \> \textbf{wh}\=\textbf{ile }\textit{tmp}.hasNext()\\
 						\> \> \> \> BF \textit{bf\_tmp} $\leftarrow$ \textit{tmp}.next()\\
 						\> \> \> \> \textbf{if }\= \textit{bf} $\in$ \textit{bf\_tmp}\\
 						\> \> \> \> \> \textit{o}.add(\textit{bf\_tmp})\\
@@ -385,13 +385,13 @@
 \begin{flushleft}
 	\begin{framed}
 		\textbf{IN:} Node \textit{father}, ContainerLocal \textit{c}\\
-		\textbf{OUT:} null\\
+		\textbf{OUT:} \textit{null}\\
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
 			\item BF \textit{bf} $\leftarrow$ \textit{c}.get(0)
 			\item Fragment \textit{f} $\leftarrow$ \textit{bf}.getFragment(\textit{father}.getRang())
-			\item String \textit{path} $\leftarrow$ \textit{father}.getPath() + "/" + \textit{f}
+			\item String \textit{path} $\leftarrow$ \textit{father}.getPath() + \textit{"/"} + \textit{f}
 			\item Integer \textit{newRang} $\leftarrow$ \textit{father}.getRang() + 1
 			\item Node \textit{n} $\leftarrow$ new Node(\textit{null}, \textit{path}, \textit{newRang}, \textit{gamma}) /*ici, serverID $\leftarrow$ \textit{null}*/
 			\item \textit{father}.add(\textit{bf}, \textit{path})
@@ -399,7 +399,7 @@
 			\item Integer \textit{i} $\leftarrow$ 0
 			\item
 				\begin{tabbing}
-					\textbf{wh}\=\textbf{ile }\= \textit{i} $<$ \textit{c}.size()\\
+					\textbf{wh}\=\textbf{ile }\=\textit{i} $<$ \textit{c}.size()\\
 						\> \textit{n}.add(\textit{c}.get(i))\\
 						\> i++\\
 					\textbf{end}
@@ -410,15 +410,140 @@
 
 	
 \subsection{Ajout d'un filtre de Bloom dans le système}
+	Lors de la réception d'une demande d'ajout dans le système, il renvoie cette requête vers le nœud racine, c'est-à-dire le nœud de niveau 0. Il y a 3 cas possibles : 
+	\begin{enumerate}
+		\item La réponse est un conteneur local de ce nœud, le système appelle la méthode \textbf{split} et il continue à traiter les autres commandes.
+		\item La réponse est l'identifiant du fils de ce nœud, le système cherche le nœud fils et le renvoie cette commande.
+		\item La réponse ne contient aucun élément, c'est le succès.
+	\end{enumerate}
+	Le système continue ce procédure jusqu'à quand l'insertion de ce filtre réussit.
 	
+\begin{algorithme}
+	Ajout d'un filtre de Bloom dans le système \textbf{add}
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} BF \textit{bf} \\
+		\textbf{OUT:} \textit{null}\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item Node \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{"/"})
+			\item Object \textit{o} $\leftarrow$ \textit{n}.add(\textit{bf})
+			\item
+				\begin{tabbing}
+					\textbf{wh}\=\textbf{ile }\=\textit{o} $\neq$ \textit{null}\\
+						\> \textbf{if }\= \textit{o} \textbf{instance of} ContainerLocal\\
+						\> \> \textbf{split(}\textit{n}, \textit{o}\textbf{)}\\
+						\> \> \textit{o} $\leftarrow$ \textit{null}\\
+						\> \textbf{else}\\
+						\> \> \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{o})\\
+						\> \> \textit{o} $\leftarrow$ \textit{n}.add(\textit{bf})\\
+						\> \textbf{end}\\
+					\textbf{end}
+				\end{tabbing}									
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
 	
 \subsection{Recherche des filtres de Bloom dans le système}
+	Pour la recherche des filtres de Bloom qui matchent la requête, le système renvoie la requête au nœud racine et reçoit le résultat à partir de ce nœud. Le nœud répond au système en envoyant un ensemble de données qu'il y a 2 types de données possibles : 
+	\begin{enumerate}
+		\item soit le filtre de Bloom, simplement, le système l'ajoute dans l'ensemble de filtres trouvés.
+		\item soit l'identifiant du nœud fils, alors, il doit y envoyer la requête et traiter sa réponse.
+		\item soit rien.
+	\end{enumerate}
+	A la fin, il retourne le résultat complet.
+
+\begin{algorithme}
+	Recherche des filtres de Bloom dans le système \textbf{search}
+\end{algorithme}
+
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} BF \textit{bf} \\
+		\textbf{OUT:} ArrayList<BF> \textit{resultat}\\
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item Node \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{"/"})
+			\item ArrayList<Object> \textit{list} $\leftarrow$ \textit{n}.search(\textit{bf})
+			\item ArrayList<BF> \textit{resultat} $\leftarrow$ \textit{null}
+			\item
+				\begin{tabbing}
+					\textbf{wh}\=\textbf{ile }\=\textit{list}.hasNext()\\
+						\> Object \textit{o} $\leftarrow$ \textit{list}.next()\\
+						\> \textbf{if }\= \textit{o} \textbf{instance of} BF\\
+						\> \> \textit{resultat}.add(\textit{o})\\
+						\> \textbf{else}\\
+						\> \> Node \textit{tmp} $\leftarrow$ \textit{listNode}.get(\textit{o})\\
+						\> \> \textit{list}.add(\textit{tmp}.search(\textit{bf}))\\
+						\> \textbf{end}\\
+					\textbf{end}
+				\end{tabbing}
+			\item \textbf{return} \textit{resultat}									
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
 
 
 \subsection{Suppression d'un filtre de Bloom dans le système}
+	La requête de suppression est aussi envoyée au nœud racine. Il y aussi 3 cas à distinguer :
+	\begin{enumerate}
+		\item Si la réponse est l'identifiant de son nœud fils, le système y renvoie la requête et attend la réponse.
+		\item Si la réponse est la table de routage, cela veut dire que cette table est vide après la suppression son dernier élément. Le système demande que son père supprime l'entrée correspond avec ce nœud qui gère cette table et supprime ce nœud, si la table de routage de son père devient vide, le système remonte ce procédure vers la racine pour finir la suppression des nœuds vides.
+		\item Si la réponse est null, cette méthode finit avec succès.
+	\end{enumerate}
 
+\begin{algorithme}
+	Suppression d'un filtre de Bloom dans le système \textbf{remove}
+\end{algorithme}
 
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} BF \textit{bf} \\
+		\textbf{OUT:} \textit{null}\\
+		\noindent\rule{\linewidth}{0.5pt}
 
+		\begin{enumerate}
+			\item Node \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{"/"})
+			\item Object \textit{o} $\leftarrow$ \textit{n}.remove(\textit{bf})
+			\item
+				\begin{tabbing}
+					\textbf{wh}\=\textbf{ile }\textit{o} $\neq$ \textit{null}\\
+						\> \textbf{if }\= \textit{o} \textbf{instance of} String /*l'adresse d'un nœud est une chaine de caractères*/\\
+						\> \> \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{o})\\
+						\> \> \textit{o} $\leftarrow$ \textit{n}.remove(\textit{bf})\\
+						\> \textbf{else}\\
+						\> \> String \textit{path} $\leftarrow$ \textit{n}.getPath() /*retourne l'adresse de ce nœud*/\\
+						\> \> Integer \textit{rang} $\leftarrow$ \textit{n}.getRang()\\
+						\> \> \textbf{if }\= \textit{path} == \textit{"/"}\\
+						\> \> \> \textbf{return}\\
+						\> \> \textbf{end}\\						
+						\> \> \textit{listNode}.remove(\textit{path})\\
+						\> \> Integer \textit{lastIndex} $\leftarrow$ \textit{path}.lastIndexOf(\textit{"/"}) /*retourne la dernière position de cette caractère*/\\
+						\> \> \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{path}.substring(0, \textit{lastIndex}))\\
+						\> \> \textbf{wh}\=\textbf{ile }\textit{true}\\
+						\> \> \> \textbf{if }\= \textit{n}.remove(\textit{bf}.getFragment(\textit{rang}))\\
+						\> \> \> \> \textbf{return}\\
+						\> \> \> \textbf{else}\\
+						\> \> \> \> \textit{path} $\leftarrow$ \textit{n}.getPath()\\
+						\> \> \> \> \textit{rang} $\leftarrow$ \textit{n}.getRang()\\
+						\> \> \> \> \textbf{if }\= \textit{path} == \textit{"/"}\\
+						\> \> \> \> \> \textbf{return}\\
+						\> \> \> \> \textbf{end}\\
+						\> \> \> \> \textit{listNode}.remove(\textit{path})\\
+						\> \> \> \> \textit{lastIndex} $\leftarrow$ \textit{path}.lastIndexOf(\textit{"/"})\\
+						\> \> \> \> \textit{n} $\leftarrow$ \textit{listNode}.get(\textit{path}.substring(0, \textit{lsatIndex}))\\
+						\> \> \> \textbf{end}\\
+						\> \> \textbf{end}\\
+						\> \textbf{end}\\
+					\textbf{end}
+				\end{tabbing}
+		\end{enumerate}	
+	\end{framed}
+\end{flushleft}
 
 \end{document}
 
