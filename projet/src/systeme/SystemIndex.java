@@ -75,6 +75,8 @@ public class SystemIndex implements Serializable{
 	@SuppressWarnings("unchecked")
 	public Object search(BF bf)
 	{
+		@SuppressWarnings("unused")
+		Configuration c = new Configuration();
 		Node n = (Node)listNode.get("");
 		ArrayList<BF> resultat = new ArrayList<BF>();
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
@@ -101,6 +103,8 @@ public class SystemIndex implements Serializable{
 	
 	public Object searchExact(BF bf)
 	{
+		@SuppressWarnings("unused")
+		Configuration c = new Configuration();
 		Node n = (Node)listNode.get("");
 		Object o = n.searchExact(bf);
 		

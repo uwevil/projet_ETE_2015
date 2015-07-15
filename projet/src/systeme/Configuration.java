@@ -10,4 +10,12 @@ public class Configuration {
 	public static int sizeOfBF = 512;
 	public static int numberOfFragment = 64;
 	public static int gamma = 1000;
+	
+	public Configuration()
+	{
+		nodeVisited = 0;
+		nodeMatched = new ArrayList<String>();
+		doublon = 0;
+		numberOfBF = 0;
+	}
 }
