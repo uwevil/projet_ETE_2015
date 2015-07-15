@@ -220,10 +220,10 @@
 		\item[Table de routage (localRoute)] est une table d'une dimension, elle contient l'adresse soit d'un conteneur local, soit d'un conteneur à distance, soit aussi du vide. L'index d'ajout des données dans cette table est calculé par le fragment du rang de son nœud.
 	\end{description}
 	
-	En outre, le nœud doit connaître son serveur qui l'héberge.
+	En outre, le nœud doit connaître le serveur qui l'héberge.
 
 \subsection{Ajout'd'un filtre dans le nœud}
-	L'action d'ajout d'un filtre de Bloom dans un nœux se déroule selon les étapes suivantes : 
+	L'action d'ajout d'un filtre de Bloom dans un nœud se déroule selon les étapes suivantes : 
 	\begin{enumerate}
 		\item Il détermine la valeur du fragment de rang \textit{i} du filtre de la requête. Cette valeur est l'index dans la table \textit{localRoute}
 		\item Ensuite, il y a 3 cas à distinguer :
@@ -270,10 +270,11 @@
 		\item Il parcourt toute la table \textit{localRoute} pour trouver tous les entrées non vides qui contiennent le fragment déterminé de la requête :
 			\begin{enumerate}
 			\item Si l'entrée correspondante contient l'adresse du conteneur local dont il récupère tous les filtres qui contiennent celui de la requête et ajoute dans l'ensemble de résultats.
-			\item Si l'entrée correspondante contient l'adresse du conteneur local, il l'ajoute également dans l'ensemble de résultats.
+			\item Si l'entrée correspondante contient l'adresse du  nœud fils, il l'ajoute également dans l'ensemble de résultats.
 			\end{enumerate}
 	\end{enumerate}		
 	
+\newpage
 \begin{algorithme}
 	Recherche des filtres de Bloom dans le nœud \textbf{search}
 \end{algorithme}
@@ -321,10 +322,11 @@
 		\item S'il existe un entrée non vide dans la table \textit{localRoute}, alors : 
 		\begin{enumerate}
 			\item Si cette entrée contient un conteneur local, alors il supprime le filtre de la requête dans ce conteneur. Si ce conteneur devient vide, il le supprime dans la table \textit{localRoute}. En plus, si cette table devient aussi vide, il renvoie cette table au système pourqu'il puisse supprimer le nœud qui la contient.
-			\item Si cette entrée contient l'adresse d'un conteneur distant, il renvoie cette adresse au système.
+			\item Si cette entrée contient l'adresse d'un nœud fils, il renvoie cette adresse au système.
 		\end{enumerate}
 	\end{enumerate}
 
+\newpage
 \begin{algorithme}
 	Suppression d'un filtre de Bloom dans le nœud \textbf{remove}
 \end{algorithme}
@@ -375,9 +377,10 @@
 	
 	
 \subsection{Eclatement d'un niveau dans le système}
-	Cette méthode est appelée lorsque le conteneur local est plein, elle prend le conteneur local et le nœud père contant ce conteneur en entrée.
+	Cette méthode est appelée lorsque le conteneur local est plein, elle prend le conteneur local et le nœud père contenant ce conteneur en entrée.
 	D'abord, elle crée le nœud qui corresponde au conteneur. Ensuite, pour chaque élément, elle envoie vers ce nouveau nœud en appelant la méthode \textbf{add}. A la fin, elle ajoute l'adresse de ce nouveau nœud dans la table \textit{localRoute} de son père.
 	
+\newpage
 \begin{algorithme}
 	Eclatement d'un niveau dans le système \textbf{split}
 \end{algorithme}
@@ -412,9 +415,9 @@
 \subsection{Ajout d'un filtre de Bloom dans le système}
 	Lors de la réception d'une demande d'ajout dans le système, il renvoie cette requête vers le nœud racine, c'est-à-dire le nœud de niveau 0. Il y a 3 cas possibles : 
 	\begin{enumerate}
-		\item La réponse est un conteneur local de ce nœud, le système appelle la méthode \textbf{split} et il continue à traiter les autres commandes.
-		\item La réponse est l'identifiant du fils de ce nœud, le système cherche le nœud fils et le renvoie cette commande.
-		\item La réponse ne contient aucun élément, c'est le succès.
+		\item La réponse du nœud est son conteneur local, le système appelle la méthode \textbf{split} et il continue à traiter les autres requêtes.
+		\item La réponse du nœud est l'identifiant de son fils, le système cherche ce nœud fils et lui renvoie cette requête.
+		\item La réponse du nœud ne contient aucun élément, c'est le succès.
 	\end{enumerate}
 	Le système continue ce procédure jusqu'à quand l'insertion de ce filtre réussit.
 	
@@ -448,7 +451,7 @@
 \end{flushleft}
 	
 \subsection{Recherche des filtres de Bloom dans le système}
-	Pour la recherche des filtres de Bloom qui matchent la requête, le système renvoie la requête au nœud racine et reçoit le résultat à partir de ce nœud. Le nœud répond au système en envoyant un ensemble de données qu'il y a 2 types de données possibles : 
+	Pour la recherche des filtres de Bloom qui matchent la requête, le système renvoie la requête au nœud racine et reçoit le résultat à partir de ce nœud. Le nœud répond au système en envoyant un ensemble de données dans lequel il y a 2 types de données possibles : 
 	\begin{enumerate}
 		\item soit le filtre de Bloom, simplement, le système l'ajoute dans l'ensemble de filtres trouvés.
 		\item soit l'identifiant du nœud fils, alors, il doit y envoyer la requête et traiter sa réponse.
@@ -492,10 +495,11 @@
 	La requête de suppression est aussi envoyée au nœud racine. Il y aussi 3 cas à distinguer :
 	\begin{enumerate}
 		\item Si la réponse est l'identifiant de son nœud fils, le système y renvoie la requête et attend la réponse.
-		\item Si la réponse est la table de routage, cela veut dire que cette table est vide après la suppression son dernier élément. Le système demande que son père supprime l'entrée correspond avec ce nœud qui gère cette table et supprime ce nœud, si la table de routage de son père devient vide, le système remonte ce procédure vers la racine pour finir la suppression des nœuds vides.
+		\item Si la réponse est une table de routage, cela veut dire que cette table est vide après la suppression de son dernier élément. Le système demande son père de supprimer l'entrée correspondante avec le nœud qui gère cette table et supprime ce nœud, si la table de routage de son père devient vide, le système remonte ce procédure vers la racine pour finir la suppression des nœuds vides.
 		\item Si la réponse est null, cette méthode finit avec succès.
 	\end{enumerate}
 
+\newpage
 \begin{algorithme}
 	Suppression d'un filtre de Bloom dans le système \textbf{remove}
 \end{algorithme}
