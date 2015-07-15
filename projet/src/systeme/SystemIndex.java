@@ -106,6 +106,7 @@ public class SystemIndex implements Serializable{
 		@SuppressWarnings("unused")
 		Configuration c = new Configuration();
 		Node n = (Node)listNode.get("");
+		systeme.Configuration.nodeMatched.add("");
 		Object o = n.searchExact(bf);
 		
 		while(o != null)
@@ -114,6 +115,7 @@ public class SystemIndex implements Serializable{
 			{
 				n = listNode.get((String)o);
 				systeme.Configuration.nodeVisited++;
+				systeme.Configuration.nodeMatched.add((String)o);
 				o = n.searchExact(bf);
 			}else{
 				Iterator<BF> iterator = ((ContainerLocal)o).iterator();

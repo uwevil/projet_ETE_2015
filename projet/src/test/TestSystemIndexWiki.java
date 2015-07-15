@@ -9,7 +9,6 @@ import systeme.Serializer;
 import systeme.SystemIndex;
 import exception.ErrorException;
 
-@SuppressWarnings("unused")
 public class TestSystemIndexWiki {
 	public static int nodeVisited = 0;
 	public static int nodeMatched = 0;
@@ -21,10 +20,10 @@ public class TestSystemIndexWiki {
 	
 	public static void main(String[] args) throws ErrorException 
 	{
-		//SystemIndex systemIndex = new SystemIndex(0, gamma);
+		SystemIndex systemIndex = new SystemIndex(0, null, gamma);
 		long time = System.currentTimeMillis();
 
-		WriteFile w = new WriteFile("/Users/dcs/vrac/test/bf_description_Wiki", false);
+		//WriteFile w = new WriteFile("/Users/dcs/vrac/test/bf_description_Wiki", false);
 		int i = 0;
 		try (BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs (1).csv")))
 		{
@@ -35,9 +34,9 @@ public class TestSystemIndexWiki {
 				String[] tmp = s.split(";");
 				BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
 				bf.addAll(tmp[1]);
-			//	systemIndex.add(bf);
+				systemIndex.add(bf);
 				
-				w.write(bf.toString() + ";" + tmp[1] + "\n");
+			//	w.write(bf.toString() + ";" + tmp[1] + "\n");
 				i++;
 			}
 			reader.close();
@@ -48,7 +47,7 @@ public class TestSystemIndexWiki {
 		}
 			
 		System.out.println("Nombre de filtres crées : " + i);
-		w.close();
+	//	w.close();
 		
 		System.out.println("Temps de création l'ensemble de filtres: " 
 						+(System.currentTimeMillis() - time)/(1000) + " s");
@@ -56,8 +55,8 @@ public class TestSystemIndexWiki {
 	//	System.out.println("systemIndex size = " + systemIndex.size() + " nœuds");
 		
 		System.out.println("Test Serialization");
-		//Serializer serializable = new Serializer();
-	//	serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/serializer_Wiki");
+		Serializer serializable = new Serializer();
+		serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/serializer_Wiki-15-07");
 		System.out.println("Serializable OK");
 	
 	}

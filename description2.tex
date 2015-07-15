@@ -293,7 +293,7 @@
 				\begin{tabbing}
 					\textbf{wh}\=\textbf{ile }\=i $\leq$ \textit{localRoute}.size()\\
 						\> Object \textit{tmp} $\leftarrow$ \textit{null}\\
-						\> \textbf{if }\= (\textit{f} $\in$ \textit{i}) \&\& ((\textit{tmp } $\leftarrow$ \textit{localRoute}.get(i)) $\neq$ \textit{null})\\
+						\> \textbf{if }\= ((\textit{f} \&\& \textit{i}) == \textit{f}) \&\& ((\textit{tmp } $\leftarrow$ \textit{localRoute}.get(i)) $\neq$ \textit{null})\\
 						\> \> \textbf{if }\= \textit{tmp} \textbf{instance of} ContainerLocal\\
 						\> \> \> \textbf{wh}\=\textbf{ile }\textit{tmp}.hasNext()\\
 						\> \> \> \> BF \textit{bf\_tmp} $\leftarrow$ \textit{tmp}.next()\\

@@ -130,6 +130,7 @@ public class Node implements Serializable{
 			}else{
 				if (((ContainerLocal)o).contains(bf))
 				{
+					systeme.Configuration.nodeMatched.add(this.path);
 					return ((ContainerLocal)o);
 				}
 				return null;
