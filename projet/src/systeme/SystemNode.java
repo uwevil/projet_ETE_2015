@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import serveur.Server;
 
-public class Node implements Serializable{
+public class SystemNode implements Serializable{
 	/**
 	 * 
 	 */
@@ -18,7 +18,7 @@ public class Node implements Serializable{
 	private LocalRoute localRoute;
 	private int limit;
 	
-	public Node(Server server, String path, int rang, int limit) {
+	public SystemNode(Server server, String path, int rang, int limit) {
 		// TODO Auto-generated constructor stub
 		this.server = server;
 		this.path = path;

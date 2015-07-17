@@ -2,21 +2,21 @@ package serveur;
 
 import java.util.ArrayList;
 
-import systeme.Node;
+import systeme.SystemNode;
 
 
 public class ServerNode implements Server {
 	private int ID;
 	private int nbrServeurs;
 	ArrayList<Server> listServer;
-	ArrayList<Node> listNode;
+	ArrayList<SystemNode> listNode;
 	
 	public ServerNode(int ID, int nbrServeurs) {
 		// TODO Auto-generated constructor stub
 		this.ID = ID;
 		this.nbrServeurs = nbrServeurs;
 		this.listServer = new ArrayList<Server>(nbrServeurs);
-		this.listNode = new ArrayList<Node>();
+		this.listNode = new ArrayList<SystemNode>();
 	}
 	
 	public int getID()

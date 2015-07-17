@@ -1,4 +1,4 @@
-package systeme;
+package peerSimTest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,8 +7,13 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 import serveur.Server;
+import systeme.BF;
+import systeme.Configuration;
+import systeme.ContainerLocal;
+import systeme.Fragment;
+import systeme.SystemNode;
 
-public class SystemIndex implements Serializable{
+public class SystemIndexP2P implements Serializable{
 	/**
 	 * 
 	 */
@@ -19,7 +24,7 @@ public class SystemIndex implements Serializable{
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
 	
-	public SystemIndex(int indexID, Server serverID, int gamma) {
+	public SystemIndexP2P(int indexID, Server serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexID = indexID;
 		this.serverID = serverID;
