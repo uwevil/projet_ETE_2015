@@ -5,6 +5,7 @@ import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
+import serveur.Message;
 
 public class ControlerNw implements Control {
 	private static final String PAR_PROTOCOL = "protocol";
@@ -24,7 +25,13 @@ public class ControlerNw implements Control {
 	public boolean execute() {
 		// TODO Auto-generated method stub
 		Node n = Network.get(0);
-		EDSimulator.add(0, "Bonjour Initilisation", n, pid);
+		Message message = new Message();
+		message.setType("createIndex");
+		message.setData1("dcs");
+		message.setData2(0);
+		message.setData3(0);
+		
+		EDSimulator.add(0, message, n, pid);
 		
 		return false;
 	}

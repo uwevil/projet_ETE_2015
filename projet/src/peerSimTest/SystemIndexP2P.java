@@ -6,7 +6,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import serveur.Server;
 import systeme.BF;
 import systeme.Configuration;
 import systeme.ContainerLocal;
@@ -20,11 +19,11 @@ public class SystemIndexP2P implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private int indexID;
 	@SuppressWarnings("unused")
-	private Server serverID;
+	private int serverID;
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
 	
-	public SystemIndexP2P(int indexID, Server serverID, int gamma) {
+	public SystemIndexP2P(int indexID, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexID = indexID;
 		this.serverID = serverID;

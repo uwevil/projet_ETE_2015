@@ -2,13 +2,13 @@ package serveur;
 
 import java.security.MessageDigest;
 
-public class NameToServerID {
+public class NameToID {
 	
-	private int nbrServeur;
+	private int length;
 	
-	public NameToServerID(int nbrServeur) {
+	public NameToID(int length) {
 		// TODO Auto-generated constructor stub
-		this.nbrServeur = nbrServeur;
+		this.length = length;
 	}
 	
 	public int translate(String s)
@@ -23,14 +23,24 @@ public class NameToServerID {
 
 			for (int j = 0; j < tmp.length; j++)
 			{
-				n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.nbrServeur + n;
+				n = ((double)(tmp[j] & 0x000000FF)*Math.pow(2, j*8)) % this.length + n;
 			}
-			res =  (int) (n % this.nbrServeur);
+			res =  (int) (n % this.length);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 		
 		return res;
+	}
+	
+	public void setLength(int length)
+	{
+		this.length = length;
+	}
+	
+	public int getLength()
+	{
+		return this.length;
 	}
 
 }

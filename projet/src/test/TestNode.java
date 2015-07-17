@@ -1,6 +1,6 @@
 package test;
 
-import serveur.NameToServerID;
+import serveur.NameToID;
 import serveur.ServerRoot;
 import systeme.SystemNode;
 
@@ -8,8 +8,8 @@ public class TestNode {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		NameToServerID translate = new NameToServerID(3);
-		NameToServerID tmp = new NameToServerID(3);
+		NameToID translate = new NameToID(3);
+		NameToID tmp = new NameToID(3);
 		
 		System.out.println("/ : " + translate.translate("/"));
 		System.out.println("/ : " + tmp.translate("/"));
