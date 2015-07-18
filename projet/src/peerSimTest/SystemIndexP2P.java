@@ -20,24 +20,23 @@ public class SystemIndexP2P implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int indexID;
-	@SuppressWarnings("unused")
+	private String indexName;
 	private int serverID;
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
 	
-	public SystemIndexP2P(int indexID, int serverID, int gamma) {
+	public SystemIndexP2P(String indexName, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
-		this.indexID = indexID;
+		this.indexName = indexName;
 		this.serverID = serverID;
 		this.gamma = gamma;
 		listNode = new Hashtable<String, SystemNode>();
-		listNode.put("", new SystemNode(null, "", 0, gamma));
+		listNode.put("", new SystemNode(serverID, "", 0, gamma));
 	}
 	
-	public int getIndexID()
+	public String getIndexName()
 	{
-		return this.indexID;
+		return this.indexName;
 	}
 
 	public Object add(BF bf) // return Message(split) ou String
@@ -76,14 +75,14 @@ public class SystemIndexP2P implements Serializable{
 		String path = father.getPath() + "/" + f.toInt();
 		
 		Message rep = new Message();
-		NameToID name = new NameToID(systeme.Configuration.indexRand);
+		NameToID name = new NameToID(Network.size());
 		int tmp_serverID = name.translate((String)path);
 		
 		father.add(bf,path);
 		
 		if (tmp_serverID == serverID)
 		{
-			SystemNode n = new SystemNode(null, path, father.getRang() + 1, gamma);
+			SystemNode n = new SystemNode(serverID, path, father.getRang() + 1, gamma);
 			this.listNode.put(path, n);
 			while (iterator.hasNext())
 			{
@@ -92,12 +91,19 @@ public class SystemIndexP2P implements Serializable{
 			}
 			return null;
 		}else{ // rep to noeud local : creer systemNode, path, rang, containerlocal
+			rep.setIndexName(indexName);
 			rep.setData(path);
 			rep.setOption1(father.getRang() + 1);
 			rep.setOption2(c);
 		}
 		
 		return rep;
+	}
+	
+	public void addSystemNode(String path, SystemNode node)
+	{
+		if (!this.listNode.containsKey(path))
+			this.listNode.put(path, node);
 	}
 	
 	@SuppressWarnings("unchecked")

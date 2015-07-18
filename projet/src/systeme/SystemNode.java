@@ -5,20 +5,18 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import serveur.Server;
-
 public class SystemNode implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Server server;
+	private int server;
 	private String path;
 	private int rang;
 	private LocalRoute localRoute;
 	private int limit;
 	
-	public SystemNode(Server server, String path, int rang, int limit) {
+	public SystemNode(int server, String path, int rang, int limit) {
 		// TODO Auto-generated constructor stub
 		this.server = server;
 		this.path = path;
@@ -32,7 +30,7 @@ public class SystemNode implements Serializable{
 		return this.path;
 	}
 	
-	public Server getServer()
+	public int getServer()
 	{
 		return this.server;
 	}

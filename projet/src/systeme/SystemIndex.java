@@ -6,26 +6,23 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import serveur.Server;
-
 public class SystemIndex implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int indexID;
-	@SuppressWarnings("unused")
-	private Server serverID;
+	private int serverID;
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
 	
-	public SystemIndex(int indexID, Server serverID, int gamma) {
+	public SystemIndex(int indexID, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexID = indexID;
 		this.serverID = serverID;
 		this.gamma = gamma;
 		listNode = new Hashtable<String, SystemNode>();
-		listNode.put("", new SystemNode(null, "", 0, gamma));
+		listNode.put("", new SystemNode(serverID, "", 0, gamma));
 	}
 	
 	public int getIndexID()
@@ -61,7 +58,7 @@ public class SystemIndex implements Serializable{
 		BF bf = c.get(0);
 		Fragment f = bf.getFragment(father.getRang());
 		String path = father.getPath() + "/" + f.toInt();
-		SystemNode n = new SystemNode(null, path, father.getRang() + 1, gamma);
+		SystemNode n = new SystemNode(serverID, path, father.getRang() + 1, gamma);
 		father.add(bf,path);
 		this.listNode.put(path, n);
 		

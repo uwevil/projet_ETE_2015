@@ -13,6 +13,8 @@ public class Message {
 	 * 
 	 * OK
 	 * */
+	
+	private String indexName;
 	private String type = "";
 	private Object data = null;
 	private Object src = null;
@@ -24,12 +26,23 @@ public class Message {
 	{
 	}
 	
-	public Message(String type, Object data1, Object data2, Object data3)
+	public Message(String indexName, String type, Object data1, Object data2, Object data3)
 	{
+		this.indexName = indexName;
 		this.type = type;
 		this.data = data1;
 		this.src = data2;
 		this.dest = data3;
+	}
+	
+	public String getIndexName()
+	{
+		return this.indexName;
+	}
+	
+	public void setIndexName(String indexName)
+	{
+		this.indexName = indexName;
 	}
 	
 	public String getType()

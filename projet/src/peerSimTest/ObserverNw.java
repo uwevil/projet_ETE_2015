@@ -29,6 +29,9 @@ public class ObserverNw implements Control {
 		message.setType("removeIndex");
 		
 		EDSimulator.add(0, message, n, pid);
+		
+		
+		
 		return false;
 	}
 
