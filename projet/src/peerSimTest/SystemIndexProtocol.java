@@ -11,6 +11,8 @@ import serveur.Message;
 import serveur.NameToID;
 import test.WriteFile;
 
+import systeme.BF;
+
 public class SystemIndexProtocol implements EDProtocol{
 
 	private static final String PAR_TRANSPORT = "transport";
@@ -48,9 +50,9 @@ public class SystemIndexProtocol implements EDProtocol{
 		{
 		case "createIndex": //createIndex, Name, sourceID, descID, option
 			n = new NameToID(Network.size());	
-			serverID = n.translate((String) message.getData1());
-			n.setLength(999999);
-			indexID = n.translate((String) message.getData1());
+			serverID = n.translate((String) message.getData());
+			n.setLength(systeme.Configuration.indexRand);
+			indexID = n.translate((String) message.getData());
 			
 			if (serverID == nodeIndex)
 			{
@@ -58,23 +60,18 @@ public class SystemIndexProtocol implements EDProtocol{
 				{
 					Message rep = new Message();
 					rep.setType("createIndex_OK");
-					rep.setData1(false);
-					rep.setData2(nodeIndex);
-					rep.setData3(message.getData2());
+					rep.setData("EXISTED");
+					rep.setSource(nodeIndex);
+					rep.setDestinataire(message.getSource());
 					
-					t.send(Network.get(nodeIndex), Network.get((int)message.getData2()), rep, pid);
+					t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 					
 					
 					//********test********
 					WriteFile wf = new WriteFile("/Users/dcs/vrac/test/peersim_log", true);
 					wf.write("EXISTE "+ indexID 
-							+ " name " + message.getData1() 
-							+ " on server " + serverID 
-							+ " created by Node " + nodeIndex 
-							+ " >====< " 
-							+ message.getData2()
-							+ ">>>>>"
-							+ nodeIndex
+							+ " name " + message.getData() + "\n"
+							+ rep.toString()
 							+ "\n");
 					wf.close();
 					//********************
@@ -83,23 +80,18 @@ public class SystemIndexProtocol implements EDProtocol{
 					listSystemIndexP2P.put(indexID, new SystemIndexP2P(indexID, serverID, systeme.Configuration.gamma));
 					Message rep = new Message();
 					rep.setType("createIndex_OK");
-					rep.setData1(true);
-					rep.setData2(nodeIndex);
-					rep.setData3(message.getData2());
+					rep.setData("CREATED");
+					rep.setSource(nodeIndex);
+					rep.setDestinataire(message.getSource());
 					
-					t.send(Network.get(nodeIndex), Network.get((int)message.getData2()), rep, pid);
+					t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 					
 
 					//********test********
 					WriteFile wf = new WriteFile("/Users/dcs/vrac/test/peersim_log", true);
 					wf.write("CREATED "+ indexID 
-							+ " name " + message.getData1() 
-							+ " on server " + serverID 
-							+ " by Node " + nodeIndex 
-							+ " >====< " 
-							+ message.getData2()
-							+ ">>>>>"
-							+ nodeIndex
+							+ " name " + message.getData() + "\n"
+							+ rep.toString()
 							+ "\n");
 					wf.close();
 					//********************
@@ -108,17 +100,11 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				
-				
 				//********test********
 				WriteFile wf = new WriteFile("/Users/dcs/vrac/test/peersim_log", true);
 				wf.write("Forward "+ indexID 
-						+ " name " + message.getData1() 
-						+ " on server " + serverID 
-						+ " created by Node " + nodeIndex 
-						+ " >====< " 
-						+ message.getData2()
-						+ ">>>>>"
-						+ nodeIndex
+						+ " name " + message.getData() + "\n"
+						+ message.toString()
 						+ "\n");
 				wf.close();
 				//********************
@@ -129,41 +115,35 @@ public class SystemIndexProtocol implements EDProtocol{
 		case "removeIndex": //removeIndex, Name
 			
 			n = new NameToID(Network.size());	
-			serverID = n.translate((String) message.getData1());
-			n.setLength(999999);
-			indexID = n.translate((String) message.getData1());
+			serverID = n.translate((String) message.getData());
+			n.setLength(systeme.Configuration.indexRand);
+			indexID = n.translate((String) message.getData());
 			
 			if (serverID == nodeIndex)
 			{
+				Message rep = new Message();
 				if (listSystemIndexP2P.containsKey(indexID))
 				{
 					listSystemIndexP2P.remove(indexID);
-					Message rep = new Message();
 					rep.setType("removeIndex_OK");
-					rep.setData1(true);
-					rep.setData2(nodeIndex);
-					rep.setData3(message.getData2());
+					rep.setData("REMOVED");
+					rep.setSource(nodeIndex);
+					rep.setDestinataire(message.getSource());
 					
-					t.send(Network.get(nodeIndex), Network.get((int)message.getData2()), rep, pid);
+					t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 				}else{
-					Message rep = new Message();
 					rep.setType("removeIndex_OK");
-					rep.setData1(false);
-					rep.setData2(nodeIndex);
-					rep.setData3(message.getData2());
+					rep.setData("NOT_EXISTED");
+					rep.setSource(nodeIndex);
+					rep.setDestinataire(message.getSource());
 					
-					t.send(Network.get(nodeIndex), Network.get((int)message.getData2()), rep, pid);
+					t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 				}
 				//********test********
 				WriteFile wf = new WriteFile("/Users/dcs/vrac/test/peersim_log", true);
 				wf.write("Remove "+ indexID 
-						+ " name " + message.getData1() 
-						+ " on server " + serverID 
-						+ " created by Node " + nodeIndex 
-						+ " >====< " 
-						+ message.getData2()
-						+ ">>>>>"
-						+ nodeIndex
+						+ " name " + message.getData() + "\n"
+						+ rep.toString()
 						+ "\n");
 				wf.close();
 				//********************
@@ -175,13 +155,8 @@ public class SystemIndexProtocol implements EDProtocol{
 				//********test********
 				WriteFile wf = new WriteFile("/Users/dcs/vrac/test/peersim_log", true);
 				wf.write("Forward remove "+ indexID 
-						+ " name " + message.getData1() 
-						+ " on server " + serverID 
-						+ " created by Node " + nodeIndex 
-						+ " >====< " 
-						+ message.getData2()
-						+ ">>>>>"
-						+ nodeIndex
+						+ " name " + message.getData() + "\n"
+						+ message.toString()
 						+ "\n");
 				wf.close();
 				//********************
@@ -190,6 +165,22 @@ public class SystemIndexProtocol implements EDProtocol{
 			break;
 			
 		case "add": // add, Name, BF
+			n = new NameToID(Network.size());	
+			serverID = n.translate((String) message.getData());
+			n.setLength(systeme.Configuration.indexRand);
+			indexID = n.translate((String) message.getData());
+			
+			if (serverID == nodeIndex)
+			{
+				Message rep = new Message();
+				if (listSystemIndexP2P.containsKey(indexID))
+				{
+					SystemIndexP2P system = (SystemIndexP2P) listSystemIndexP2P.get(indexID);
+					Object o = system.add((BF)message.getData());
+					
+				}
+			}
+				
 			break;
 			
 		case "remove": //remove, Name, BF

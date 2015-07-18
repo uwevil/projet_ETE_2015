@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Configuration {
 	public static int nodeVisited = 0;
 	public static ArrayList<String> nodeMatched = new ArrayList<String>();
+	public static int indexRand = 99999999;
 	public static int doublon = 0;
 	public static int numberOfBF = 0;
 	public static int sizeOfBF = 512;

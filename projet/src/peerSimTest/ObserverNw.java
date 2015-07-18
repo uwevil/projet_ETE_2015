@@ -23,9 +23,9 @@ public class ObserverNw implements Control {
 		// TODO Auto-generated method stub
 		Node n = Network.get(30);
 		Message message = new Message();
-		message.setData1("dcs");
-		message.setData2(0);
-		message.setData3(0);
+		message.setData("dcs");
+		message.setSource(0);
+		message.setDestinataire(0);
 		message.setType("removeIndex");
 		
 		EDSimulator.add(0, message, n, pid);

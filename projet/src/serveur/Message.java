@@ -14,9 +14,11 @@ public class Message {
 	 * OK
 	 * */
 	private String type = "";
-	private Object data1 = null;
-	private Object data2 = null;
-	private Object data3 = null;
+	private Object data = null;
+	private Object src = null;
+	private Object dest = null;
+	private Object option1 = null;
+	private Object option2 = null;
 	
 	public Message()
 	{
@@ -25,9 +27,9 @@ public class Message {
 	public Message(String type, Object data1, Object data2, Object data3)
 	{
 		this.type = type;
-		this.data1 = data1;
-		this.data2 = data2;
-		this.data3 = data3;
+		this.data = data1;
+		this.src = data2;
+		this.dest = data3;
 	}
 	
 	public String getType()
@@ -40,43 +42,66 @@ public class Message {
 		this.type = type;
 	}
 	
-	public Object getData1()
+	public Object getData()
 	{
-		return this.data1;
+		return this.data;
 	}
 	
-	public void setData1(Object data1)
+	public void setData(Object data)
 	{
-		this.data1 = data1;
+		this.data = data;
 	}
 	
-	public Object getData2()
+	public Object getSource()
 	{
-		return this.data2;
+		return this.src;
 	}
 	
-	public void setData2(Object data2)
+	public void setSource(Object src)
 	{
-		this.data2 = data2;
+		this.src = src;
 	}
 	
-	public Object getData3()
+	public Object getDestinataire()
 	{
-		return this.data3;
+		return this.dest;
 	}
 	
-	public void setData3(Object data3)
+	public void setDestinataire(Object dest)
 	{
-		this.data3 = data3;
+		this.dest = dest;
 	}
+	
+	public Object getOption1()
+	{
+		return this.option1;
+	}
+	
+	public void setOption1(Object option1)
+	{
+		this.option1 = option1;
+	}
+	
+	public Object getOption2()
+	{
+		return this.option2;
+	}
+	
+	public void setOption2(Object option2)
+	{
+		this.option2 = option2;
+	}
+	
 	
 	public String toString()
 	{
-		return "message \n  "
+		return "Message \n  "
 				+ "Type : " + this.getType() + "\n  "
-				+ "Data1 : " + this.getData1() + "\n  "
-				+ "Data2 : " + this.getData2() + "\n  "
-				+ "Data3 : " + this.getData3() + "\n";
+				+ "Data : " + this.getData() + "\n  "
+				+ "Source : " + this.getSource() + "\n  "
+				+ "Destinataire : " + this.getDestinataire() + "\n  "
+				+ "Option1 : " + this.option1 + "\n  "
+				+ "Option2 : " + this.option2 + "\n";
 	}
 	
 }

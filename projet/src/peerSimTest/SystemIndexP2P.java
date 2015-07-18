@@ -6,6 +6,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import peersim.core.Network;
+import serveur.Message;
+import serveur.NameToID;
 import systeme.BF;
 import systeme.Configuration;
 import systeme.ContainerLocal;
@@ -37,43 +40,64 @@ public class SystemIndexP2P implements Serializable{
 		return this.indexID;
 	}
 
-	public void add(BF bf)
+	public Object add(BF bf) // return Message(split) ou String
 	{
 		SystemNode n =  (SystemNode)listNode.get("");
 		
 		Object o = n.add(bf);
 		if (o == null)
-			return;
+			return null;
 		
 		while (o != null)
 		{
 			if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
 			{				
-				this.split(n, (ContainerLocal)o);
-				o = null;
+				o = this.split(n, (ContainerLocal)o);
+				return o;
 			} else if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
-				n = (SystemNode)listNode.get(o);
-				o = n.add(bf);
+				if (listNode.containsKey(o)){
+					n = (SystemNode)listNode.get(o);
+					o = n.add(bf);
+				}else{
+					return o;
+				}
 			}
 		}
+		
+		return null;
 	}
 	
-	private void split(SystemNode father, ContainerLocal c)
+	private Object split(SystemNode father, ContainerLocal c)
 	{
 		Iterator<BF> iterator = c.iterator();
 		BF bf = c.get(0);
 		Fragment f = bf.getFragment(father.getRang());
 		String path = father.getPath() + "/" + f.toInt();
-		SystemNode n = new SystemNode(null, path, father.getRang() + 1, gamma);
-		father.add(bf,path);
-		this.listNode.put(path, n);
 		
-		while (iterator.hasNext())
+		Message rep = new Message();
+		NameToID name = new NameToID(systeme.Configuration.indexRand);
+		int tmp_serverID = name.translate((String)path);
+		
+		father.add(bf,path);
+		
+		if (tmp_serverID == serverID)
 		{
-			bf = iterator.next();
-			n.add(bf);	
+			SystemNode n = new SystemNode(null, path, father.getRang() + 1, gamma);
+			this.listNode.put(path, n);
+			while (iterator.hasNext())
+			{
+				bf = iterator.next();
+				n.add(bf);	
+			}
+			return null;
+		}else{ // rep to noeud local : creer systemNode, path, rang, containerlocal
+			rep.setData(path);
+			rep.setOption1(father.getRang() + 1);
+			rep.setOption2(c);
 		}
+		
+		return rep;
 	}
 	
 	@SuppressWarnings("unchecked")

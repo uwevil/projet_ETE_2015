@@ -27,9 +27,9 @@ public class ControlerNw implements Control {
 		Node n = Network.get(0);
 		Message message = new Message();
 		message.setType("createIndex");
-		message.setData1("dcs");
-		message.setData2(0);
-		message.setData3(0);
+		message.setData("dcs");
+		message.setSource(0);
+		message.setDestinataire(0);
 		
 		EDSimulator.add(0, message, n, pid);
 		
