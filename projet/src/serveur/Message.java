@@ -17,6 +17,8 @@ public class Message {
 	private String indexName;
 	private String type = "";
 	private Object data = null;
+	private String path;
+	private int rang;
 	private Object src = null;
 	private Object dest = null;
 	private Object option1 = null;
@@ -26,13 +28,15 @@ public class Message {
 	{
 	}
 	
-	public Message(String indexName, String type, Object data1, Object data2, Object data3)
+	public Message(String type, String indexName, String path, int rang, Object data1, Object data2, Object data3)
 	{
 		this.indexName = indexName;
 		this.type = type;
 		this.data = data1;
 		this.src = data2;
 		this.dest = data3;
+		this.path = path;
+		this.rang = rang;
 	}
 	
 	public String getIndexName()
@@ -43,6 +47,26 @@ public class Message {
 	public void setIndexName(String indexName)
 	{
 		this.indexName = indexName;
+	}
+	
+	public String getPath()
+	{
+		return this.path;
+	}
+	
+	public void setPath(String path)
+	{
+		this.path = path;
+	}
+	
+	public int getRang()
+	{
+		return this.rang;
+	}
+	
+	public void setRang(int rang)
+	{
+		this.rang = rang;
 	}
 	
 	public String getType()

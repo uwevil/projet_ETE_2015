@@ -31,12 +31,54 @@ public class SystemIndexP2P implements Serializable{
 		this.serverID = serverID;
 		this.gamma = gamma;
 		listNode = new Hashtable<String, SystemNode>();
-		listNode.put("", new SystemNode(serverID, "", 0, gamma));
 	}
 	
 	public String getIndexName()
 	{
 		return this.indexName;
+	}
+	
+	public void createRoot()
+	{
+		listNode.put("", new SystemNode(serverID, "", 0, gamma));
+	}
+	
+	public Object add(BF bf, String path, int rang)
+	{
+		SystemNode n =  (SystemNode)listNode.get(path);
+		
+		if (n == null)
+		{
+			n = new SystemNode(serverID, path, rang, gamma);
+			n.add(bf);
+			return null;
+		}else{
+			Object o = n.add(bf);
+			
+			if (o == null)
+				return null;
+			
+			while (o != null)
+			{
+				if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
+				{				
+					o = this.split(n, (ContainerLocal)o);
+					return o;
+				} 
+				else if (((o.getClass()).getName()).equals("java.lang.String"))
+				{
+					if (listNode.containsKey(o)){
+						n = (SystemNode)listNode.get(o);
+						o = n.add(bf);
+					}
+					else
+					{
+						return o;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public Object add(BF bf) // return Message(split) ou String
@@ -92,9 +134,9 @@ public class SystemIndexP2P implements Serializable{
 			return null;
 		}else{ // rep to noeud local : creer systemNode, path, rang, containerlocal
 			rep.setIndexName(indexName);
-			rep.setData(path);
+			rep.setData(c);
+			rep.setPath(path);
 			rep.setOption1(father.getRang() + 1);
-			rep.setOption2(c);
 		}
 		
 		return rep;
