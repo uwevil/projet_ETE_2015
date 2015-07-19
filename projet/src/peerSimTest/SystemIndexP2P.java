@@ -10,7 +10,6 @@ import peersim.core.Network;
 import serveur.Message;
 import serveur.NameToID;
 import systeme.BF;
-import systeme.Configuration;
 import systeme.ContainerLocal;
 import systeme.Fragment;
 import systeme.SystemNode;
@@ -81,34 +80,6 @@ public class SystemIndexP2P implements Serializable{
 		return null;
 	}
 
-	public Object add(BF bf) // return Message(split) ou String
-	{
-		SystemNode n =  (SystemNode)listNode.get("");
-		
-		Object o = n.add(bf);
-		if (o == null)
-			return null;
-		
-		while (o != null)
-		{
-			if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
-			{				
-				o = this.split(n, (ContainerLocal)o);
-				return o;
-			} else if (((o.getClass()).getName()).equals("java.lang.String"))
-			{
-				if (listNode.containsKey(o)){
-					n = (SystemNode)listNode.get(o);
-					o = n.add(bf);
-				}else{
-					return o;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
 	private Object split(SystemNode father, ContainerLocal c)
 	{
 		Iterator<BF> iterator = c.iterator();
@@ -136,7 +107,7 @@ public class SystemIndexP2P implements Serializable{
 			rep.setIndexName(indexName);
 			rep.setData(c);
 			rep.setPath(path);
-			rep.setOption1(father.getRang() + 1);
+			rep.setRang(father.getRang() + 1);
 		}
 		
 		return rep;
@@ -149,14 +120,17 @@ public class SystemIndexP2P implements Serializable{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Object search(BF bf)
+	public Object search(BF bf, String path)
 	{
-		@SuppressWarnings("unused")
-		Configuration c = new Configuration();
-		SystemNode n = (SystemNode)listNode.get("");
-		ArrayList<BF> resultat = new ArrayList<BF>();
-		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
+		SystemNode n = (SystemNode)listNode.get(path);
+		
+		if (n == null)
+			return null;
+		
 		systeme.Configuration.nodeVisited++;
+
+		ArrayList<Object> resultat = new ArrayList<Object>();
+		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
 		
 		int i = 0;
 		while (i < list.size())
@@ -167,9 +141,16 @@ public class SystemIndexP2P implements Serializable{
 			{
 				resultat.add((BF)o);
 			}else{
-				SystemNode node_tmp = (SystemNode)listNode.get((String)o);
-				systeme.Configuration.nodeVisited++;
-				list.addAll((ArrayList<Object>) node_tmp.search(bf));
+				if (!this.listNode.containsKey((String)o))
+				{
+					resultat.add(o);
+				}
+				else
+				{
+					SystemNode node_tmp = (SystemNode)listNode.get((String)o);
+					systeme.Configuration.nodeVisited++;
+					list.addAll((ArrayList<Object>) node_tmp.search(bf));
+				}
 			}
 			i++;
 		}
@@ -177,22 +158,31 @@ public class SystemIndexP2P implements Serializable{
 	}
 	 
 	
-	public Object searchExact(BF bf)
+	public Object searchExact(BF bf, String path)
 	{
-		@SuppressWarnings("unused")
-		Configuration c = new Configuration();
-		SystemNode n = (SystemNode)listNode.get("");
-		systeme.Configuration.nodeMatched.add("");
+		SystemNode n = (SystemNode)listNode.get(path);
+		
+		if (n == null)
+			return null;
+		
+		systeme.Configuration.nodeMatched.add(path);
 		Object o = n.searchExact(bf);
 		
 		while(o != null)
 		{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
-				n = listNode.get((String)o);
-				systeme.Configuration.nodeVisited++;
-				systeme.Configuration.nodeMatched.add((String)o);
-				o = n.searchExact(bf);
+				if (!listNode.containsKey((String)o))
+				{
+					return o;
+				}
+				else
+				{
+					n = listNode.get((String)o);
+					systeme.Configuration.nodeVisited++;
+					systeme.Configuration.nodeMatched.add((String)o);
+					o = n.searchExact(bf);
+				}
 			}else{
 				Iterator<BF> iterator = ((ContainerLocal)o).iterator();
 				
@@ -207,48 +197,71 @@ public class SystemIndexP2P implements Serializable{
 		return null;
 	}
 	
-	public void remove(BF bf)
+	public Object remove(BF bf, String path)
 	{
-		SystemNode n = (SystemNode)listNode.get("");
+		SystemNode n = (SystemNode)listNode.get(path);
+		if (n == null)
+			return null;
+		
 		Object o = n.remove(bf);
+		if (o == null)
+			return null;
+		if (path == "")
+			return null;
 		
 		while (o != null)
 		{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
-				n = listNode.get((String)o);
-				o = n.remove(bf);
-			}else{
-				String path = n.getPath();
-				int rang = n.getRang();
+				if (!listNode.containsKey((String)o))
+				{
+					return o;
+				}
+				else
+				{
+					n = listNode.get((String)o);
+					o = n.remove(bf);
+				}
+			}else{ // localRoute
+				String path_tmp = n.getPath();
+				int rang_tmp = n.getRang();
 
-				if (path == "")
-					return;
+				if (path_tmp == "")
+					return null;
 				
-				listNode.remove(path);
+				listNode.remove(path_tmp);
 
-				int lastIndex = path.lastIndexOf('/');
-				n = (SystemNode)listNode.get(path.substring(0, lastIndex));
+				int endIndex = path_tmp.lastIndexOf('/');
+				
+				if (!this.listNode.containsKey(path_tmp.substring(0, endIndex)))
+					return path_tmp.substring(0, endIndex);
+				
+				n = (SystemNode)listNode.get(path_tmp.substring(0, endIndex));
+				
 				while(true)
 				{
-					if (n.remove(bf.getFragment(rang)))
+					if (n.remove(bf.getFragment(rang_tmp)))
 					{
-						return;
+						return null;
 					}else{
-						path = n.getPath();
-						rang = n.getRang();
+						path_tmp = n.getPath();
+						rang_tmp = n.getRang();
 
-						if (path == "")
-							return;
+						if (path_tmp == "")
+							return null;
 						
 						listNode.remove(path);
 
-						lastIndex = path.lastIndexOf('/');
-						n = (SystemNode)listNode.get(path.substring(0, lastIndex));
+						endIndex = path.lastIndexOf('/');
+						if (!this.listNode.containsKey(path_tmp.substring(0, endIndex)))
+							return path_tmp.substring(0, endIndex);
+						
+						n = (SystemNode)listNode.get(path.substring(0, endIndex));
 					}
 				}
 			}
 		}
+		return null;
 	}
 	
 	public int size()
