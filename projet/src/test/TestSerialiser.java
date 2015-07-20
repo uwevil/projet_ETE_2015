@@ -1,7 +1,7 @@
 package test;
 
 import systeme.Serializer;
-import systeme.SystemIndex;
+import systeme.SystemIndexCentral;
 
 public class TestSerialiser {
 
@@ -9,8 +9,8 @@ public class TestSerialiser {
 	{
 		Serializer serializable = new Serializer();
 		System.out.println("Test Deserialization");
-		SystemIndex s1 = (SystemIndex) serializable.readObject("/Users/dcs/vrac/test/serializer");
-		SystemIndex s2 = (SystemIndex) serializable.readObject("/Users/dcs/vrac/test/serializer1");
+		SystemIndexCentral s1 = (SystemIndexCentral) serializable.readObject("/Users/dcs/vrac/test/serializer");
+		SystemIndexCentral s2 = (SystemIndexCentral) serializable.readObject("/Users/dcs/vrac/test/serializer1");
 		System.out.println("Deserialization OK");
 		
 		System.out.println("s1 et s2 sont égaux??? => " + s1.equals(s2));

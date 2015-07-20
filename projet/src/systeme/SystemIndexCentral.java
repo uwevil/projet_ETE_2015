@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-public class SystemIndex implements Serializable{
+public class SystemIndexCentral implements Serializable{
 	/**
 	 * 
 	 */
@@ -16,7 +16,7 @@ public class SystemIndex implements Serializable{
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
 	
-	public SystemIndex(int indexID, int serverID, int gamma) {
+	public SystemIndexCentral(int indexID, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexID = indexID;
 		this.serverID = serverID;
@@ -72,8 +72,6 @@ public class SystemIndex implements Serializable{
 	@SuppressWarnings("unchecked")
 	public Object search(BF bf)
 	{
-		@SuppressWarnings("unused")
-		Configuration c = new Configuration();
 		SystemNode n = (SystemNode)listNode.get("");
 		ArrayList<BF> resultat = new ArrayList<BF>();
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
@@ -90,6 +88,7 @@ public class SystemIndex implements Serializable{
 			}else{
 				SystemNode node_tmp = (SystemNode)listNode.get((String)o);
 				systeme.Configuration.nodeVisited++;
+				
 				list.addAll((ArrayList<Object>) node_tmp.search(bf));
 			}
 			i++;

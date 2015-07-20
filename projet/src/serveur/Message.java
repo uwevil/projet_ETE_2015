@@ -18,7 +18,6 @@ public class Message {
 	private String type = "";
 	private Object data = null;
 	private String path;
-	private int rang;
 	private Object src = null;
 	private Object dest = null;
 	private Object option1 = null;
@@ -36,7 +35,6 @@ public class Message {
 		this.src = data2;
 		this.dest = data3;
 		this.path = path;
-		this.rang = rang;
 	}
 	
 	public String getIndexName()
@@ -57,16 +55,6 @@ public class Message {
 	public void setPath(String path)
 	{
 		this.path = path;
-	}
-	
-	public int getRang()
-	{
-		return this.rang;
-	}
-	
-	public void setRang(int rang)
-	{
-		this.rang = rang;
 	}
 	
 	public String getType()

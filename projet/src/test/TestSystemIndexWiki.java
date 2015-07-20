@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import systeme.BF;
 import systeme.Serializer;
-import systeme.SystemIndex;
+import systeme.SystemIndexCentral;
 import exception.ErrorException;
 
 public class TestSystemIndexWiki {
@@ -20,7 +20,7 @@ public class TestSystemIndexWiki {
 	
 	public static void main(String[] args) throws ErrorException 
 	{
-		SystemIndex systemIndex = new SystemIndex(0, null, gamma);
+		SystemIndexCentral systemIndex = new SystemIndexCentral(0, 0, gamma);
 		long time = System.currentTimeMillis();
 
 		//WriteFile w = new WriteFile("/Users/dcs/vrac/test/bf_description_Wiki", false);
@@ -56,7 +56,7 @@ public class TestSystemIndexWiki {
 		
 		System.out.println("Test Serialization");
 		Serializer serializable = new Serializer();
-		serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/serializer_Wiki-15-07");
+		serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/20-07-serializer_Wiki");
 		System.out.println("Serializable OK");
 	
 	}

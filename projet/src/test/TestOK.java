@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import systeme.BF;
 import systeme.Serializer;
-import systeme.SystemIndex;
+import systeme.SystemIndexCentral;
 
 public class TestOK {
 
@@ -17,7 +17,7 @@ public class TestOK {
 
 		System.out.println("       Désérializer");
 		Serializer serializer = new Serializer();
-		SystemIndex systemIndex = (SystemIndex)serializer.readObject("/Users/dcs/vrac/test/serializer_Wiki-15-07");
+		SystemIndexCentral systemIndex = (SystemIndexCentral)serializer.readObject("/Users/dcs/vrac/test/serializer_Wiki-15-07");
 		
 		System.out.println("Temps de désérialisation = " + (System.currentTimeMillis() - time)/(1000) + " s\n");
 		

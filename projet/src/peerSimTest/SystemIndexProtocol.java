@@ -9,9 +9,9 @@ import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.transport.Transport;
 import serveur.Message;
-import serveur.NameToID;
 import test.WriteFile;
 import systeme.BF;
+import systeme.CalculRang;
 import systeme.ContainerLocal;
 import systeme.SystemNode;
 
@@ -21,6 +21,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	private String prefix;
 	private int tid;
 	private int nodeIndex;
+	private Transport t;
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
 	
@@ -41,26 +42,26 @@ public class SystemIndexProtocol implements EDProtocol{
 	@Override
 	public void processEvent(Node node, int pid, Object event) {
 		// TODO Auto-generated method stub
-		Transport t = (Transport) Network.get(nodeIndex).getProtocol(tid);
+		t = (Transport) Network.get(nodeIndex).getProtocol(tid);
 		Message message = (Message)event;
 		
-		NameToID n;
 		int serverID;
 		int indexID;
 		String indexName;
 		String path; 
+		@SuppressWarnings("unused")
 		BF bf;
 	
 		switch(message.getType())
 		{
 		case "createIndex": //createIndex, Name, sourceID, descID, option
-			
-			n = new NameToID(Network.size());
 			indexName = message.getIndexName();
-			serverID = n.translate(indexName);
 			
-			n.setLength(systeme.Configuration.indexRand);
-			indexID = n.translate((String) message.getData());
+			systeme.Configuration.translate.setLength(Network.size());
+			serverID = systeme.Configuration.translate.translate(indexName);
+			
+			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
+			indexID = systeme.Configuration.translate.translate(indexName);
 			
 			if (serverID == nodeIndex)
 			{
@@ -84,8 +85,14 @@ public class SystemIndexProtocol implements EDProtocol{
 					wf.close();
 					//********************
 
-				}else{
-					listSystemIndexP2P.put(indexID, new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma));
+				}
+				else
+				{
+					SystemIndexP2P systemIndex =  new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+					systemIndex.createRoot();
+					
+					listSystemIndexP2P.put(indexID,systemIndex);
+					
 					Message rep = new Message();
 					rep.setType("createIndex_OK");
 					rep.setIndexName(indexName);
@@ -104,7 +111,9 @@ public class SystemIndexProtocol implements EDProtocol{
 					wf.close();
 					//********************
 				}	
-			}else{ // forward
+			}
+			else // forward
+			{ 
 				
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				
@@ -121,13 +130,13 @@ public class SystemIndexProtocol implements EDProtocol{
 			break;
 			
 		case "removeIndex": //removeIndex, Name
-			
-			n = new NameToID(Network.size());
 			indexName = message.getIndexName();
-			serverID = n.translate(indexName);
 			
-			n.setLength(systeme.Configuration.indexRand);
-			indexID = n.translate(indexName);
+			systeme.Configuration.translate.setLength(Network.size());
+			serverID = systeme.Configuration.translate.translate(indexName);
+			
+			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
+			indexID = systeme.Configuration.translate.translate(indexName);
 			
 			if (serverID == nodeIndex)
 			{	
@@ -142,7 +151,9 @@ public class SystemIndexProtocol implements EDProtocol{
 					rep.setDestinataire(message.getSource());
 					
 					t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
-				}else{
+				}
+				else
+				{
 					rep.setType("removeIndex_OK");
 					rep.setIndexName(indexName);
 					rep.setData("NOT_EXISTED");
@@ -161,8 +172,9 @@ public class SystemIndexProtocol implements EDProtocol{
 				wf.close();
 				//********************
 				
-			}else{
-				
+			}
+			else // forward
+			{
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				
 				//********test********
@@ -182,80 +194,57 @@ public class SystemIndexProtocol implements EDProtocol{
 			indexName = message.getIndexName();
 			path = message.getPath();
 			
-			n = new NameToID(Network.size());	
-			serverID = n.translate(indexName);
+			systeme.Configuration.translate.setLength(Network.size());	
+			serverID = systeme.Configuration.translate.translate(indexName);
 			
-			n.setLength(systeme.Configuration.indexRand);
-			indexID = n.translate(indexName);
-
-			Message rep = new Message();
+			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
+			indexID = systeme.Configuration.translate.translate(indexName);
 			
 			if (path.equals("")) // ajout dans la racine, c-à-d la racine est sur le serveur qui stocke systemIndex
 			{
-				if (serverID == nodeIndex) //c'est bien le serveur qui gère ce systemIndex
+				if (serverID == nodeIndex) //c'est bien le serveur racine qui gère ce systemIndex
 				{
 					if (!this.listSystemIndexP2P.containsKey(indexID)) // s'il contient pas ce systemIndex
 						break;
 					
 					SystemIndexP2P systemeIndex = (SystemIndexP2P)this.listSystemIndexP2P.get(indexID);
-					Object o = systemeIndex.add((BF)message.getData());
-					
-					if (o == null)
-						break;
-					
-					if (o.getClass().getName().equals("java.lang.String")) // adresse d'un nœud
-					{
-						n.setLength(Network.size());
-						int tmp_nodeID = n.translate((String)o);
-						
-						rep.setType("add");
-						rep.setIndexName(indexName);
-						rep.setPath((String) o);
-						rep.setData(message.getData());
-						rep.setSource(nodeIndex);
-						rep.setDestinataire(tmp_nodeID);
-						
-						t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
-					}
-					else // Message split()
-					{
-						Message o_tmp = (Message)o;
-						n.setLength(Network.size());
-						int tmp_nodeID = n.translate(o_tmp.getPath());
-						
-						rep.setType("createNode");
-						rep.setIndexName(indexName);
-						rep.setPath(o_tmp.getPath());
-						rep.setData(o_tmp.getData());
-						rep.setOption1(o_tmp.getOption1());
-						rep.setSource(nodeIndex);
-						rep.setDestinataire(tmp_nodeID);
-						
-						t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
-					}
+					Object o = systemeIndex.add((BF)message.getData(), path);
+					treatAdd(o, indexName, message, pid);
 				}
 				else // il gère pas ce systemIndex,mais il fait une geste commerciale, càd forward le mess
 				{
-					rep.setType("add");
-					rep.setIndexName(indexName);
-					rep.setData(message.getData());
-					rep.setSource(message.getSource());
-					rep.setDestinataire(serverID);
+					message.setDestinataire(serverID);
 					
-					t.send(Network.get(nodeIndex), Network.get(serverID), rep, pid);
+					t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				}
 			}
 			else // ajout dans nœud précis, path != ""
 			{ 
-				n = new NameToID(Network.size());	
-				serverID = n.translate(path);
+				systeme.Configuration.translate.setLength(Network.size());
+				serverID = systeme.Configuration.translate.translate(path);
 				
-				if (serverID == nodeIndex)
+				if (serverID == nodeIndex) // si contient ce nœud
 				{
+					if (!this.listSystemIndexP2P.containsKey(indexID)) // s'il contient pas ce systemIndex, créez le
+					{
+						SystemIndexP2P systemIndex = new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+						systemIndex.add((BF)message.getData(), path);
+					}
+					else // il contient ce systemIndex
+					{
+						SystemIndexP2P systemIndex = (SystemIndexP2P)this.listSystemIndexP2P.get(indexID);
+						
+						Object o = systemIndex.add((BF)message.getData(), path);
+						treatAdd(o, indexName, message, pid);	
+					}
+				}
+				else // il contient pas ce nœud, forward
+				{
+					message.setDestinataire(serverID);
 					
+					t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				}
 			}
-			
 				
 			break;
 			
@@ -266,6 +255,33 @@ public class SystemIndexProtocol implements EDProtocol{
 			break;
 			
 		case "createNode": //createNode, Name, path
+			indexName = message.getIndexName();
+			path = message.getPath();
+			
+			systeme.Configuration.translate.setLength(Network.size());
+			serverID = systeme.Configuration.translate.translate(path);
+			
+			if (serverID == nodeIndex) // c'est bien ce serveur qui gère ce path
+			{
+				systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
+				indexID = systeme.Configuration.translate.translate(indexName);
+				
+				if (!this.listSystemIndexP2P.containsKey(indexID)) // contient pas ce systemIndex
+				{
+					SystemIndexP2P systemIndex = new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+					SystemNode systemNode = new SystemNode(serverID, path, 
+							(new CalculRang()).getRang(path), systeme.Configuration.gamma);
+					
+					ContainerLocal c = (ContainerLocal) message.getData();
+					Iterator<BF> iterator = c.iterator();
+					
+					while (iterator.hasNext())
+					{
+						systemNode.add((BF)iterator.next());
+					}
+				}
+			}
+			
 			break;
 			
 		case "removeNode": //removeNode, Name, path
@@ -279,6 +295,45 @@ public class SystemIndexProtocol implements EDProtocol{
 	public void setNodeIndex(int nodeIndex)
 	{
 		this.nodeIndex = nodeIndex;
+	}
+	
+	private void treatAdd(Object o, String indexName, Message message, int pid)
+	{
+		if (o == null)
+			return;
+		
+		if (o.getClass().getName().equals("java.lang.String")) // adresse d'un nœud
+		{
+			systeme.Configuration.translate.setLength(Network.size());
+			int tmp_nodeID = systeme.Configuration.translate.translate((String)o);
+			
+			Message rep = new Message();
+			rep.setType("add");
+			rep.setIndexName(indexName);
+			rep.setPath((String) o);
+			rep.setData(message.getData());
+			rep.setSource(nodeIndex);
+			rep.setDestinataire(tmp_nodeID);
+			
+			t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
+		}
+		else // Message split()
+		{
+			Message o_tmp = (Message)o;
+			
+			systeme.Configuration.translate.setLength(Network.size());
+			int tmp_nodeID = systeme.Configuration.translate.translate(o_tmp.getPath());
+			
+			Message rep = new Message();
+			rep.setType("createNode");
+			rep.setIndexName(indexName);
+			rep.setPath(o_tmp.getPath());
+			rep.setData(o_tmp.getData());
+			rep.setSource(nodeIndex);
+			rep.setDestinataire(tmp_nodeID);
+			
+			t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
+		}
 	}
 
 }

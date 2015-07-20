@@ -8,8 +8,8 @@ import java.util.Iterator;
 
 import peersim.core.Network;
 import serveur.Message;
-import serveur.NameToID;
 import systeme.BF;
+import systeme.CalculRang;
 import systeme.ContainerLocal;
 import systeme.Fragment;
 import systeme.SystemNode;
@@ -42,16 +42,18 @@ public class SystemIndexP2P implements Serializable{
 		listNode.put("", new SystemNode(serverID, "", 0, gamma));
 	}
 	
-	public Object add(BF bf, String path, int rang)
+	public Object add(BF bf, String path)
 	{
 		SystemNode n =  (SystemNode)listNode.get(path);
 		
 		if (n == null)
 		{
-			n = new SystemNode(serverID, path, rang, gamma);
+			n = new SystemNode(serverID, path, (new CalculRang()).getRang(path), gamma);
 			n.add(bf);
 			return null;
-		}else{
+		}
+		else
+		{
 			Object o = n.add(bf);
 			
 			if (o == null)
@@ -66,7 +68,8 @@ public class SystemIndexP2P implements Serializable{
 				} 
 				else if (((o.getClass()).getName()).equals("java.lang.String"))
 				{
-					if (listNode.containsKey(o)){
+					if (listNode.containsKey(o))
+					{
 						n = (SystemNode)listNode.get(o);
 						o = n.add(bf);
 					}
@@ -88,8 +91,8 @@ public class SystemIndexP2P implements Serializable{
 		String path = father.getPath() + "/" + f.toInt();
 		
 		Message rep = new Message();
-		NameToID name = new NameToID(Network.size());
-		int tmp_serverID = name.translate((String)path);
+		systeme.Configuration.translate.setLength(Network.size());
+		int tmp_serverID = systeme.Configuration.translate.translate(path);
 		
 		father.add(bf,path);
 		
@@ -107,7 +110,6 @@ public class SystemIndexP2P implements Serializable{
 			rep.setIndexName(indexName);
 			rep.setData(c);
 			rep.setPath(path);
-			rep.setRang(father.getRang() + 1);
 		}
 		
 		return rep;
@@ -243,7 +245,9 @@ public class SystemIndexP2P implements Serializable{
 					if (n.remove(bf.getFragment(rang_tmp)))
 					{
 						return null;
-					}else{
+					}
+					else
+					{
 						path_tmp = n.getPath();
 						rang_tmp = n.getRang();
 
