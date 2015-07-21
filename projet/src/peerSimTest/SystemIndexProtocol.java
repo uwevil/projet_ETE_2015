@@ -1,5 +1,7 @@
 package peerSimTest;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -289,7 +291,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		case "remove": //remove, Name, BF
 			break;
 			
-		case "search": //search, Name, BF
+		case "search": //search, Name, tableau contient BF et liste des paths
 			indexName = message.getIndexName();
 			path = message.getPath();
 			
@@ -303,7 +305,48 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				if (serverID == nodeIndex) // trouvé serveur gère ce systemIndex
 				{
-					
+					if (!this.listSystemIndexP2P.containsKey(indexID))
+					{
+						Message rep = new Message();
+						rep.setType("search_OK");
+						rep.setIndexName(indexName);
+						rep.setPath(path);
+						rep.setSource(nodeIndex);
+						rep.setDestinataire(message.getDestinataire());
+						rep.setData(null);
+						
+						t.send(Network.get(nodeIndex), Network.get(message.getDestinataire()), rep, pid);
+					}
+					else
+					{
+						SystemIndexP2P systemIndex = this.listSystemIndexP2P.get(indexID);
+						Object[] o = (Object[]) systemIndex.search((BF)message.getData(), path);
+						
+						ArrayList<BF> alBF = (ArrayList<BF>) o[0];
+						Hashtable<Integer, ArrayList<String>> htString = (Hashtable<Integer, ArrayList<String>>)o[1];
+						
+						Message rep = new Message();
+						rep.setType("search_OK");
+						rep.setIndexName(indexName);
+						rep.setPath(path);
+						rep.setSource(nodeIndex);
+						rep.setDestinataire(message.getDestinataire());
+						rep.setData(alBF);
+						
+						t.send(Network.get(nodeIndex), Network.get(message.getDestinataire()), rep, pid);
+						
+						Enumeration<Integer> enumeration = htString.keys();
+						
+						rep.setType("search_path");
+						rep.setIndexName(indexName);
+						rep.setSource(message.getDestinataire());
+
+						while (enumeration.hasMoreElements())
+						{
+							Integer i = enumeration.nextElement();
+							
+						}
+					}
 				}
 				else // ce serveur ne contient pas ce systemIndex
 				{
