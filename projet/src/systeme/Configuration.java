@@ -19,6 +19,10 @@ public class Configuration {
 	public static int gamma = 1000;
 	public static NameToID translate = new NameToID(0);
 	
+	public static String peerSimLOG = "/Users/dcs/vrac/test/21-07-peersim_log";
+	public static int numberOfTime = 0;
+
+	
 	public Configuration()
 	{
 		nodeVisited = 0;

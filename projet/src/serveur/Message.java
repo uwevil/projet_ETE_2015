@@ -18,8 +18,8 @@ public class Message {
 	private String type = "";
 	private Object data = null;
 	private String path;
-	private Object src = null;
-	private Object dest = null;
+	private int src;
+	private int dest;
 	private Object option1 = null;
 	private Object option2 = null;
 	
@@ -27,13 +27,13 @@ public class Message {
 	{
 	}
 	
-	public Message(String type, String indexName, String path, int rang, Object data1, Object data2, Object data3)
+	public Message(String type, String indexName, String path, int src, int dest, Object data)
 	{
 		this.indexName = indexName;
 		this.type = type;
-		this.data = data1;
-		this.src = data2;
-		this.dest = data3;
+		this.data = data;
+		this.src = src;
+		this.dest = dest;
 		this.path = path;
 	}
 	
@@ -77,22 +77,22 @@ public class Message {
 		this.data = data;
 	}
 	
-	public Object getSource()
+	public int getSource()
 	{
 		return this.src;
 	}
 	
-	public void setSource(Object src)
+	public void setSource(int src)
 	{
 		this.src = src;
 	}
 	
-	public Object getDestinataire()
+	public int getDestinataire()
 	{
 		return this.dest;
 	}
 	
-	public void setDestinataire(Object dest)
+	public void setDestinataire(int dest)
 	{
 		this.dest = dest;
 	}
@@ -121,12 +121,14 @@ public class Message {
 	public String toString()
 	{
 		return "Message \n  "
-				+ "Type : " + this.getType() + "\n  "
-				+ "Data : " + this.getData() + "\n  "
-				+ "Source : " + this.getSource() + "\n  "
+				+ "Type         : " + this.getType() + "\n  "
+				+ "Index        : " + this.indexName + "\n  "
+				+ "Path         : " + this.path      + "\n  "
+				+ "Data         : " + this.getData() + "\n  "
+				+ "Source       : " + this.getSource() + "\n  "
 				+ "Destinataire : " + this.getDestinataire() + "\n  "
-				+ "Option1 : " + this.option1 + "\n  "
-				+ "Option2 : " + this.option2 + "\n";
+				+ "Option1      : " + this.option1 + "\n  "
+				+ "Option2      : " + this.option2 + "\n";
 	}
 	
 }

@@ -1,7 +1,6 @@
 package test;
 
 import serveur.NameToID;
-import serveur.ServerRoot;
 import systeme.SystemNode;
 
 public class TestNode {
@@ -29,7 +28,7 @@ public class TestNode {
 		System.out.println("/00/01/00 : " + translate.translate("/00/01/00"));
 		System.out.println("/00/10/00 : " + translate.translate("/00/10/00"));
 
-		SystemNode node1 = new SystemNode(new ServerRoot(), "/", 0, 2);
+		SystemNode node1 = new SystemNode(2333, "/", 0, 2);
 		System.out.println("node1 limit : " + node1.getLimit());
 		System.out.println("node1 localRoute : " + node1.getLocalRoute());
 

@@ -106,7 +106,9 @@ public class SystemIndexP2P implements Serializable{
 				n.add(bf);	
 			}
 			return null;
-		}else{ // rep to noeud local : creer systemNode, path, rang, containerlocal
+		}
+		else
+		{ // rep to noeud local : creer systemNode, path, rang, containerlocal
 			rep.setIndexName(indexName);
 			rep.setData(c);
 			rep.setPath(path);

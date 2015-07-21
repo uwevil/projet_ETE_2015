@@ -7,6 +7,7 @@ import systeme.Fragment;
 import systeme.Serializer;
 import systeme.SystemIndexCentral;
 
+@SuppressWarnings("unused")
 public class TestDeserializer {
 
 	@SuppressWarnings("unchecked")

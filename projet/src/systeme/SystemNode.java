@@ -83,64 +83,14 @@ public class SystemNode implements Serializable{
 			als.add(path);
 			systeme.Configuration.graph.put(rang, als);
 		}
-		
-		//list = localRoute.getKeyAll();
-		
+				
 		while (list.hasMoreElements())
 		{
 			Integer i = list.nextElement();
 			Fragment f_tmp = (new Fragment(0)).intToFragment(bf.getBitsPerElement(), i);
 			
-			/*
-				WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/20-07-search-Wiki-test-"
-						+ systeme.Configuration.sizeOfBF + "_"
-						+ systeme.Configuration.numberOfFragment + "_"
-						+ systeme.Configuration.gamma
-						+ "(1)"
-						//+ fileName
-						, true);
-				
-				wf1.write("Rang " + rang + " :");
-				wf1.write(" " + f.toString() + " in " +f_tmp.toString());
-				wf1.close();
-			*/
-			
 			if (f.in(f_tmp))
-			{
-				/*
-					wf1 = new WriteFile("/Users/dcs/vrac/test/20-07-search-Wiki-test-"
-							+ systeme.Configuration.sizeOfBF + "_"
-							+ systeme.Configuration.numberOfFragment + "_"
-							+ systeme.Configuration.gamma
-							+ "(1)"
-							//+ fileName
-							, true);
-					
-					wf1.write( " OK \n");
-					wf1.close();
-				*/
-				
-				/*
-				if (systeme.Configuration.dispo.containsKey(rang))
-				{
-					while (list.hasMoreElements())
-					{
-						((ArrayList<String>)(systeme.Configuration.dispo.get(rang))).add(f_tmp.toString());
-					}
-				}
-				else
-				{
-					ArrayList<String> als = new ArrayList<String>();
-					while (list.hasMoreElements())
-					{
-						als.add(f_tmp.toString());
-					}
-					systeme.Configuration.dispo.put(rang, als);
-				}
-				*/
-				
-				
-				
+			{	
 				Object bf_tmp = localRoute.get(i);
 				
 				if (((bf_tmp.getClass()).getName()).equals("java.lang.String"))

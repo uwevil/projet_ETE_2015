@@ -17,16 +17,25 @@ public class TestDeserializerWiki {
 
 		System.out.println("       Désérializer");
 		Serializer serializer = new Serializer();
-		SystemIndexCentral systemIndex = (SystemIndexCentral)serializer.readObject("/Users/dcs/vrac/test/serializer_Wiki-15-07");
+		SystemIndexCentral systemIndex = 
+				(SystemIndexCentral)serializer.readObject("/Users/dcs/vrac/test/20-07-serializer-wikiDocs<60");
 		
 		System.out.println("Temps de désérialisation = " + (System.currentTimeMillis() - time)/(1000) + " s\n");
 		
-		//WriteFile wf = new WriteFile("/Users/dcs/vrac/test/overview_Wiki-15-07", false);
-		//wf.write(systemIndex.overView());
-		//wf.close();
+		//systemIndex.toFile("/Users/dcs/vrac/test/20-07-toString-wikiDocs<60", false);
+		
+		/*
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/20-07-overViews-wikiDocs<60", false);
+		wf.write(systemIndex.toString());
+		wf.close();
+		*/
 		
 		
-		String requete = "elliott,city,ransom,county,north,dakota,united,states,population,2010,census,elliott,founded,1883";
+		String requete = "sahib,titles,hymns,give,rg";
+				//+ ",backgroundcolorlavenderstructurethtrtrtd,spanrow,styletextalignleft"
+				//+ ",backgroundcolortransparentassemblysenate"
+				//+ ",seatshouse,seatstdtd236,157,180,119,tdtrtrtd"
+				//+ ",spanrow,styletextalignleft,backgroundcolortransparentpolitical";
 		BF bf = new BF(systeme.Configuration.sizeOfBF, 
 				systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 		//bf.addAll(requete);
@@ -34,14 +43,13 @@ public class TestDeserializerWiki {
 		
 		time = System.currentTimeMillis();
 		
+		int numberOfTest = 3;
+		
 	//	String path = "/Users/dcs/vrac/test/queries/wiki/";
-		String fileName = "exactQuriesWDocs";
+		//String fileName = "exactQuriesWDocs";
 		//ReadFile r = new ReadFile(path + fileName + ".csv");
-		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/20-07-searchExact-Wiki-"
-				+ systeme.Configuration.sizeOfBF + "_"
-				+ systeme.Configuration.numberOfFragment + "_"
-				+ systeme.Configuration.gamma + "_"
-				+ fileName, false);
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/20-07-search-Wiki-"
+				+ numberOfTest, false);
 		
 		//for (int i = 0; i < r.size(); i++)
 	//	{
@@ -50,41 +58,39 @@ public class TestDeserializerWiki {
 			//requete = r.getDescription(i);
 			bf.addAll(requete);
 			time = System.currentTimeMillis();
-			Object resultat = systemIndex.searchExact(bf);
+			Object resultat = systemIndex.search(bf);
 			String s = null;
 			
-			if (resultat != null)
+			String s2 = "/";
+			for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
 			{
-				s =  "Requete : " + requete + "\n"
-						+ "RequeteBF : " + bf.toString() + "\n"
-						+ "Temps de recherche: " + (System.currentTimeMillis() - time)/(1000) + " s\n" 
-						+ "Nœuds total : " + systemIndex.size() + "\n"
-						+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
-						+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n\n" 
-						+ ((ArrayList<BF>) resultat).size()
-						+ "\n\n";
-				wf.write(s);
-			}else{
-				s =  "Requete : " + requete + "\n"
-						+ "RequeteBF : " + bf.toString() + "\n"
-						+ "Temps de recherche: " + (System.currentTimeMillis() - time)/(1000) + " s\n" 
-						+ "Nœuds total : " + systemIndex.size() + "\n"
-						+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
-						+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n\n" 
-						+ "0"
-						+ "\n\n";
-				wf.write(s);
+				s2 += bf.getFragment(i).toInt();
+				if (i < systeme.Configuration.numberOfFragment - 1)
+					s2 += "/";
 			}
+			
+			s = "Requete : " + requete + "\n"
+					+ "RequeteBF : " + bf.toString() + "\n"
+					+ "Chemin de BF : " + s2 + "\n\n"
+					+ "Temps de recherche: " + (System.currentTimeMillis() - time) + " ms\n" 
+					+ "Nœuds total : " + systemIndex.size() + "\n"
+					+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
+					+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n"
+					+ "Trouvé : " + (resultat == null ? 0 : ((ArrayList<BF>) resultat).size()) + " filtres\n\n";
+			
+			wf.write(s);
+			wf.write(systeme.Configuration.nodeMatched + "\n\n");
+	
 	//	}
 		
 		wf.close();
 		
-		WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/20-07-searchExact-Wiki-graph-"
-				+ systeme.Configuration.sizeOfBF + "_"
-				+ systeme.Configuration.numberOfFragment + "_"
-				+ systeme.Configuration.gamma + "_"
-				+ fileName, false);
-		wf1.write(systeme.Configuration.graph.toString());
+		WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/20-07-search-Wiki-graph-"
+				+ numberOfTest, false);
+		for (int i = 0; i < systeme.Configuration.graph.size(); i++)
+		{
+			wf1.write("rang " + i + " : \n" + systeme.Configuration.graph.get(i) + "\n\n");
+		}
 		wf1.close();
 
 		 
@@ -138,10 +144,10 @@ public class TestDeserializerWiki {
 		wf.write(s);
 		wf.close();
 		
+		*/
 		System.out.println("Temps d'écriture: " 
 				+ (System.currentTimeMillis() - time)/(1000) + " s");
 				
-		*/
 	}
 
 }

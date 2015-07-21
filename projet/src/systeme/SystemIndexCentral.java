@@ -1,10 +1,13 @@
 package systeme;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+
+import test.WriteFile;
 
 public class SystemIndexCentral implements Serializable{
 	/**
@@ -186,6 +189,22 @@ public class SystemIndexCentral implements Serializable{
 			s += (e.nextElement()).toString() + "\n";
 		
 		return s;
+	}
+	
+	public void toFile(String name, boolean append)
+	{		
+		Enumeration<SystemNode> e = listNode.elements();
+		
+		File f = new File(name);
+		if (f.exists() && !append)
+			f.delete();
+		
+		while(e.hasMoreElements())
+		{
+			WriteFile wf = new WriteFile(name, true);
+			wf.write((e.nextElement()).toString() + "\n");
+			wf.close();
+		}
 	}
 	
 	public String overView()
