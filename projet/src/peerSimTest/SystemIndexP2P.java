@@ -124,6 +124,11 @@ public class SystemIndexP2P implements Serializable{
 	}
 	
 	@SuppressWarnings("unchecked")
+	
+	// search RETURN tableau 
+	// 0 : ArrayList<BF>
+	// 1 : Hashtable<Integer, ArrayList<String>>
+	
 	public Object search(BF bf, String path)
 	{
 		SystemNode n = (SystemNode)listNode.get(path);
@@ -133,7 +138,10 @@ public class SystemIndexP2P implements Serializable{
 		
 		systeme.Configuration.nodeVisited++;
 
-		ArrayList<Object> resultat = new ArrayList<Object>();
+		Object[] resultat = new Object[2];
+		resultat[0] = new ArrayList<BF>();
+		resultat[1] = new Hashtable<Integer, ArrayList<String>>();
+		
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
 		
 		int i = 0;
@@ -143,11 +151,25 @@ public class SystemIndexP2P implements Serializable{
 			
 			if (((o.getClass()).getName()).equals("systeme.BF"))
 			{
-				resultat.add((BF)o);
-			}else{
+				((ArrayList<BF>) resultat[0]).add((BF)o);
+			}
+			else
+			{
 				if (!this.listNode.containsKey((String)o))
 				{
-					resultat.add(o);
+					systeme.Configuration.translate.setLength(Network.size());
+					int serverID_tmp = systeme.Configuration.translate.translate((String)o);
+					
+					if (((Hashtable<Integer, ArrayList<String>>) resultat[1]).containsKey(serverID_tmp))
+					{
+						(((Hashtable<Integer, ArrayList<String>>) resultat[1]).get(serverID_tmp)).add((String)o);
+					}
+					else
+					{
+						ArrayList<String> al = new ArrayList<String>();
+						al.add((String)o);
+						((Hashtable<Integer, ArrayList<String>>) resultat[1]).put(serverID_tmp, al);
+					}
 				}
 				else
 				{
