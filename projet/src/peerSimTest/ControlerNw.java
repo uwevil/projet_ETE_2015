@@ -20,7 +20,7 @@ public class ControlerNw implements Control {
 	private String prefix;
 	private int pid;
 	private int line = 0;
-	private boolean ok = true;
+	private boolean ok = true, ok2 = true;
 	
 	public ControlerNw(String prefix)
 	{
@@ -61,31 +61,31 @@ public class ControlerNw implements Control {
 		Node n; 
 		Message message = new Message();
 
-		if (ok)
+		if (ok && ok2)
 		{
 			 n = Network.get(23);
 			 message.setType("createIndex");
 			 message.setIndexName("dcs");
-			 message.setSource(0);
+			 message.setSource(23);
 			 message.setDestinataire(23);
 		
 			 ok = false;
 			 EDSimulator.add(0, message, n, pid);
 		}
-		else
+		else if (ok2)
 		{
-			n = Network.get(37);
+			n = Network.get(23);
 			//System.out.println("******Commence******");
 			//long time = System.currentTimeMillis();
 			
-			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_Test")))
+			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
 			{
 				String s;
 				int j = 0;
 				while ((s = reader.readLine()) != null)
 				{
 					String[] tmp = s.split(";");
-									
+					
 					if (tmp.length >= 2 && tmp[1].length() > 3 && line == j)
 					{
 						BF bf = new BF(systeme.Configuration.sizeOfBF, 
@@ -96,8 +96,8 @@ public class ControlerNw implements Control {
 						message.setIndexName("dcs");
 						message.setPath("");
 						message.setData(bf);
-						message.setSource(0);
-						message.setDestinataire(37);
+						message.setSource(37);
+						message.setDestinataire(23);
 					
 						EDSimulator.add(0, message, n, pid);
 						line++;
@@ -106,6 +106,9 @@ public class ControlerNw implements Control {
 					j++;
 				}
 				reader.close();
+				//if (s == null)
+				if (line == 100)	
+					ok2 = false;
 			}
 			catch (IOException e) 
 			{

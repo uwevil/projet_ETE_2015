@@ -19,7 +19,8 @@ public class Configuration {
 	public static int gamma = 1000;
 	public static NameToID translate = new NameToID(0);
 	
-	public static String peerSimLOG = "/Users/dcs/vrac/test/21-07-peersim_log";
+	public static String peerSimLOG = "/Users/dcs/vrac/test/22-07-peersim_log";
+	public static String peerSimLOG_resultat = "/Users/dcs/vrac/test/22-07-peersim_resultat_log";
 	public static int numberOfTime = 0;
 
 	
