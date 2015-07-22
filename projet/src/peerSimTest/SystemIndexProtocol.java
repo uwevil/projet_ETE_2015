@@ -1,7 +1,9 @@
 package peerSimTest;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -34,6 +36,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		this.prefix = prefix;
 		tid = Configuration.getPid(prefix+ "." + PAR_TRANSPORT);
 	}
+	
 	public Object clone()
 	{
 		SystemIndexProtocol s = new SystemIndexProtocol(prefix);
@@ -56,17 +59,18 @@ public class SystemIndexProtocol implements EDProtocol{
 		String indexName;
 		String path; 
 		BF bf;
-		
-		if (message.getSource() == 23 && message.getDestinataire() == 37)
+		/*
+		if (message.getDestinataire() == 35)
 		{
 		//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"–test", true);
 				wf.write("recu " + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
 				wf.close();
 				//*****************
 		}
+			*/
 				
 		switch(message.getType())
 		{
@@ -305,11 +309,31 @@ public class SystemIndexProtocol implements EDProtocol{
 			break;
 			
 		case "search": //search, Name, tableau contient BF et liste des paths
+			
+			systeme.Configuration.time = System.currentTimeMillis();
+			
 			indexName = message.getIndexName();
 			bf = (BF) ((Object[])message.getData())[0];
 			
+			if (((Object[]) message.getData())[1] == null)
+				return;
+			
 			if (((Object[]) message.getData())[1].getClass().getName().equals("java.lang.String")) // search la racine
 			{
+				//*******LOG*******
+				String s_tmp = new String();
+				for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+				{
+					s_tmp += "/"+ bf.getFragment(i).toInt();
+				}
+				
+				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				wf1.write("BF " + bf.toString() + "\n"
+						+ "BF_path : " + s_tmp + "\n"
+						+ "  Path : " + "" + "\n");
+				wf1.close();
+				//*****************
+				
 				systeme.Configuration.translate.setLength(Network.size());
 				serverID = systeme.Configuration.translate.translate(indexName);
 				
@@ -341,7 +365,7 @@ public class SystemIndexProtocol implements EDProtocol{
 						rep.setType("search_OK");
 						
 						Object[] o_tmp = new Object[2];
-						o_tmp[0] = (BF) ((Object[])message.getData())[0];
+						o_tmp[0] = bf;
 						o_tmp[1] =  null;
 						
 						rep.setData(o_tmp);
@@ -391,8 +415,14 @@ public class SystemIndexProtocol implements EDProtocol{
 					{
 						String path_tmp = iterator.next();
 						Object o = systemIndex.search(bf, path_tmp);
-						
 						treatSearch(o, indexName, message, pid);
+						
+						//*******LOG*******
+						WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+						wf1.write("  Path : " + path_tmp + "\n");
+						wf1.close();
+						//*****************
+						
 					}
 					
 					//*******LOG*******
@@ -411,7 +441,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					rep.setType("search_OK");
 					
 					Object[] o_tmp = new Object[2];
-					o_tmp[0] = (BF) ((Object[])message.getData())[0];
+					o_tmp[0] = bf;
 					o_tmp[1] = null;
 					
 					rep.setData(o_tmp);
@@ -497,8 +527,19 @@ public class SystemIndexProtocol implements EDProtocol{
 			bf = (BF) ((Object[])message.getData())[0];
 			
 			systeme.Configuration.translate.setLength(19876);
-			int key = systeme.Configuration.translate.translate(bf.toString());
+		//	int key = systeme.Configuration.translate.translate(bf.toString());
 			
+			Object[] data = (Object[])message.getData();
+			ArrayList<BF> data1 = (ArrayList<BF>) data[1];
+			
+			if (data1 != null)
+			{
+				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat, true);
+				wf.write("Requete : " + bf.toString() + "\n");
+				wf.write(data1.toString());
+				wf.close();
+			}
+			/*
 			if (this.listAnswers.containsKey(key))
 			{
 				Object[] o1 = this.listAnswers.get(key);
@@ -511,7 +552,6 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				if (data1 != null)
 				{
-					System.out.println("okk");
 					o2.addAll((Collection<? extends BF>) ((Object[])message.getData())[1]);
 				}
 				i1 += (int) message.getOption1();
@@ -519,7 +559,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				if (i1 == i2)
 				{
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat, false);
+					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat, true);
 					wf.write("Requete : " + bf.toString() + "\n");
 					wf.write(o2.toString());
 					wf.close();
@@ -549,8 +589,44 @@ public class SystemIndexProtocol implements EDProtocol{
 					break;
 				}
 				this.listAnswers.put(key, tab);
-			}			
+			}	
+			*/		
 			
+			break;
+			
+		case "init":
+			
+			Node n = Network.get(23);
+			
+			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
+			{
+				String s;
+				while ((s = reader.readLine()) != null)
+				{
+					String[] tmp = s.split(";");
+					
+					if (tmp.length >= 2 && tmp[1].length() > 3)
+					{
+						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
+								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+						bf_tmp.addAll(tmp[1]);
+						
+						message.setType("add");
+						message.setIndexName("dcs");
+						message.setPath("");
+						message.setData(bf_tmp);
+						message.setSource(nodeIndex);
+						message.setDestinataire(23);
+						
+						t.send(Network.get(nodeIndex), n, message, pid);
+					}
+				}
+				reader.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 			break;
 		}
 	}
@@ -604,33 +680,49 @@ public class SystemIndexProtocol implements EDProtocol{
 	{
 		if (o == null)
 			return;
+		
+		if (message.getSource() == nodeIndex)
+		{
+			//*******LOG*******
+			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
+			wf.write("BF " + "\n"
+					+ ((BF) ((Object[])message.getData())[0]).toString() + "\n"
+					+ ((ArrayList<BF>) ((Object[])o)[0]).toString()
+					+ "\n");
+			wf.close();
+			//*****************
+		}
+		else
+		{
+			ArrayList<BF> alBF = ((ArrayList<BF>) ((Object[])o)[0]);
+			Hashtable<Integer, ArrayList<String>> hsials = ((Hashtable<Integer, ArrayList<String>>)((Object[])o)[1]);
+						
+			Object[] o_tmp = new Object[2];
+			o_tmp[0] = (BF) ((Object[])message.getData())[0];
+			o_tmp[1] = alBF;
+			
+			Message rep = new Message();
+			rep.setType("search_OK");
+			rep.setIndexName(indexName);
+			rep.setSource(nodeIndex);
+			rep.setDestinataire(message.getSource());
+			rep.setData(o_tmp);
+			rep.setOption1(hsials.size());
+		
+			t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
+
+			//t.send(Network.get(nodeIndex), Network.get(rep.getDestinataire()), rep, pid);
+			
+			//*******LOG*******
+			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			wf.write("search treatSearch " + " node "+ nodeIndex + "\n"
+					+ rep.toString()
+					+ "\n");
+			wf.close();
+			//*****************
+		}
 				
-		ArrayList<BF> alBF = ((ArrayList<BF>) ((Object[])o)[0]);
-		Hashtable<Integer, ArrayList<String>> hsials = ((Hashtable<Integer, ArrayList<String>>)((Object[])o)[1]);
-	
-		Enumeration<Integer> enumInt = hsials.keys();
 		
-		Object[] o_tmp = new Object[2];
-		o_tmp[0] = (BF) ((Object[])message.getData())[0];
-		o_tmp[1] = alBF;
-		
-		Message rep = new Message();
-		rep.setType("search_OK");
-		rep.setIndexName(indexName);
-		rep.setSource(nodeIndex);
-		rep.setDestinataire(message.getSource());
-		rep.setData(o_tmp);
-		rep.setOption1(hsials.size());
-	
-		t.send(Network.get(nodeIndex), Network.get(rep.getDestinataire()), rep, pid);
-		
-		//*******LOG*******
-		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
-		wf.write("search treatSearch " + " node "+ nodeIndex + "\n"
-				+ rep.toString()
-				+ "\n");
-		wf.close();
-		//*****************
 		
 		/*
 		//*******LOG*******
@@ -642,6 +734,15 @@ public class SystemIndexProtocol implements EDProtocol{
 		wf.close();
 		//*****************
 		*/
+		
+		Hashtable<Integer, ArrayList<String>> hsials = ((Hashtable<Integer, ArrayList<String>>)((Object[])o)[1]);
+		
+		Enumeration<Integer> enumInt = hsials.keys();
+		
+		Object[] o_tmp = new Object[2];
+		o_tmp[0] = (BF) ((Object[])message.getData())[0];
+
+		Message rep = new Message();
 		rep.setType("search");
 		rep.setIndexName(indexName);
 		rep.setSource(message.getSource());

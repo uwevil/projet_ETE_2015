@@ -1,6 +1,8 @@
 package systeme;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 
 import serveur.NameToID;
@@ -19,8 +21,11 @@ public class Configuration {
 	public static int gamma = 1000;
 	public static NameToID translate = new NameToID(0);
 	
-	public static String peerSimLOG = "/Users/dcs/vrac/test/22-07-peersim_log";
-	public static String peerSimLOG_resultat = "/Users/dcs/vrac/test/22-07-peersim_resultat_log";
+	public static String date = (new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss")).format(new Date());
+	public static String peerSimLOG = "/Users/dcs/vrac/test/"+ date + "-peersim_log";
+	public static String peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date+ "-peersim_resultat_log";
+	public static String peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "-peersim_path_log";
+	public static long time = 0;
 	public static int numberOfTime = 0;
 
 	
@@ -31,5 +36,7 @@ public class Configuration {
 		graph = new Hashtable<Integer, ArrayList<String>>();
 		doublon = 0;
 		numberOfBF = 0;
+		date = (new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss")).format(new Date());
+		time = 0;
 	}
 }

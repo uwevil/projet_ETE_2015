@@ -3,6 +3,7 @@ package test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import systeme.BF;
 import systeme.Serializer;
@@ -18,6 +19,7 @@ public class TestSystemIndexWiki {
 	private static int numberOfFragment = 64;
 	private static int gamma = 1000;
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws ErrorException 
 	{
 		SystemIndexCentral systemIndex = new SystemIndexCentral(0, 0, gamma);
@@ -25,19 +27,24 @@ public class TestSystemIndexWiki {
 
 		//WriteFile w = new WriteFile("/Users/dcs/vrac/test/bf_description_Wiki", false);
 		int i = 0;
-		try (BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs (1).csv")))
+		try (BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
 		{
-			reader.readLine();
 			String s;
 			while ((s = reader.readLine()) != null)
 			{
 				String[] tmp = s.split(";");
-				BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
-				bf.addAll(tmp[1]);
-				systemIndex.add(bf);
+				if (tmp.length >= 2 && tmp[1].length() > 3)
+				{
+					BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
+					bf.addAll(tmp[1]);
+					systemIndex.add(bf);
+					i++;
+				}
+				
+				if (i == 3000000)
+					break;
 				
 			//	w.write(bf.toString() + ";" + tmp[1] + "\n");
-				i++;
 			}
 			reader.close();
 		} 
@@ -54,10 +61,22 @@ public class TestSystemIndexWiki {
 
 	//	System.out.println("systemIndex size = " + systemIndex.size() + " nœuds");
 		
-		System.out.println("Test Serialization");
-		Serializer serializable = new Serializer();
-		serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/20-07-serializer_Wiki");
-		System.out.println("Serializable OK");
+		//System.out.println("Test Serialization");
+		//Serializer serializable = new Serializer();
+		//serializable.writeObject(systemIndex, "/Users/dcs/vrac/test/20-07-serializer_Wiki");
+		//System.out.println("Serializable OK");
 	
+		BF bf = new BF(systeme.Configuration.sizeOfBF, 
+				systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+		
+		bf.addAll("view");
+		
+		System.out.println(bf.toString());
+		Object resultat = systemIndex.search(bf);
+		
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/22-07-search_Wiki", false);
+		wf.write(((resultat == null) ? "0" : ((ArrayList<BF>) resultat).toString()));
+		wf.close();
+		
 	}
 }
