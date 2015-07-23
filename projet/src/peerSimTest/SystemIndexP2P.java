@@ -51,6 +51,8 @@ public class SystemIndexP2P implements Serializable{
 		{
 			n = new SystemNode(serverID, path, (new CalculRang()).getRang(path), gamma);
 			n.add(bf);
+			
+			this.listNode.put(path, n);
 			return null;
 		}
 		else
@@ -63,12 +65,13 @@ public class SystemIndexP2P implements Serializable{
 			while (o != null)
 			{
 				if (((o.getClass()).getName()).equals("systeme.ContainerLocal"))
-				{				
+				{		
 					o = this.split(n, (ContainerLocal)o);
 					return o;
 				} 
 				else if (((o.getClass()).getName()).equals("java.lang.String"))
 				{
+					
 					if (listNode.containsKey(o))
 					{
 						n = (SystemNode)listNode.get(o);
@@ -123,9 +126,11 @@ public class SystemIndexP2P implements Serializable{
 		if (!this.listNode.containsKey(path))
 			this.listNode.put(path, node);
 		//*******LOG*******
-		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_cerateNode", true);
+		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_createNode", true);
 		wf.write("createNode of "+ indexName + " node "+ serverID + "\n"
 				+ "Path : " + path + "\n"
+				+ node.toString() + "\n"
+				+ this.listNode.get(path).getLocalRoute().toString() + "\n"
 				+ "\n");
 		wf.close();
 		//*****************
@@ -161,6 +166,7 @@ public class SystemIndexP2P implements Serializable{
 			if (((o.getClass()).getName()).equals("systeme.BF"))
 			{
 				((ArrayList<BF>) resultat[0]).add((BF)o);
+				System.out.println((BF)o);
 			}
 			else
 			{
@@ -191,6 +197,7 @@ public class SystemIndexP2P implements Serializable{
 			}
 			i++;
 		}
+		
 		return resultat;
 	}
 	 

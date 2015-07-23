@@ -34,8 +34,8 @@ init.initializer.protocol link
 
 control.0 peerSimTest.ControlerNw
 control.0.protocol link
-control.0.step 10000
+control.0.step 10
 
 control.1 peerSimTest.ObserverNw
 control.1.protocol link
-control.1.step 800000
+control.1.step 700000

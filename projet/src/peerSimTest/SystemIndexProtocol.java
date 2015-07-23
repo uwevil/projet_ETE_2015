@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import exception.ErrorException;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -118,14 +119,14 @@ public class SystemIndexProtocol implements EDProtocol{
 		systeme.Configuration.translate.setLength(19876);
 		int key = systeme.Configuration.translate.translate(bf.toString());
 		
-		Object[] data = (Object[])message.getData();
-		ArrayList<BF> data1 = (ArrayList<BF>) data[1];
+		@SuppressWarnings("unchecked")
+		ArrayList<BF> data1 = (ArrayList<BF>) ((Object[])message.getData())[1];
 		
 		if (data1 != null)
 		{
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
-			wf.write(message.toString() + "\n");
-			wf.write(data1.toString());
+			wf.write("Source : " + message.getSource() + "\n");
+			wf.write(data1.toString() + "\n");
 			wf.close();
 		}
 		/*
@@ -226,6 +227,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			{
 				BF bf = (BF)iterator.next();
 				rep.setData(bf);
+				
 				Object o = systemIndex.add(bf, path);
 				treatAdd1(o, indexName, rep, pid);
 			}
@@ -644,6 +646,9 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 			t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 			
+			if (nodeIndex == 422)
+				System.out.println(alBF.toString());
+			
 			//*******LOG*******
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
 			wf.write("search treatSearch " + " node "+ nodeIndex + "\n"
@@ -659,8 +664,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		//*******LOG*******
 		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
 		wf.write("BF " + "\n"
-				+ o_tmp[0].toString() + "\n"
-				+((ArrayList<BF>)o_tmp[1]).toString()
+				+((ArrayList<BF>)((Object[])o)[0]).toString()
 				+ "\n");
 		wf.close();
 		//*****************
@@ -670,12 +674,13 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		Enumeration<Integer> enumInt = hsials.keys();
 
-		Message rep = new Message();
-		rep.setType("search");
-		rep.setIndexName(indexName);
-		rep.setSource(message.getSource());
 		while (enumInt.hasMoreElements())
 		{
+			Message rep = new Message();
+			rep.setType("search");
+			rep.setIndexName(indexName);
+			rep.setSource(message.getSource());
+			
 			Integer i = enumInt.nextElement();
 			Object[] o_tmp = new Object[2];
 			o_tmp[0] = (BF) ((Object[])message.getData())[0];

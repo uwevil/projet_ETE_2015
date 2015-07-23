@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import exception.ErrorException;
+
 public class SystemNode implements Serializable{
 	/**
 	 * 
@@ -51,14 +53,14 @@ public class SystemNode implements Serializable{
 	}
 	
 	public Object add(BF bf)
-	{
+	{	
 		Fragment f = bf.getFragment(rang);
 		
 		if(localRoute.add(f, bf))
 		{
 			return null;
 		}
-		
+
 		return localRoute.get(f);
 	}
 	
@@ -127,7 +129,7 @@ public class SystemNode implements Serializable{
 				}
 			}
 		}
-			
+		
 		return rep;
 	}
 	

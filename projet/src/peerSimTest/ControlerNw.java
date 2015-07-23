@@ -53,12 +53,15 @@ public class ControlerNw implements Control {
 			int j = 0;
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
 			{
-				String s;
-				while ((s = reader.readLine()) != null)
+				while (true)
 				{
+					String s = new String();
+					s = reader.readLine();
+					if (s == null)
+						break;
 					String[] tmp = s.split(";");
 					
-					if (tmp.length >= 2 && tmp[1].length() > 3 && line == j)
+					if (tmp.length >= 2 && tmp[1].length() > 3 ) // && line == j)
 					{
 						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
 								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
@@ -74,7 +77,8 @@ public class ControlerNw implements Control {
 						
 						EDSimulator.add(0, message, n, pid);
 						line++;
-						break;
+						if (line > 300)
+							break;
 					}
 					j++;
 				}

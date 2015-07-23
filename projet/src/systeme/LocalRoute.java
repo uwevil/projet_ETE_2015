@@ -20,19 +20,9 @@ public class LocalRoute implements Serializable{
 		localRoute = new Hashtable<Integer, Object>();
 	}
 	
-	public void add(Fragment f, ContainerLocal o)
-	{
-		if (!this.contains(f))
-		{
-			localRoute.put(f.toInt(), (Object) o);
-		}else{
-			localRoute.remove(f.toInt());
-			localRoute.put(f.toInt(), o);
-		}
-	}
-	
 	public boolean add(Fragment f, BF bf)
 	{	
+		
 		if (!this.contains(f))
 		{
 			ContainerLocal c = new ContainerLocal(limit);
