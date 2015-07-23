@@ -122,8 +122,10 @@ public class SystemIndexProtocol implements EDProtocol{
 		@SuppressWarnings("unchecked")
 		ArrayList<BF> data1 = (ArrayList<BF>) ((Object[])message.getData())[1];
 		
-		if (data1 != null)
+		if (data1 != null && data1.size() > 0)
 		{
+			systeme.Configuration.numberOfTime += data1.size();
+			System.out.println(systeme.Configuration.numberOfTime);
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
 			wf.write("Source : " + message.getSource() + "\n");
 			wf.write(data1.toString() + "\n");
@@ -618,7 +620,14 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		if (message.getSource() == nodeIndex)
 		{
+			if (((ArrayList<BF>) ((Object[])o)[0]).size() == 0)
+				return;
+			
 			//*******LOG*******
+			
+			systeme.Configuration.numberOfTime += ((ArrayList<BF>) ((Object[])o)[0]).size() ;
+			System.out.println(systeme.Configuration.numberOfTime);
+
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
 			wf.write("BF source " + message.getSource() + "\n"
 					+ ((BF) ((Object[])message.getData())[0]).toString() + "\n\n"

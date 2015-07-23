@@ -47,10 +47,9 @@ public class ControlerNw implements Control {
 			 ok = false;
 			 EDSimulator.add(0, message, n, pid);
 		}
-		else if (ok2 && line <= 300)
+		else if (ok2 && line <= 30000)
 		{
 			n = Network.get(23);
-			int j = 0;
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
 			{
 				while (true)
@@ -61,7 +60,7 @@ public class ControlerNw implements Control {
 						break;
 					String[] tmp = s.split(";");
 					
-					if (tmp.length >= 2 && tmp[1].length() > 3 ) // && line == j)
+					if (tmp.length >= 2 && tmp[1].length() > 3 )
 					{
 						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
 								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
@@ -77,10 +76,9 @@ public class ControlerNw implements Control {
 						
 						EDSimulator.add(0, message, n, pid);
 						line++;
-						if (line > 300)
+						if (line > 30000)
 							break;
 					}
-					j++;
 				}
 				reader.close();
 			}

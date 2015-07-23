@@ -166,7 +166,6 @@ public class SystemIndexP2P implements Serializable{
 			if (((o.getClass()).getName()).equals("systeme.BF"))
 			{
 				((ArrayList<BF>) resultat[0]).add((BF)o);
-				System.out.println((BF)o);
 			}
 			else
 			{
