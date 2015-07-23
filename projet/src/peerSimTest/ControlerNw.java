@@ -33,10 +33,11 @@ public class ControlerNw implements Control {
 		// TODO Auto-generated method stub
 		
 		Node n; 
-		Message message = new Message();
 
 		if (ok && ok2)
 		{
+			Message message = new Message();
+
 			 n = Network.get(23);
 			 message.setType("createIndex");
 			 message.setIndexName("dcs");
@@ -62,7 +63,9 @@ public class ControlerNw implements Control {
 						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
 								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 						bf_tmp.addAll(tmp[1]);
-						
+						//bf_tmp.add("" + line);
+						Message message = new Message();
+
 						message.setType("add");
 						message.setIndexName("dcs");
 						message.setPath("");

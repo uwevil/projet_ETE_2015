@@ -6,6 +6,7 @@ SIZE 1000
 # eg 50 means half the cycle length, 200 twice the cycle length, etc.
 MINDELAY 0
 MAXDELAY 0
+
 puissance 6
 tempsSim 10^puissance
 tempsLog 10^puissance
@@ -18,8 +19,8 @@ simulation.logtime tempsLog
 ################### protocols ===========================
 
 protocol.urt UniformRandomTransport
-protocol.urt.mindelay 0
-protocol.urt.maxdelay 0
+protocol.urt.mindelay MINDELAY
+protocol.urt.maxdelay MAXDELAY
 
 protocol.link peerSimTest.SystemIndexProtocol
 protocol.link.transport urt
@@ -33,8 +34,8 @@ init.initializer.protocol link
 
 control.0 peerSimTest.ControlerNw
 control.0.protocol link
-control.0.step 1
+control.0.step 10000
 
 control.1 peerSimTest.ObserverNw
 control.1.protocol link
-control.1.step 7^puissance
+control.1.step 800000

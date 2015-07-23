@@ -13,7 +13,6 @@ public class ObserverNw implements Control {
 
 	private static final String PAR_PROTOCOL = "protocol";
 	private int pid;
-	private boolean ok = false;
 	
 	public ObserverNw(String prefix)
 	{
@@ -24,12 +23,7 @@ public class ObserverNw implements Control {
 	@Override
 	public boolean execute() {
 		// TODO Auto-generated method stub
-		if(!ok)
-		{
-			ok = true;
-			return false;
-		}
-		
+	
 		Node n = Network.get(65);
 		Message message = new Message();
 		message.setIndexName("dcs");

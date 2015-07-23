@@ -47,15 +47,6 @@ public class SystemIndexP2P implements Serializable{
 	{
 		SystemNode n =  (SystemNode)listNode.get(path);
 		
-		//*******LOG*******
-		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_cerateNode", true);
-		wf.write("createNode of "+ indexName + " node "+ serverID + "\n"
-				+ "Path : " + path + "\n"
-				+ "BF : " + bf.toString()+ "\n"
-				+ "\n");
-		wf.close();
-		//*****************
-		
 		if (n == null)
 		{
 			n = new SystemNode(serverID, path, (new CalculRang()).getRang(path), gamma);
@@ -131,6 +122,13 @@ public class SystemIndexP2P implements Serializable{
 	{
 		if (!this.listNode.containsKey(path))
 			this.listNode.put(path, node);
+		//*******LOG*******
+		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_cerateNode", true);
+		wf.write("createNode of "+ indexName + " node "+ serverID + "\n"
+				+ "Path : " + path + "\n"
+				+ "\n");
+		wf.close();
+		//*****************
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -173,9 +171,11 @@ public class SystemIndexP2P implements Serializable{
 					
 					if (((Hashtable<Integer, ArrayList<String>>) resultat[1]).containsKey(serverID_tmp))
 					{
-						(((Hashtable<Integer, ArrayList<String>>) resultat[1]).get(serverID_tmp)).add((String)o);
+						ArrayList<String> als = (((Hashtable<Integer, ArrayList<String>>) resultat[1]).get(serverID_tmp));
+						if (!als.contains((String)o))
+								als.add((String)o);
 					}
-					else
+					else // not contains serverID_tmp
 					{
 						ArrayList<String> al = new ArrayList<String>();
 						al.add((String)o);

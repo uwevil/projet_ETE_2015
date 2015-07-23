@@ -1,6 +1,9 @@
 package peerSimTest;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -24,6 +27,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	private int tid;
 	private int nodeIndex;
 	private Transport t;
+	private int id;
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
 	private Hashtable<Integer, Object[]> listAnswers = new Hashtable<Integer, Object[]>();
@@ -34,12 +38,18 @@ public class SystemIndexProtocol implements EDProtocol{
 		tid = Configuration.getPid(prefix+ "." + PAR_TRANSPORT);
 	}
 	
+	public void setID(int id)
+	{
+		this.id = id;
+	}
+	
 	public Object clone()
 	{
 		SystemIndexProtocol s = new SystemIndexProtocol(prefix);
 		s.tid = this.tid;
 		s.prefix = this.prefix;
 		s.nodeIndex = this.nodeIndex;
+		s.id = this.id;
 		return s;
 	}
 	
@@ -95,6 +105,9 @@ public class SystemIndexProtocol implements EDProtocol{
 			treatSearch_OK(message, pid);
 			break;
 			
+		default : 
+			
+			break;
 		}
 	}
 	
@@ -111,6 +124,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		if (data1 != null)
 		{
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
+			wf.write(message.toString() + "\n");
 			wf.write(data1.toString());
 			wf.close();
 		}
@@ -516,9 +530,11 @@ public class SystemIndexProtocol implements EDProtocol{
 			int indexID = systeme.Configuration.translate.translate(indexName);
 			
 			//*******LOG*******
-			
+			String date = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
+
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-			wf.write("Node " + nodeIndex + " receive paths" + "\n"
+			wf.write(date +" Node " + nodeIndex + " receive paths"
+				//	+ message.toString() + "\n"
 					+ "\n");
 			wf.close();
 			//*****************
@@ -527,7 +543,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			{
 				SystemIndexP2P systemIndex = (SystemIndexP2P) this.listSystemIndexP2P.get(indexID);
 				
-				ArrayList<String> als = ((ArrayList<String>) ((Object[])message.getData())[1]);
+				ArrayList<String> als = (ArrayList<String>) ((Object[])message.getData())[1];
 				Iterator<String> iterator = als.iterator();
 				
 				while(iterator.hasNext())
@@ -535,6 +551,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					String path_tmp = iterator.next();
 					
 					//*******LOG*******
+					
 					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
 					wf1.write("  Path : " + path_tmp + "\n");
 					wf1.close();
@@ -569,12 +586,14 @@ public class SystemIndexProtocol implements EDProtocol{
 				rep.setOption1(0);
 				
 				//*******LOG*******
-				
+				String date1 = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
+
 				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-				wf1.write("Node " + nodeIndex + " reply to " + message.getSource() + "\n"
+				wf1.write(date1 + " Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 						+ "\n");
 				wf1.close();
 				//*****************
+				t = (Transport) Network.get(nodeIndex).getProtocol(pid);
 				
 				t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 				
@@ -588,8 +607,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}	
 		}	
 	}
-	
-	
+		
 	@SuppressWarnings("unchecked")
 	private void treatSearch1(Object o, String indexName, Message message, int pid)
 	{
@@ -600,7 +618,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		{
 			//*******LOG*******
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF", true);
-			wf.write("BF " + "\n"
+			wf.write("BF source " + message.getSource() + "\n"
 					+ ((BF) ((Object[])message.getData())[0]).toString() + "\n\n"
 					+ ((ArrayList<BF>) ((Object[])o)[0]).toString()
 					+ "\n");
@@ -625,8 +643,6 @@ public class SystemIndexProtocol implements EDProtocol{
 			rep.setOption1(hsials.size());
 		
 			t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
-
-			//t.send(Network.get(nodeIndex), Network.get(rep.getDestinataire()), rep, pid);
 			
 			//*******LOG*******
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
@@ -653,28 +669,27 @@ public class SystemIndexProtocol implements EDProtocol{
 		Hashtable<Integer, ArrayList<String>> hsials = ((Hashtable<Integer, ArrayList<String>>)((Object[])o)[1]);
 		
 		Enumeration<Integer> enumInt = hsials.keys();
-		
-		Object[] o_tmp = new Object[2];
-		o_tmp[0] = (BF) ((Object[])message.getData())[0];
 
 		Message rep = new Message();
 		rep.setType("search");
 		rep.setIndexName(indexName);
 		rep.setSource(message.getSource());
-		
 		while (enumInt.hasMoreElements())
 		{
 			Integer i = enumInt.nextElement();
-			o_tmp[1] = hsials.get(i);
-			
+			Object[] o_tmp = new Object[2];
+			o_tmp[0] = (BF) ((Object[])message.getData())[0];
+			ArrayList<String> o_tmp1 = new ArrayList<String>(hsials.get(i));
+			o_tmp[1] = o_tmp1;
+
 			rep.setData(o_tmp);
 			rep.setDestinataire(i);
 
 			//*******LOG*******
-			
+			String date = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
 			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-			wf1.write("Node " + nodeIndex + " search path to " + i + "\n"
-					+ "Path list : " + hsials.get(i).toString() + "\n"
+			wf1.write(date + " Node " + nodeIndex + " search path1 to " + i + "\n"
+					+ "  Path list : " + ((Object[])rep.getData())[1].toString() + "\n"
 					+ "\n");
 			wf1.close();
 			//*****************

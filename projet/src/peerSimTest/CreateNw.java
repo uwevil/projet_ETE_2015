@@ -11,13 +11,10 @@ public class CreateNw implements Control {
 	
 	public static final String PAR_PROTOCOL = "protocol";
 	
-	@SuppressWarnings("unused")
-	private String prefix;
 	private int pid;
 	
 	public CreateNw(String prefix) {
 		// TODO Auto-generated constructor stub
-		this.prefix = prefix;
 		pid = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 	}
 	
@@ -30,6 +27,7 @@ public class CreateNw implements Control {
 			Node n = (Node) Network.get(i);
 			SystemIndexProtocol s = (SystemIndexProtocol) n.getProtocol(pid);
 			s.setNodeIndex(i);
+			s.setID(i);
 		}
 		
 		File f = new File(systeme.Configuration.peerSimLOG);
