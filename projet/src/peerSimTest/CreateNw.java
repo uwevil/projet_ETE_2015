@@ -1,5 +1,7 @@
 package peerSimTest;
 
+import java.io.File;
+
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
@@ -29,6 +31,17 @@ public class CreateNw implements Control {
 			SystemIndexProtocol s = (SystemIndexProtocol) n.getProtocol(pid);
 			s.setNodeIndex(i);
 		}
+		
+		File f = new File(systeme.Configuration.peerSimLOG);
+		if (f.exists())
+			f.delete();
+		f = new File(systeme.Configuration.peerSimLOG_resultat);
+		if (f.exists())
+			f.delete();
+		f = new File(systeme.Configuration.peerSimLOG_path);
+		if (f.exists())
+			f.delete();
+		
 		return false;
 	}
 

@@ -13,6 +13,7 @@ import systeme.CalculRang;
 import systeme.ContainerLocal;
 import systeme.Fragment;
 import systeme.SystemNode;
+import test.WriteFile;
 
 public class SystemIndexP2P implements Serializable{
 	/**
@@ -45,6 +46,15 @@ public class SystemIndexP2P implements Serializable{
 	public Object add(BF bf, String path)
 	{
 		SystemNode n =  (SystemNode)listNode.get(path);
+		
+		//*******LOG*******
+		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_cerateNode", true);
+		wf.write("createNode of "+ indexName + " node "+ serverID + "\n"
+				+ "Path : " + path + "\n"
+				+ "BF : " + bf.toString()+ "\n"
+				+ "\n");
+		wf.close();
+		//*****************
 		
 		if (n == null)
 		{
@@ -99,12 +109,12 @@ public class SystemIndexP2P implements Serializable{
 		if (tmp_serverID == serverID)
 		{
 			SystemNode n = new SystemNode(serverID, path, father.getRang() + 1, gamma);
-			this.listNode.put(path, n);
 			while (iterator.hasNext())
 			{
 				bf = iterator.next();
-				n.add(bf);	
+				this.add(bf, path);	
 			}
+			this.listNode.put(path, n);
 			return null;
 		}
 		else

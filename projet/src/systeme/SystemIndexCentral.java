@@ -68,7 +68,7 @@ public class SystemIndexCentral implements Serializable{
 		while (iterator.hasNext())
 		{
 			bf = iterator.next();
-			n.add(bf);	
+			this.add(bf);	
 		}
 	}
 	

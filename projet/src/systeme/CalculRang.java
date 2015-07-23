@@ -13,7 +13,6 @@ public class CalculRang {
 			return 0;
 		
 		String[] tmp = path.split("/");
-		
 		return tmp.length - 1;
 	}
 
