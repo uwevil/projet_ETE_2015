@@ -186,7 +186,7 @@ public class SystemIndexP2P implements Serializable{
 						((Hashtable<Integer, ArrayList<String>>) resultat[1]).put(serverID_tmp, al);
 					}
 				}
-				else
+				else // this.listNode.containsKey((String)o)
 				{
 					SystemNode node_tmp = (SystemNode)listNode.get((String)o);
 					systeme.Configuration.nodeVisited++;

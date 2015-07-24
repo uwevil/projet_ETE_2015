@@ -30,7 +30,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
 	@SuppressWarnings("unused")
-	private Hashtable<Integer, Object[]> listAnswers = new Hashtable<Integer, Object[]>();
+	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
 	
 	public SystemIndexProtocol(String prefix) {
 		// TODO Auto-generated constructor stub
@@ -98,7 +98,6 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void treatSearch_OK(Message message, int pid) 
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
@@ -121,70 +120,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		*/
 		
-		if (this.listAnswers.containsKey(key))
-		{
-			Object[] o1 = this.listAnswers.get(key);
-			ArrayList<BF> o2 = (ArrayList<BF>)o1[0];
-			Integer i1 = (Integer)o1[1];
-			Integer i2 = (Integer)o1[2];
-			
-			Object[] data = (Object[])message.getData();
-			ArrayList<BF> data1 = (ArrayList<BF>) data[1];
-			
-			if (data1 != null)
-			{
-				Iterator<BF> iterator = data1.iterator();
-				while (iterator.hasNext())
-				{
-					o2.add(iterator.next());
-				}
-			}
-			
-			i1 += (int) message.getOption1();
-			i2++;
-			
-			if (i1 == i2)
-			{
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat, true);
-				wf.write("Requete : " + bf.toString() + "\n");
-				wf.write(o2.toString());
-				wf.close();
-				
-				this.listAnswers.remove(key);
-			}
-		}
-		else // not contains key
-		{
-			Object[] tab = new Object[3];
-			tab[0] = new ArrayList<BF>();
-			tab[1] = new Integer(1);
-			tab[2] = new Integer(0);
-			
-			Object[] data = (Object[])message.getData();
-			ArrayList<BF> data1 = (ArrayList<BF>) data[1];
-			
-			if (data1 != null)
-			{
-				Iterator<BF> iterator = data1.iterator();
-				while (iterator.hasNext())
-				{
-					((ArrayList<BF>) tab[0]).add(iterator.next());
-				}
-			}
 		
-			tab[1] =(int) tab[1] + (int) message.getOption1();
-			tab[2] = (int) tab[2] + 1;
-			
-			if ((int)tab[1] == (int)tab[2])
-			{
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat, false);
-				wf.write("Requete : " + bf.toString() + "\n");
-				wf.write(((ArrayList<BF>)tab[0]).toString());
-				wf.close();
-				break;
-			}
-			this.listAnswers.put(key, tab);
-		}	
 				
 		
 	}
@@ -488,7 +424,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					rep.setData(o_tmp);
 					rep.setSource(nodeIndex);
 					rep.setDestinataire(message.getSource());
-					rep.setOption1(0);
+					rep.setOption1("-1");
 					
 					t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 					
@@ -590,7 +526,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				rep.setData(o_tmp);
 				rep.setSource(nodeIndex);
 				rep.setDestinataire(message.getSource());
-				rep.setOption1(0);
+				rep.setOption1("-1");
 				
 				//*******LOG*******
 				String date1 = (new SimpleDateFormat("ss-SSS")).format(new Date());
@@ -643,7 +579,15 @@ public class SystemIndexProtocol implements EDProtocol{
 		{
 			ArrayList<BF> alBF = ((ArrayList<BF>) ((Object[])o)[0]);
 			Hashtable<Integer, ArrayList<String>> hsials = ((Hashtable<Integer, ArrayList<String>>)((Object[])o)[1]);
-						
+			Enumeration<Integer> enumInt = hsials.keys();
+
+			String s = new String();
+			while (enumInt.hasMoreElements())
+			{
+				Integer i = enumInt.nextElement();
+				s += i + ";";
+			}		
+			
 			Object[] o_tmp = new Object[2];
 			o_tmp[0] = (BF) ((Object[])message.getData())[0];
 			o_tmp[1] = alBF;
@@ -654,7 +598,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			rep.setSource(nodeIndex);
 			rep.setDestinataire(message.getSource());
 			rep.setData(o_tmp);
-			rep.setOption1(hsials.size());
+			rep.setOption1(s);
 		
 			t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 			
@@ -665,9 +609,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					+ "\n");
 			wf.close();
 			//*****************
-		}
-				
-		
+		}	
 		
 		/*
 		//*******LOG*******
@@ -841,7 +783,6 @@ public class SystemIndexProtocol implements EDProtocol{
 			//********************
 		}	
 	}
-
 }
 
 
