@@ -19,7 +19,6 @@ public class ControlerNw implements Control {
 	private String prefix;
 	private int pid;
 	private boolean ok = true, ok2 = true;
-	private int line = 0;
 	
 	public ControlerNw(String prefix)
 	{
@@ -47,11 +46,12 @@ public class ControlerNw implements Control {
 			 ok = false;
 			 EDSimulator.add(0, message, n, pid);
 		}
-		else if (ok2 && line <= 30000)
+		else if (ok2)
 		{
 			n = Network.get(23);
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60_aa")))
 			{
+				int i = 0;
 				while (true)
 				{
 					String s = new String();
@@ -60,7 +60,7 @@ public class ControlerNw implements Control {
 						break;
 					String[] tmp = s.split(";");
 					
-					if (tmp.length >= 2 && tmp[1].length() > 3 )
+					if (tmp.length >= 2 && tmp[1].length() > 2 )
 					{
 						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
 								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
@@ -75,12 +75,16 @@ public class ControlerNw implements Control {
 						message.setDestinataire(23);
 						
 						EDSimulator.add(0, message, n, pid);
-						line++;
-						if (line > 30000)
-							break;
+						i++;
+					}
+					if (i > 30000)
+					{
+						System.out.println("Nombre de filtres crées : " + i);
+						break;
 					}
 				}
 				reader.close();
+				ok2 = false;
 			}
 			catch (IOException e)
 			{

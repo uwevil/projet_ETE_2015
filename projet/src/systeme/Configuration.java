@@ -38,5 +38,6 @@ public class Configuration {
 		numberOfBF = 0;
 		date = (new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss")).format(new Date());
 		time = 0;
+		numberOfTime = 0;
 	}
 }

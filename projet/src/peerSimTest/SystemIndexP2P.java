@@ -138,7 +138,6 @@ public class SystemIndexP2P implements Serializable{
 	
 	@SuppressWarnings("unchecked")
 	
-	
 	// search RETURN tableau 
 	// 0 : ArrayList<BF>
 	// 1 : Hashtable<Integer, ArrayList<String>>

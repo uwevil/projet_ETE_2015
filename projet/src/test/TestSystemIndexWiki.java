@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import systeme.BF;
-import systeme.Serializer;
 import systeme.SystemIndexCentral;
 import exception.ErrorException;
 
@@ -33,7 +32,7 @@ public class TestSystemIndexWiki {
 			while ((s = reader.readLine()) != null)
 			{
 				String[] tmp = s.split(";");
-				if (tmp.length >= 2 && tmp[1].length() > 3)
+				if (tmp.length >= 2 && tmp[1].length() > 2)
 				{
 					BF bf = new BF(sizeOfBF, sizeOfBF/numberOfFragment);
 					bf.addAll(tmp[1]);
@@ -99,6 +98,7 @@ public class TestSystemIndexWiki {
 				+ "RequeteBF : " + bf.toString() + "\n"
 				+ "Chemin de BF : " + s2 + "\n\n"
 				+ "Temps de recherche: " + (System.currentTimeMillis() - time) + " ms\n" 
+				+ "Nombre de filtres crées : " + i + "\n"
 				+ "Nœuds total : " + systemIndex.size() + "\n"
 				+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
 				+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n"

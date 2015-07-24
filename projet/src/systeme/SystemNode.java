@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import exception.ErrorException;
-
 public class SystemNode implements Serializable{
 	/**
 	 * 

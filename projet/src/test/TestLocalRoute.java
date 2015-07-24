@@ -37,10 +37,6 @@ public class TestLocalRoute {
 		containerBF1.add(bf2);
 		System.out.println("ContainerLocal contient containerBF1: " + containerBF1 );
 		System.out.println("ContainerLocal contient containerBF2: " + containerBF2 );
-
-
-		l.add(f1, containerBF1);
-		l.add(f2, containerBF2);
 		
 		ContainerLocal tmp = (ContainerLocal) l.get(f1);
 		

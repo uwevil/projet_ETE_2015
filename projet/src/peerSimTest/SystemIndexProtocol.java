@@ -1,6 +1,5 @@
 package peerSimTest;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,7 +7,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import exception.ErrorException;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -31,6 +29,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	private int id;
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
+	@SuppressWarnings("unused")
 	private Hashtable<Integer, Object[]> listAnswers = new Hashtable<Integer, Object[]>();
 	
 	public SystemIndexProtocol(String prefix) {
@@ -60,19 +59,6 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		t = (Transport) Network.get(nodeIndex).getProtocol(tid);
 		Message message = (Message)event;
-		
-		/*
-		if (message.getDestinataire() == 35)
-		{
-		//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"–test", true);
-				wf.write("recu " + " node "+ nodeIndex + "\n"
-						+ message.toString()
-						+ "\n");
-				wf.close();
-				//*****************
-		}
-			*/
 				
 		switch(message.getType())
 		{
@@ -112,14 +98,16 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void treatSearch_OK(Message message, int pid) 
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
 		systeme.Configuration.translate.setLength(19876);
+		@SuppressWarnings("unused")
 		int key = systeme.Configuration.translate.translate(bf.toString());
 		
-		@SuppressWarnings("unchecked")
+		/*
 		ArrayList<BF> data1 = (ArrayList<BF>) ((Object[])message.getData())[1];
 		
 		if (data1 != null && data1.size() > 0)
@@ -131,7 +119,8 @@ public class SystemIndexProtocol implements EDProtocol{
 			wf.write(data1.toString() + "\n");
 			wf.close();
 		}
-		/*
+		*/
+		
 		if (this.listAnswers.containsKey(key))
 		{
 			Object[] o1 = this.listAnswers.get(key);
@@ -144,8 +133,13 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			if (data1 != null)
 			{
-				o2.addAll((Collection<? extends BF>) ((Object[])message.getData())[1]);
+				Iterator<BF> iterator = data1.iterator();
+				while (iterator.hasNext())
+				{
+					o2.add(iterator.next());
+				}
 			}
+			
 			i1 += (int) message.getOption1();
 			i2++;
 			
@@ -166,8 +160,17 @@ public class SystemIndexProtocol implements EDProtocol{
 			tab[1] = new Integer(1);
 			tab[2] = new Integer(0);
 			
-			if (((Object[])message.getData())[1] != null)
-				((ArrayList<BF>) tab[0]).addAll((Collection<? extends BF>) ((Object[])message.getData())[1]);
+			Object[] data = (Object[])message.getData();
+			ArrayList<BF> data1 = (ArrayList<BF>) data[1];
+			
+			if (data1 != null)
+			{
+				Iterator<BF> iterator = data1.iterator();
+				while (iterator.hasNext())
+				{
+					((ArrayList<BF>) tab[0]).add(iterator.next());
+				}
+			}
 		
 			tab[1] =(int) tab[1] + (int) message.getOption1();
 			tab[2] = (int) tab[2] + 1;
@@ -182,7 +185,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			this.listAnswers.put(key, tab);
 		}	
-		*/		
+				
 		
 	}
 
@@ -445,7 +448,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					wf1.write("Node " + nodeIndex + " receive from " + message.getSource() + "\n"
 							+ "BF " + bf.toString() + "\n"
 							+ "BF_path : " + s_tmp + "\n"
-							+ "  Path : " + "" + "\n");
+							+ "  Path : " + "" + "\n\n");
 					wf1.close();
 					//*****************
 					
@@ -534,10 +537,10 @@ public class SystemIndexProtocol implements EDProtocol{
 			int indexID = systeme.Configuration.translate.translate(indexName);
 			
 			//*******LOG*******
-			String date = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
+			String date = (new SimpleDateFormat("ss-SSS")).format(new Date());
 
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-			wf.write(date +" Node " + nodeIndex + " receive paths"
+			wf.write(date +"       Node " + nodeIndex + " receive paths"
 				//	+ message.toString() + "\n"
 					+ "\n");
 			wf.close();
@@ -557,7 +560,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					//*******LOG*******
 					
 					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-					wf1.write("  Path : " + path_tmp + "\n");
+					wf1.write("        Path : " + path_tmp + "\n");
 					wf1.close();
 					//*****************
 					
@@ -590,10 +593,10 @@ public class SystemIndexProtocol implements EDProtocol{
 				rep.setOption1(0);
 				
 				//*******LOG*******
-				String date1 = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
+				String date1 = (new SimpleDateFormat("ss-SSS")).format(new Date());
 
 				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-				wf1.write(date1 + " Node " + nodeIndex + " reply to " + message.getSource() + "\n"
+				wf1.write(date1 + "       Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 						+ "\n");
 				wf1.close();
 				//*****************
@@ -655,9 +658,6 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 			t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 			
-			if (nodeIndex == 422)
-				System.out.println(alBF.toString());
-			
 			//*******LOG*******
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
 			wf.write("search treatSearch " + " node "+ nodeIndex + "\n"
@@ -700,10 +700,10 @@ public class SystemIndexProtocol implements EDProtocol{
 			rep.setDestinataire(i);
 
 			//*******LOG*******
-			String date = (new SimpleDateFormat("HH-mm-ss")).format(new Date());
+			String date = (new SimpleDateFormat("ss-SSS")).format(new Date());
 			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
-			wf1.write(date + " Node " + nodeIndex + " search path1 to " + i + "\n"
-					+ "  Path list : " + ((Object[])rep.getData())[1].toString() + "\n"
+			wf1.write(date + "       Node " + nodeIndex + " search path1 to " + i + "\n"
+					+ "        Path list : " + ((Object[])rep.getData())[1].toString() + "\n"
 					+ "\n");
 			wf1.close();
 			//*****************
