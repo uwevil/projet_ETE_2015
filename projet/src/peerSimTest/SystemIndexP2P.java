@@ -15,6 +15,7 @@ import systeme.Fragment;
 import systeme.SystemNode;
 import test.WriteFile;
 
+@SuppressWarnings("unused")
 public class SystemIndexP2P implements Serializable{
 	/**
 	 * 
@@ -125,6 +126,7 @@ public class SystemIndexP2P implements Serializable{
 	{
 		if (!this.listNode.containsKey(path))
 			this.listNode.put(path, node);
+		/*
 		//*******LOG*******
 		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_createNode", true);
 		wf.write("createNode of "+ indexName + " node "+ serverID + "\n"
@@ -134,6 +136,8 @@ public class SystemIndexP2P implements Serializable{
 				+ "\n");
 		wf.close();
 		//*****************
+		
+		 */
 	}
 	
 	@SuppressWarnings("unchecked")

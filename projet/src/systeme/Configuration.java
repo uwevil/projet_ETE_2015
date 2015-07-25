@@ -18,7 +18,7 @@ public class Configuration {
 	public static int numberOfBF = 0;
 	public static int sizeOfBF = 512;
 	public static int numberOfFragment = 64;
-	public static int gamma = 2;
+	public static int gamma = 1000;
 	public static NameToID translate = new NameToID(0);
 	
 	public static String date = (new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss")).format(new Date());
