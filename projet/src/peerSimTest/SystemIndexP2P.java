@@ -255,13 +255,17 @@ public class SystemIndexP2P implements Serializable{
 		if (path == "")
 			return null;
 		
+		Message rep = new Message();
+		
 		while (o != null)
 		{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
 				if (!listNode.containsKey((String)o))
 				{
-					return o;
+					rep.setData(o);
+					rep.setOption1("remove");
+					return rep;
 				}
 				else
 				{
@@ -280,7 +284,11 @@ public class SystemIndexP2P implements Serializable{
 				int endIndex = path_tmp.lastIndexOf('/');
 				
 				if (!this.listNode.containsKey(path_tmp.substring(0, endIndex)))
-					return path_tmp.substring(0, endIndex);
+				{
+					rep.setData(path_tmp.substring(0, endIndex));
+					rep.setOption1("removeNode");
+					return rep;
+				}
 				
 				n = (SystemNode)listNode.get(path_tmp.substring(0, endIndex));
 				
@@ -301,8 +309,13 @@ public class SystemIndexP2P implements Serializable{
 						listNode.remove(path);
 
 						endIndex = path.lastIndexOf('/');
+						
 						if (!this.listNode.containsKey(path_tmp.substring(0, endIndex)))
-							return path_tmp.substring(0, endIndex);
+						{
+							rep.setData(path_tmp.substring(0, endIndex));
+							rep.setOption1("removeNode");
+							return rep;
+						}
 						
 						n = (SystemNode)listNode.get(path.substring(0, endIndex));
 					}
