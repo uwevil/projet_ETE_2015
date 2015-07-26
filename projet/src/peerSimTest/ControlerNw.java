@@ -18,8 +18,7 @@ public class ControlerNw implements Control {
 	@SuppressWarnings("unused")
 	private String prefix;
 	private int pid;
-	private boolean ok = true, ok2 = true;
-	@SuppressWarnings("unused")
+	private boolean ok = true, ok2 = true, ok3 = false;
 	private int line = 0;
 
 	
@@ -36,7 +35,7 @@ public class ControlerNw implements Control {
 		
 		Node n; 
 
-		if (ok && ok2)
+		if (ok)
 		{
 			Message message = new Message();
 
@@ -49,7 +48,7 @@ public class ControlerNw implements Control {
 			 ok = false;
 			 EDSimulator.add(0, message, n, pid);
 		}
-		else if (ok2 && line < 30000)
+		else if (ok2)
 		{
 			n = Network.get(23);
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
@@ -79,11 +78,54 @@ public class ControlerNw implements Control {
 						EDSimulator.add(0, message, n, pid);
 					}
 					
-					if (line == 30000)
+					if (line == 2000000)
 						break;
 				}
 				reader.close();
 				ok2 = false;
+				//ok3 = true;
+				System.out.println("Fini de lecture " + line + " lignes");
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else if (ok3)
+		{
+			n = Network.get(23);
+			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
+			{
+				for (int i = 0; i < line; i++)
+					reader.readLine();
+				
+				while (true)
+				{
+					String s = new String();
+					s = reader.readLine();
+					if (s == null)
+						break;
+					String[] tmp = s.split(";");
+					
+					if (tmp.length >= 2 && tmp[1].length() > 2 )
+					{
+						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
+								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+						bf_tmp.addAll(tmp[1]);
+						//bf_tmp.add("" + line);
+						Message message = new Message();
+
+						message.setType("add");
+						message.setIndexName("dcs");
+						message.setPath("");
+						message.setData(bf_tmp);
+						message.setDestinataire(23);
+						line++;
+						EDSimulator.add(0, message, n, pid);
+					}
+				}
+				reader.close();
+				ok3 = false;
 				System.out.println("Fini de lecture " + line + " lignes");
 			}
 			catch (IOException e)
