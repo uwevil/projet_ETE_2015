@@ -75,6 +75,7 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
+						systeme.Configuration.totalFilterAdded++;
 						EDSimulator.add(0, message, n, pid);
 					}
 					
@@ -83,7 +84,11 @@ public class ControlerNw implements Control {
 				}
 				reader.close();
 				ok2 = false;
-				//ok3 = true;
+				
+				/**************/
+				ok3 = true;
+				/**************/
+				
 				System.out.println("Fini de lecture " + line + " lignes");
 			}
 			catch (IOException e)
@@ -121,6 +126,7 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
+						systeme.Configuration.totalFilterAdded++;
 						EDSimulator.add(0, message, n, pid);
 					}
 				}
