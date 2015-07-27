@@ -18,6 +18,7 @@ import test.WriteFile;
 import systeme.BF;
 import systeme.CalculRang;
 import systeme.ContainerLocal;
+import systeme.LocalRoute;
 import systeme.SystemNode;
 
 public class SystemIndexProtocol implements EDProtocol{
@@ -164,6 +165,8 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			for (int i = 0; i < Network.size(); i++)
 			{
+				systeme.Configuration.nodePerServer[i] = 0;
+				
 				Message rep = new Message();
 				rep.setType("overview");
 				rep.setIndexName(message.getIndexName());
@@ -528,9 +531,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 	@SuppressWarnings("unchecked")
 	private void treatSearch(Message message, int pid)
-	{
-		systeme.Configuration.time = System.currentTimeMillis();
-		
+	{		
 		String indexName = message.getIndexName();
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
@@ -937,7 +938,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		}	
 	}
 	
-	private void treatSearchExact(Message message, int pid) 
+	private void treatSearchExact(Message message, int pid)
 	{
 		systeme.Configuration.time = System.currentTimeMillis();
 		
@@ -1365,7 +1366,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		}	
 	}
 	
-	private void treatRemove(Message message, int pid) 
+	private void treatRemove(Message message, int pid)
 	{
 		String indexName = message.getIndexName();
 		BF bf = (BF) message.getData();
@@ -1576,7 +1577,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 	}
 
-	private void treatRemove(Object o, String indexName, Message message, int pid) 
+	private void treatRemove(Object o, String indexName, Message message, int pid)
 	{
 		if (o == null)
 			return;
@@ -1613,13 +1614,66 @@ public class SystemIndexProtocol implements EDProtocol{
 	}
 
 	private void treatOverview(Message message, int pid)
-	{
+	{	
+		systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
+		int indexID = systeme.Configuration.translate.translate(message.getIndexName());
 		
+		if (this.listSystemIndexP2P.containsKey(indexID))
+		{
+			// procedure
+			SystemIndexP2P systemIndex = (SystemIndexP2P) this.listSystemIndexP2P.get(indexID);
+			
+			systeme.Configuration.nodePerServer[nodeIndex] =  systemIndex.size();
+			
+			Hashtable<String, SystemNode> htss = systemIndex.getListNode();
+			Enumeration<String> htEnumeration = htss.keys();
+			
+			while (htEnumeration.hasMoreElements())
+			{
+				String s = htEnumeration.nextElement();
+				
+				SystemNode sn = htss.get(s);
+				LocalRoute lr = sn.getLocalRoute();
+				Enumeration<Integer> lrEnumeration = lr.getKeyAll();
+				int size = 0;
+				int j = 0;
+				while (lrEnumeration.hasMoreElements())
+				{
+					Integer i = lrEnumeration.nextElement();
+					if (lr.get(i).getClass().getName().equals("systeme.ContainerLocal"))
+					{
+						ContainerLocal cl = (ContainerLocal) lr.get(i);
+						j += cl.getNumberOfElements();
+						size++;
+					}
+				}
+				
+				systeme.Configuration.filterPerNode += (int) (j / size);
+			}
+		}
+		
+		Message rep = new Message();
+		rep.setType("overview_OK");
+		rep.setSource(nodeIndex);
+		rep.setDestinataire(message.getSource());
+		
+		t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 	}
 
 	private void treatOverview_OK(Message message, int pid)
 	{
+		WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG + "_overview", true);
+		wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
+					+ systeme.Configuration.filterPerNode / systeme.Configuration.nodeCreated + " filtres\n");
 		
+		int j = 0;
+		for (int i = 0; i < Network.size(); i++)
+		{
+			j += systeme.Configuration.nodePerServer[i];
+		}
+		
+		wf1.write("Nombre moyen de nœuds par serveur : " + j / Network.size() + " nœuds\n");
+		wf1.close();
 	}
 	
 }

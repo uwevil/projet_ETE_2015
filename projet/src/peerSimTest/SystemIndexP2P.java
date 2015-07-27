@@ -330,6 +330,11 @@ public class SystemIndexP2P implements Serializable{
 		return this.listNode.size();
 	}
 	
+	public Hashtable<String, SystemNode> getListNode()
+	{
+		return this.listNode;
+	}
+	
 	public String toString()
 	{
 		String s = new String();
