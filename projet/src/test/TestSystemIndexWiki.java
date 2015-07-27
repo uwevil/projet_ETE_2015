@@ -9,7 +9,6 @@ import systeme.BF;
 import systeme.SystemIndexCentral;
 import exception.ErrorException;
 
-@SuppressWarnings("unused")
 public class TestSystemIndexWiki {
 	public static int nodeVisited = 0;
 	public static int nodeMatched = 0;
@@ -19,6 +18,7 @@ public class TestSystemIndexWiki {
 	private static int numberOfFragment = 64;
 	private static int gamma = 1000;
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws ErrorException 
 	{
 		SystemIndexCentral systemIndex = new SystemIndexCentral(0, 0, gamma);
@@ -39,8 +39,8 @@ public class TestSystemIndexWiki {
 					systemIndex.add(bf);
 					i++;
 				}		
-				if ( i == 30000)
-					break;
+				//if ( i == 30000)
+					//break;
 			//	w.write(bf.toString() + ";" + tmp[1] + "\n");
 			}
 			reader.close();
@@ -70,7 +70,7 @@ public class TestSystemIndexWiki {
 		BF bf = new BF(systeme.Configuration.sizeOfBF, 
 				systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 		
-		String requete = "this,list,characters,ayn,rands,novel,atlas,shrugged";
+		String requete = "view";
 		bf.addAll(requete);
 		//String tmp = "10000001000011111011111100101101100001110000111100000001101101010000011000000110000010011000000010100000100100101001000101000101011000011101101001111000010110001100010001010000111000000000100110100111000001010100101010011010010100000100101000000000000110101001000000101011010101000100000011100111000000001101000011001000001001110010000011011101000010010010010000011001010010100010001001010100000101010010000000000000011010000110001010011010100000010100101101100001000010001001001110001000100110110000011000100001";
 		//BF bf = new BF(tmp, systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
@@ -91,8 +91,7 @@ public class TestSystemIndexWiki {
 		time = System.currentTimeMillis();
 		
 		//Object resultat = systemIndex.search(bf);
-		BF resultat = (BF) systemIndex.searchExact(bf);
-
+		ArrayList<BF> resultat = (ArrayList<BF>) systemIndex.search(bf);
 		
 		s = "Requete : " + requete + "\n"
 				+ "RequeteBF : " + bf.toString() + "\n"
@@ -102,14 +101,14 @@ public class TestSystemIndexWiki {
 				+ "Nœuds total : " + systemIndex.size() + "\n"
 				+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
 				+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n"
-				//+ "Trouvé : " + (resultat == null ? 0 : ((ArrayList<BF>) resultat).size()) + " filtres\n\n";
-				+ "Trouvé : " + (resultat == null ? 0 : ((BF) resultat).toString()) + "\n\n";
+				//+ "Trouvé : " + (resultat == null ? 0 : ((BF) resultat).size()) + " filtres\n\n";
+				+ "Trouvé : " + (resultat == null ? 0 : ((ArrayList<BF>) resultat).toString()) + "\n\n";
 
 				
 		wf.write(s);
 		wf.write(systeme.Configuration.nodeMatched + "\n\n");
-		//wf.write(((resultat == null) ? "0" : ((ArrayList<BF>) resultat).toString()));
-		wf.write(((resultat == null) ? "0" : ((BF) resultat).toString()));
+		//wf.write(((resultat == null) ? "0" : ((BF) resultat).toString()));
+		wf.write(((resultat == null) ? "0" : ((ArrayList<BF>) resultat).toString()));
 		wf.close();
 		
 		System.out.println("Finish");

@@ -16,6 +16,7 @@ public class Configuration {
 	public static Hashtable<Integer, String> indexHeight = new Hashtable<Integer, String>();
 	public static int filterPerNode = 0;
 	public static int[] nodePerServer = new int[Network.size()];
+	public static int nodeTotal = 0;
 	
 	public static int indexRand = 99999999;
 	public static int doublon = 0;
@@ -51,5 +52,11 @@ public class Configuration {
 		nodeCreated = 0;
 		filterPerNode = 0;
 		nodePerServer = new int[Network.size()];
+		numberOfFilter = 0;
+		
+		for (int i = 0; i < Network.size(); i++)
+			nodePerServer[i] = 0;
+		
+		nodeTotal = 0;
 	}
 }

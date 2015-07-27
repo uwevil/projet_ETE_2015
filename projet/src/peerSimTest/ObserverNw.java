@@ -1,5 +1,6 @@
 package peerSimTest;
 
+import java.io.FileNotFoundException;
 import java.util.Enumeration;
 
 import exception.ErrorException;
@@ -10,6 +11,7 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import serveur.Message;
 import systeme.BF;
+import test.ReadFile;
 import test.WriteFile;
 
 @SuppressWarnings("unused")
@@ -36,8 +38,9 @@ public class ObserverNw implements Control {
 		}
 		else if (ok2)
 		{
+	
 			Node n = Network.get(37);
-			
+	/*		
 			Message message = new Message();
 			message.setIndexName("dcs");
 			message.setSource(37);
@@ -103,10 +106,41 @@ public class ObserverNw implements Control {
 			System.out.println("Lancement de la requête exact : " + tmp);
 			EDSimulator.add(0, message, n, pid);
 	*/
+			
+			try {
+				ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
+				for (int i = 0; i < rf.size(); i++)
+				{
+					Message message = new Message();
+					message.setIndexName("dcs");
+					message.setSource(37);
+					message.setDestinataire(37);
+					
+					message.setType("search");
+					
+					BF bf = new BF(systeme.Configuration.sizeOfBF, 
+							systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+					
+					bf.addAll(rf.getDescription(i));
+					
+					Object[] o = new Object[2];
+					o[0] = bf;
+					o[1] = "";
+					
+					message.setData(o);
+
+					EDSimulator.add(0, message, n, pid);
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			ok2 = false;
 			ok3 = true;
 		}
-		else if (ok3)
+		
+		if (ok3)
 		{
 			//*******************
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_indexHeight", false);

@@ -104,6 +104,15 @@ public class SystemIndexP2P implements Serializable{
 		if (tmp_serverID == serverID)
 		{
 			SystemNode n = new SystemNode(serverID, path, father.getRang() + 1, gamma);
+			
+			int rang = n.getRang();
+			if (!systeme.Configuration.indexHeight.containsKey(rang))
+			{
+				systeme.Configuration.indexHeight.put(rang, n.getPath());
+			}
+			
+			systeme.Configuration.nodeCreated++;
+			
 			while (iterator.hasNext())
 			{
 				bf = iterator.next();

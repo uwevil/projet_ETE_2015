@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import peersim.config.Configuration;
 import peersim.core.Network;
@@ -32,6 +33,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
 	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
+	private int recu = 0;
 	
 	public SystemIndexProtocol(String prefix) {
 		// TODO Auto-generated constructor stub
@@ -123,7 +125,7 @@ public class SystemIndexProtocol implements EDProtocol{
 
 
 	@SuppressWarnings("unchecked")
-	private void treatSearch_OK(Message message, int pid) 
+	private void treatSearch_OK(Message message, int pid)
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
@@ -139,11 +141,6 @@ public class SystemIndexProtocol implements EDProtocol{
 			System.out.println("OKKKKKKKKK");
 			System.out.println(systeme.Configuration.time + "ms");
 			
-			if (systeme.Configuration.time >= 1000)
-			{
-				System.out.println((new SimpleDateFormat("HH:mm:ss.SSS").format(new Date(systeme.Configuration.time))));
-			}
-			
 			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF_resume_"+key, true);
 			wf1.write("Nombre total de filtres ajoutés : " + systeme.Configuration.totalFilterAdded + " filtres\n");
 			wf1.write("Nombre total de nœuds crées : " + systeme.Configuration.nodeCreated + " nœuds\n");
@@ -158,8 +155,25 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			
 			wf1.write("Nombre de pairs visités : " + j + " pairs\n");
-			wf1.write("\nTemps de recherche : " + systeme.Configuration.time + "ms == " 
-						+ (new SimpleDateFormat("HH-mm-ss.SSS").format(new Date(systeme.Configuration.time))) + "\n\n");
+			if (systeme.Configuration.time >= 1000)
+			{
+				long i = systeme.Configuration.time;
+				long hours = TimeUnit.MILLISECONDS.toHours(i);
+				i -= TimeUnit.HOURS.toMillis(hours);
+				long minutes = TimeUnit.MILLISECONDS.toMinutes(i);
+				i -= TimeUnit.MINUTES.toMillis(minutes);
+				long seconds = TimeUnit.MILLISECONDS.toSeconds(i);
+				i -= TimeUnit.SECONDS.toMillis(seconds);
+				
+				wf1.write("\nTemps de recherche : " + systeme.Configuration.time + "ms == " 
+						+ hours + ":" + minutes + ":" + seconds + "." + i
+						+ "\n\n");
+			}
+			else
+			{
+				wf1.write("\nTemps de recherche : " + systeme.Configuration.time + "ms\n\n");
+			}
+			
 			wf1.write("Liste des chemins matched: " + systeme.Configuration.nodeMatched.toString() + "\n");
 			wf1.close();
 			
@@ -173,8 +187,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				rep.setSource(nodeIndex);
 				rep.setDestinataire(i);
 				
-				if (i != nodeIndex)
-					t.send(Network.get(nodeIndex), Network.get(i), rep, pid);
+				t.send(Network.get(nodeIndex), Network.get(i), rep, pid);
 			}
 			
 			this.listAnswers.remove(key);
@@ -199,7 +212,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 	}
 	
-	private void treatSearchExact_OK(Message message, int pid) 
+	private void treatSearchExact_OK(Message message, int pid)
 	{
 		
 		BF data1 =(BF) ((Object[])message.getData())[1];
@@ -298,7 +311,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		return true;
 	}
 	
-	private void treatCreateNode(Message message, int pid) 
+	private void treatCreateNode(Message message, int pid)
 	{
 		String indexName = message.getIndexName();
 		String path = message.getPath();
@@ -316,7 +329,6 @@ public class SystemIndexProtocol implements EDProtocol{
 			{
 				systemIndex = new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
 				this.listSystemIndexP2P.put(indexID, systemIndex);
-				systeme.Configuration.nodeCreated++;
 			}
 			else // listSystemIndexP2P.containsKey(indexID)
 			{
@@ -326,6 +338,8 @@ public class SystemIndexProtocol implements EDProtocol{
 			SystemNode systemNode = new SystemNode(serverID, path, 
 					(new CalculRang()).getRang(path), systeme.Configuration.gamma);
 			
+			systeme.Configuration.nodeCreated++;
+
 			//****************
 			int rang = systemNode.getRang();
 			if (!systeme.Configuration.indexHeight.containsKey(rang))
@@ -1160,7 +1174,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		}	
 	}
 	
-	private void treatSearchExact(Object o, String indexName, Message message, int pid) 
+	private void treatSearchExact(Object o, String indexName, Message message, int pid)
 	{
 		if (o == null)
 		{
@@ -1648,7 +1662,8 @@ public class SystemIndexProtocol implements EDProtocol{
 					}
 				}
 				
-				systeme.Configuration.filterPerNode += (int) (j / size);
+				systeme.Configuration.nodeTotal++;
+				systeme.Configuration.filterPerNode += (int) (j / (size == 0 ? 1 : size));
 			}
 		}
 		
@@ -1662,18 +1677,32 @@ public class SystemIndexProtocol implements EDProtocol{
 
 	private void treatOverview_OK(Message message, int pid)
 	{
-		WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG + "_overview", true);
-		wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
-					+ systeme.Configuration.filterPerNode / systeme.Configuration.nodeCreated + " filtres\n");
-		
-		int j = 0;
-		for (int i = 0; i < Network.size(); i++)
+		recu++;
+		if (recu == Network.size())
 		{
-			j += systeme.Configuration.nodePerServer[i];
+			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG + "_overview", true);
+			
+			wf1.write("Test nodeTotal = " + systeme.Configuration.nodeTotal);
+			if (systeme.Configuration.nodeCreated > 0)
+			{
+				wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
+						+ systeme.Configuration.filterPerNode / systeme.Configuration.nodeCreated + " filtres\n");
+			}
+			else
+			{
+				wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
+						+ systeme.Configuration.filterPerNode + " filtres (0 nœud crée)\n");
+			}
+			
+			int j = 0;
+			for (int i = 0; i < Network.size(); i++)
+			{
+				j += systeme.Configuration.nodePerServer[i];
+			}
+			
+			wf1.write("Nombre moyen de nœuds par serveur : " + j / Network.size() + " nœuds\n");
+			wf1.close();
 		}
-		
-		wf1.write("Nombre moyen de nœuds par serveur : " + j / Network.size() + " nœuds\n");
-		wf1.close();
 	}
 	
 }

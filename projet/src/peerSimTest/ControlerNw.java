@@ -37,6 +37,7 @@ public class ControlerNw implements Control {
 
 		if (ok)
 		{
+			System.out.println("Création de l'index");
 			Message message = new Message();
 
 			 n = Network.get(23);
@@ -50,6 +51,7 @@ public class ControlerNw implements Control {
 		}
 		else if (ok2)
 		{
+			System.out.println("Lecture 2M premières lignes");
 			n = Network.get(23);
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
 			{
@@ -98,6 +100,8 @@ public class ControlerNw implements Control {
 		}
 		else if (ok3)
 		{
+			System.out.println("Lecture les dernières lignes");
+
 			n = Network.get(23);
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
 			{

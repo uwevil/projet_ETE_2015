@@ -10,7 +10,13 @@ public class WriteFile {
 	public WriteFile(String file, boolean append) {
 		// TODO Auto-generated constructor stub
 		try {
-			fw = new FileWriter(new File(file), append);
+			File f = new File(file);
+			String s = file.substring(0, file.lastIndexOf('/'));
+			File fs = new File(s);
+			if (!fs.exists())
+				fs.mkdirs();
+			
+			fw = new FileWriter(f, append);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
