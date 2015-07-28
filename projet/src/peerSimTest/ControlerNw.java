@@ -69,8 +69,9 @@ public class ControlerNw implements Control {
 					
 					if (tmp.length >= 2 && tmp[1].length() > 2 )
 					{
-						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
-								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+						@SuppressWarnings("static-access")
+						BF bf_tmp = new BF(config_log.sizeOfBF, 
+								config_log.sizeOfBF/config_log.numberOfFragment);
 						bf_tmp.addAll(tmp[1]);
 						//bf_tmp.add("" + line);
 						Message message = new Message();
@@ -85,14 +86,14 @@ public class ControlerNw implements Control {
 						EDSimulator.add(0, message, n, pid);
 					}
 					
-					if (line == 2000)
+					if (line == 2000000)
 						break;
 				}
 				reader.close();
 				ok2 = false;
 				
 				/**************/
-			//	ok3 = true;
+				ok3 = true;
 				/**************/
 				
 				System.out.println("Fini de lecture " + line + " lignes");
@@ -122,10 +123,11 @@ public class ControlerNw implements Control {
 					
 					if (tmp.length >= 2 && tmp[1].length() > 2 )
 					{
-						BF bf_tmp = new BF(systeme.Configuration.sizeOfBF, 
-								systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+						@SuppressWarnings("static-access")
+						BF bf_tmp = new BF(config_log.sizeOfBF, 
+								config_log.sizeOfBF/config_log.numberOfFragment);
+						
 						bf_tmp.addAll(tmp[1]);
-						//bf_tmp.add("" + line);
 						Message message = new Message();
 
 						message.setType("add");

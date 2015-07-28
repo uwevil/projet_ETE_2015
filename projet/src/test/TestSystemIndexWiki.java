@@ -1,9 +1,12 @@
 package test;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import systeme.BF;
 import systeme.SystemIndexCentral;
@@ -24,7 +27,6 @@ public class TestSystemIndexWiki {
 		SystemIndexCentral systemIndex = new SystemIndexCentral(0, 0, gamma);
 		long time = System.currentTimeMillis();
 
-		//WriteFile w = new WriteFile("/Users/dcs/vrac/test/bf_description_Wiki", false);
 		int i = 0;
 		try (BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
 		{
@@ -41,7 +43,6 @@ public class TestSystemIndexWiki {
 				}		
 				//if ( i == 30000)
 					//break;
-			//	w.write(bf.toString() + ";" + tmp[1] + "\n");
 			}
 			reader.close();
 		} 
@@ -51,7 +52,6 @@ public class TestSystemIndexWiki {
 		}
 			
 		System.out.println("Nombre de filtres crées : " + i);
-	//	w.close();
 		
 		System.out.println("Temps de création l'ensemble de filtres: " 
 						+(System.currentTimeMillis() - time)/(1000) + " s");
@@ -67,17 +67,32 @@ public class TestSystemIndexWiki {
 		
 		System.out.println("Serializable OK");
 	
-		BF bf = new BF(systeme.Configuration.sizeOfBF, 
-				systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+		String requete = "";
+		BF bf = null;
+		try {
+			ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
+			
+			for (int j = 0; j < 1; j++) //rf.size(); i++)
+			{
+				bf = new BF(systeme.Configuration.sizeOfBF, 
+						systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+				
+				requete = rf.getDescription(j);
+				bf.addAll(requete);
+				
+			}
+			System.out.println("NOMBRE de requete = " + rf.size());
+		} 
+		catch (FileNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+		String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
 		
-		String requete = "view";
-		bf.addAll(requete);
-		//String tmp = "10000001000011111011111100101101100001110000111100000001101101010000011000000110000010011000000010100000100100101001000101000101011000011101101001111000010110001100010001010000111000000000100110100111000001010100101010011010010100000100101000000000000110101001000000101011010101000100000011100111000000001101000011001000001001110010000011011101000010010010010000011001010010100010001001010100000101010010000000000000011010000110001010011010100000010100101101100001000010001001001110001000100110110000011000100001";
-		//BF bf = new BF(tmp, systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
-		
-		System.out.println(bf.toString());
-		
-		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/"+ systeme.Configuration.date +"-search_Wiki", false);
+		System.out.println(date);
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/"+ date +"_search_Wiki", false);
 		String s = null;
 		
 		String s2 = "/";
@@ -102,7 +117,7 @@ public class TestSystemIndexWiki {
 				+ "Nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n"
 				+ "Nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n"
 				//+ "Trouvé : " + (resultat == null ? 0 : ((BF) resultat).size()) + " filtres\n\n";
-				+ "Trouvé : " + (resultat == null ? 0 : ((ArrayList<BF>) resultat).toString()) + "\n\n";
+				+ "Trouvé : " + (resultat == null ? 0 : ((ArrayList<BF>) resultat).size()) + "\n\n";
 
 				
 		wf.write(s);

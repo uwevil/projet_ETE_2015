@@ -122,7 +122,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	}
 
 
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings({ "unchecked" })
 	private void treatSearch_OK(Message message, int pid)
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
@@ -193,16 +193,18 @@ public class SystemIndexProtocol implements EDProtocol{
 			ControlerNw.search_log.get(key).removeListAnswer(key);
 		}
 		
-		/*
+		
 		if (data1 != null && data1.size() > 0)
 		{
 			ControlerNw.config_log.addNumberOfFilters(data1.size());
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
+			/*
 			WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_"+key, true);
 			wf.write(date + "       Source : " + message.getSource() + "\n");
 			wf.write("        "+ data1.toString() + "\n\n");
 			wf.close();
+			*/
 			
 			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_node_" + key, true);
 			wf1.write(date + "       Source : " + message.getSource() + "\n");
@@ -210,7 +212,7 @@ public class SystemIndexProtocol implements EDProtocol{
 						+ ControlerNw.config_log.getNumberOfFilters() + " (" + data1.size() +")\n");
 			wf1.close();
 		}
-		*/
+		
 	}
 	
 	private void treatSearchExact_OK(Message message, int pid)
@@ -1660,6 +1662,8 @@ public class SystemIndexProtocol implements EDProtocol{
 			// procedure
 			SystemIndexP2P systemIndex = (SystemIndexP2P) this.listSystemIndexP2P.get(indexID);
 			
+			System.out.println(systemIndex.size());
+			
 			ControlerNw.config_log.setNodePerServer(nodeIndex, systemIndex.size());
 			//Config.nodePerServer[nodeIndex] =  systemIndex.size();
 			
@@ -1725,7 +1729,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				//j += Config.nodePerServer[i];
 			}
 			
-			wf1.write("Nombre moyen de nœuds par serveur : " + j / Network.size() + " nœuds\n");
+			wf1.write("Nombre moyen de nœuds par serveur : " + j + "/" +  Network.size() + " (nœuds/serveur)\n");
 			wf1.close();
 		}
 	}

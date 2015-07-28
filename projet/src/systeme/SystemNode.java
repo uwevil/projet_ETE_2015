@@ -102,7 +102,7 @@ public class SystemNode implements Serializable{
 					ContainerLocal c = (ContainerLocal) bf_tmp;
 					Iterator<BF> iterator = c.iterator();
 					
-					//boolean ok = true;
+					boolean ok = true;
 					while (iterator.hasNext())
 					{
 						BF tmp = iterator.next();
@@ -110,8 +110,7 @@ public class SystemNode implements Serializable{
 						if (bf.in(tmp))
 						{
 							rep.add(tmp);
-							systeme.SystemIndexCentral.config.addNodeMatched(this.path);
-							/*
+							
 							if (ok)
 							{
 								 if(!systeme.Configuration.nodeMatched.contains(this.path))
@@ -124,7 +123,7 @@ public class SystemNode implements Serializable{
 									ok = false;
 								 }
 							}
-							*/
+							
 						}
 					}
 				}
@@ -146,8 +145,7 @@ public class SystemNode implements Serializable{
 			}else{
 				if (((ContainerLocal)o).contains(bf))
 				{
-					systeme.SystemIndexCentral.config.addNodeMatched(this.path);
-					//systeme.Configuration.nodeMatched.add(this.path);
+					systeme.Configuration.nodeMatched.add(this.path);
 					return ((ContainerLocal)o);
 				}
 				return null;

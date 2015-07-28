@@ -141,7 +141,7 @@ public class ObserverNw implements Control {
 			}
 			
 			ok2 = false;
-			//ok3 = true;
+			ok3 = true;
 		}
 		
 		if (ok3)
