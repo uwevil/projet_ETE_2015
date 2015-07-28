@@ -11,7 +11,6 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import serveur.Message;
-import systeme.BF;
 
 public class ControlerNw implements Control {
 	private static final String PAR_PROTOCOL = "protocol";
@@ -70,7 +69,7 @@ public class ControlerNw implements Control {
 					if (tmp.length >= 2 && tmp[1].length() > 2 )
 					{
 						@SuppressWarnings("static-access")
-						BF bf_tmp = new BF(config_log.sizeOfBF, 
+						BFP2P bf_tmp = new BFP2P(config_log.sizeOfBF, 
 								config_log.sizeOfBF/config_log.numberOfFragment);
 						bf_tmp.addAll(tmp[1]);
 						//bf_tmp.add("" + line);
@@ -82,18 +81,18 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
-						ControlerNw.config_log.addTotalFilterAdded(1);;
+						ControlerNw.config_log.addTotalFilterCreated(1);;
 						EDSimulator.add(0, message, n, pid);
 					}
 					
-					if (line == 2000000)
+					if (line == 20000)
 						break;
 				}
 				reader.close();
 				ok2 = false;
 				
 				/**************/
-				ok3 = true;
+			//	ok3 = true;
 				/**************/
 				
 				System.out.println("Fini de lecture " + line + " lignes");
@@ -124,7 +123,7 @@ public class ControlerNw implements Control {
 					if (tmp.length >= 2 && tmp[1].length() > 2 )
 					{
 						@SuppressWarnings("static-access")
-						BF bf_tmp = new BF(config_log.sizeOfBF, 
+						BFP2P bf_tmp = new BFP2P(config_log.sizeOfBF, 
 								config_log.sizeOfBF/config_log.numberOfFragment);
 						
 						bf_tmp.addAll(tmp[1]);
@@ -136,7 +135,7 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
-						ControlerNw.config_log.addTotalFilterAdded(1);;
+						ControlerNw.config_log.addTotalFilterCreated(1);;
 						EDSimulator.add(0, message, n, pid);
 					}
 				}

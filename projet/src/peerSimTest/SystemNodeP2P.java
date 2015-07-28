@@ -5,11 +5,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import systeme.BF;
-import systeme.ContainerLocal;
-import systeme.Fragment;
-import systeme.LocalRoute;
-
 public class SystemNodeP2P implements Serializable{
 	/**
 	 * 
@@ -18,7 +13,7 @@ public class SystemNodeP2P implements Serializable{
 	private int server;
 	private String path;
 	private int rang;
-	private LocalRoute localRoute;
+	private LocalRouteP2P localRoute;
 	private int limit;
 	
 	public SystemNodeP2P(int server, String path, int rang, int limit) {
@@ -27,7 +22,7 @@ public class SystemNodeP2P implements Serializable{
 		this.path = path;
 		this.limit = limit;
 		this.rang = rang;
-		localRoute = new LocalRoute(limit);
+		localRoute = new LocalRouteP2P(limit);
 	}
 	
 	public String getPath()
@@ -45,7 +40,7 @@ public class SystemNodeP2P implements Serializable{
 		return this.rang;
 	}
 	
-	public LocalRoute getLocalRoute()
+	public LocalRouteP2P getLocalRoute()
 	{
 		return this.localRoute;
 	}
@@ -55,9 +50,9 @@ public class SystemNodeP2P implements Serializable{
 		return this.limit;
 	}
 	
-	public Object add(BF bf)
+	public Object add(BFP2P bf)
 	{	
-		Fragment f = bf.getFragment(rang);
+		FragmentP2P f = bf.getFragment(rang);
 		
 		if(localRoute.add(f, bf))
 		{
@@ -67,20 +62,20 @@ public class SystemNodeP2P implements Serializable{
 		return localRoute.get(f);
 	}
 	
-	public void add(BF bf, String path)
+	public void add(BFP2P bf, String path)
 	{
 		localRoute.add(bf.getFragment(rang), path);
 	}
 	
-	public Object search(BF bf)
+	public Object search(BFP2P bf)
 	{
-		Fragment f = bf.getFragment(rang);
+		FragmentP2P f = bf.getFragment(rang);
 		ArrayList<Object> rep = new ArrayList<Object>();
 		Enumeration<Integer> list = localRoute.getKeyAll();
 		
 		ControlerNw.config_log.getTranslate().setLength(1000000);
 		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
-		
+		/*
 		if (systeme.Configuration.graph.containsKey(rang))
 		{
 			((ArrayList<String>)(systeme.Configuration.graph.get(rang))).add(path);
@@ -91,11 +86,12 @@ public class SystemNodeP2P implements Serializable{
 			als.add(path);
 			systeme.Configuration.graph.put(rang, als);
 		}
-				
+			*/
+		
 		while (list.hasMoreElements())
 		{
 			Integer i = list.nextElement();
-			Fragment f_tmp = (new Fragment(0)).intToFragment(bf.getBitsPerElement(), i);
+			FragmentP2P f_tmp = (new FragmentP2P(0)).intToFragment(bf.getBitsPerElement(), i);
 			
 			if (f.in(f_tmp))
 			{	
@@ -107,32 +103,18 @@ public class SystemNodeP2P implements Serializable{
 				}
 				else
 				{
-					ContainerLocal c = (ContainerLocal) bf_tmp;
-					Iterator<BF> iterator = c.iterator();
+					ContainerLocalP2P c = (ContainerLocalP2P) bf_tmp;
+					Iterator<BFP2P> iterator = c.iterator();
 					
 				//	boolean ok = true;
 					while (iterator.hasNext())
 					{
-						BF tmp = iterator.next();
+						BFP2P tmp = iterator.next();
 						
 						if (bf.in(tmp))
 						{
 							rep.add(tmp);
 							ControlerNw.search_log.get(key).addNodeMatched(this.path);
-							/*
-							if (ok)
-							{
-								 if(!systeme.Configuration.nodeMatched.contains(this.path))
-								 {
-									systeme.Configuration.nodeMatched.add(this.path);
-									ok = false;
-								 }
-								 else
-								 {
-									ok = false;
-								 }
-							}
-							*/
 						}
 					}
 				}
@@ -142,12 +124,12 @@ public class SystemNodeP2P implements Serializable{
 		return rep;
 	}
 	
-	public Object searchExact(BF bf)
+	public Object searchExact(BFP2P bf)
 	{
 		ControlerNw.config_log.getTranslate().setLength(1000000);
 		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 		
-		Fragment f = bf.getFragment(rang);
+		FragmentP2P f = bf.getFragment(rang);
 		if (localRoute.contains(f))
 		{
 			Object o = localRoute.get(f);
@@ -155,11 +137,10 @@ public class SystemNodeP2P implements Serializable{
 			{
 				return (String)o;
 			}else{
-				if (((ContainerLocal)o).contains(bf))
+				if (((ContainerLocalP2P)o).contains(bf))
 				{
 					ControlerNw.search_log.get(key).addNodeMatched(this.path);
-				//	systeme.Configuration.nodeMatched.add(this.path);
-					return ((ContainerLocal)o);
+					return ((ContainerLocalP2P)o);
 				}
 				return null;
 			}
@@ -167,15 +148,15 @@ public class SystemNodeP2P implements Serializable{
 		return null;
 	}
 	
-	public Object remove(BF bf)
+	public Object remove(BFP2P bf)
 	{
-		Fragment f = bf.getFragment(rang);
+		FragmentP2P f = bf.getFragment(rang);
 		if (!localRoute.contains(f))
 			return null;
 		
-		if ((((localRoute.get(f)).getClass()).getName()).equals("systeme.ContainerLocal"))
+		if ((((localRoute.get(f)).getClass()).getName()).equals("peerSimTest.ContainerLocalP2P"))
 		{
-			ContainerLocal c = (ContainerLocal) localRoute.get(f);
+			ContainerLocalP2P c = (ContainerLocalP2P) localRoute.get(f);
 			c.remove(bf);
 			
 			if(c.isEmpty())
@@ -188,7 +169,7 @@ public class SystemNodeP2P implements Serializable{
 		return localRoute.get(f);
 	}
 	
-	public boolean remove(Fragment f)
+	public boolean remove(FragmentP2P f)
 	{
 		if (!localRoute.contains(f))
 			return true;
@@ -205,11 +186,6 @@ public class SystemNodeP2P implements Serializable{
 		return "NodeID : " + path + "\n"
 			 + "Rang : " + rang + "\n"
 			 + localRoute.toString();
-	}
-	
-	public String overView()
-	{
-		return "NodeID : " + path + "\n" + localRoute.overView();
 	}
 	
 }

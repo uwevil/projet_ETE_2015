@@ -10,7 +10,6 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import serveur.Message;
-import systeme.BF;
 import test.ReadFile;
 import test.WriteFile;
 
@@ -119,7 +118,7 @@ public class ObserverNw implements Control {
 					
 					message.setType("search");
 					
-					BF bf = new BF(systeme.Configuration.sizeOfBF, 
+					BFP2P bf = new BFP2P(systeme.Configuration.sizeOfBF, 
 							systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 					
 					bf.addAll(rf.getDescription(i));
@@ -141,7 +140,7 @@ public class ObserverNw implements Control {
 			}
 			
 			ok2 = false;
-			ok3 = true;
+		//	ok3 = true;
 		}
 		
 		if (ok3)

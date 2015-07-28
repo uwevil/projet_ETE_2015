@@ -11,9 +11,10 @@ import serveur.NameToID;
 public class Config {
 
 	private ArrayList<String> nodeMatched = new ArrayList<String>();
-	public static Hashtable<Integer, String> indexHeight = new Hashtable<Integer, String>();
+	private Hashtable<Integer, String> indexHeight = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
 	private int[] nodePerServer = new int[Network.size()];
+	private boolean[] peerCreated = new boolean[Network.size()];
 	
 	public static int indexRand = 99999999;
 	public static int doublon = 0;
@@ -24,12 +25,12 @@ public class Config {
 	private NameToID translate = new NameToID(0);
 
 	private int nodeVisited = 0;
+	private int totalFilterCreated = 0;
 	private int totalFilterAdded = 0;
 	private int nodeCreated = 0;
 	private long time = 0;
 	private int numberOfFilter = 0;
 	private int filterPerNode = 0;
-	public static int nodeTotal = 0;
 	
 	public static String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
 	public static String peerSimLOG = "/Users/dcs/vrac/test/"+ date + "_log";
@@ -38,6 +39,12 @@ public class Config {
 	
 	public Config()
 	{
+		for (int i = 0; i < Network.size(); i++)
+		{
+			peerCreated[i] = false;
+			nodePerServer[i] = 0;
+		}
+		
 		nodeVisited = 0;
 		nodeMatched = new ArrayList<String>();
 		indexHeight = new Hashtable<Integer, String>();
@@ -46,7 +53,7 @@ public class Config {
 		numberOfBF = 0;
 		date = (new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss")).format(new Date());
 		time = 0;
-		totalFilterAdded = 0;
+		totalFilterCreated = 0;
 		nodeCreated = 0;
 		filterPerNode = 0;
 		nodePerServer = new int[Network.size()];
@@ -55,7 +62,6 @@ public class Config {
 			nodePerServer[i] = 0;
 		
 		numberOfFilter = 0;
-		nodeTotal = 0;
 	}
 	
 	public synchronized void addNodeCreated(int i)
@@ -66,6 +72,16 @@ public class Config {
 	public int getNodeCreated()
 	{
 		return this.nodeCreated;
+	}
+	
+	public synchronized void addTotalFilterCreated(int i)
+	{
+		this.totalFilterCreated += i;
+	}
+	
+	public int getTotalFilterCreated()
+	{
+		return this.totalFilterCreated;
 	}
 	
 	public synchronized void addTotalFilterAdded(int i)
@@ -171,4 +187,18 @@ public class Config {
 		return this.nodePerServer[index];
 	}
 	
+	public synchronized void setPeerCreated(int index, boolean value)
+	{
+		this.peerCreated[index] =  value;
+	}
+	
+	public boolean getPeerCreated(int index)
+	{
+		return this.peerCreated[index];
+	}
+	
+	public Hashtable<Integer, String> getIndexHeight()
+	{
+		return this.indexHeight;
+	}
 }

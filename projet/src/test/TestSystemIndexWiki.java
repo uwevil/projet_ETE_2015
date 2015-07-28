@@ -30,9 +30,13 @@ public class TestSystemIndexWiki {
 		int i = 0;
 		try (BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
 		{
-			String s;
-			while ((s = reader.readLine()) != null)
+			while (true)
 			{
+				String s = new String();
+				s = reader.readLine();
+				if (s == null)
+					break;
+				
 				String[] tmp = s.split(";");
 				if (tmp.length >= 2 && tmp[1].length() > 2)
 				{

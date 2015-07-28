@@ -38,7 +38,8 @@ public class TestBF {
 		//System.out.println(test.getFragment(2).toString());
 		//System.out.println(bf1.in(test));
 		
-		System.out.println(bf2.in(bf));
+		System.out.println(bf2.in(bf) + " "+  bf2.getClass());
+		System.out.println(bf2.getClass().getName().equals(bf2.getClass().getName()));
 	}
 
 }
