@@ -19,7 +19,6 @@ public class ReadFile {
 		time = System.currentTimeMillis();
 		try (BufferedReader reader = new BufferedReader(new FileReader(file)))
 		{
-			reader.readLine();
 			String s;
 			while ((s = reader.readLine()) != null)
 			{

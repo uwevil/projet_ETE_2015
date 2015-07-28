@@ -20,7 +20,6 @@ import systeme.BF;
 import systeme.CalculRang;
 import systeme.ContainerLocal;
 import systeme.LocalRoute;
-import systeme.SystemNode;
 
 public class SystemIndexProtocol implements EDProtocol{
 
@@ -32,7 +31,6 @@ public class SystemIndexProtocol implements EDProtocol{
 	private int id;
 	
 	private Hashtable<Integer, SystemIndexP2P> listSystemIndexP2P = new Hashtable<Integer, SystemIndexP2P>();
-	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
 	private int recu = 0;
 	
 	public SystemIndexProtocol(String prefix) {
@@ -124,40 +122,42 @@ public class SystemIndexProtocol implements EDProtocol{
 	}
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void treatSearch_OK(Message message, int pid)
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
-		systeme.Configuration.translate.setLength(19876);
-		int key = systeme.Configuration.translate.translate(bf.toString());
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 		
 		ArrayList<BF> data1 = (ArrayList<BF>) ((Object[])message.getData())[1];
 		
 		if (treatListAnswer(message))
 		{
-			systeme.Configuration.time = Calendar.getInstance().getTimeInMillis() - systeme.Configuration.time;
+			long time = Calendar.getInstance().getTimeInMillis() - ControlerNw.search_log.get(key).getTime();
 			
 			System.out.println("OKKKKKKKKK");
-			System.out.println(systeme.Configuration.time + "ms");
+			System.out.println(time + "ms");
 			
-			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF_resume_"+key, true);
-			wf1.write("Nombre total de filtres ajoutés : " + systeme.Configuration.totalFilterAdded + " filtres\n");
-			wf1.write("Nombre total de nœuds crées : " + systeme.Configuration.nodeCreated + " nœuds\n");
-			wf1.write("Nombre de nœuds visités : " + systeme.Configuration.nodeVisited + " nœuds\n");
-			wf1.write("Nombre de nœuds matched : " + systeme.Configuration.nodeMatched.size() + " nœuds\n");
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_BF_resume_"+key, true);
+			wf1.write("Nombre total de filtres ajoutés : " + ControlerNw.config_log.getTotalFilterAdded() + " filtres\n");
+			wf1.write("Nombre total de nœuds crées : " + ControlerNw.config_log.getNodeCreated() + " nœuds\n");
+			
+			wf1.write("Nombre de chemins visités : " + ControlerNw.search_log.get(key).getNodeVisited() + " nœuds\n");
+			wf1.write("Nombre de chemins matched : " + ControlerNw.search_log.get(key).sizeNodeMatched() + " nœuds\n");
 			
 			int j = 0;
 			for (int i = 0; i < Network.size(); i++)
 			{
-				if (((int[])((Object[])this.listAnswers.get(key))[0])[i] != 0)
+				
+				if (((int[])((Object[])ControlerNw.search_log.get(key).getListAnswer(key))[0])[i] != 0)
 					j++;
 			}
 			
 			wf1.write("Nombre de pairs visités : " + j + " pairs\n");
-			if (systeme.Configuration.time >= 1000)
+			if (time >= 1000)
 			{
-				long i = systeme.Configuration.time;
+				long i = time;
 				long hours = TimeUnit.MILLISECONDS.toHours(i);
 				i -= TimeUnit.HOURS.toMillis(hours);
 				long minutes = TimeUnit.MILLISECONDS.toMinutes(i);
@@ -165,21 +165,21 @@ public class SystemIndexProtocol implements EDProtocol{
 				long seconds = TimeUnit.MILLISECONDS.toSeconds(i);
 				i -= TimeUnit.SECONDS.toMillis(seconds);
 				
-				wf1.write("\nTemps de recherche : " + systeme.Configuration.time + "ms == " 
+				wf1.write("\nTemps de recherche : " + time + "ms == " 
 						+ hours + ":" + minutes + ":" + seconds + "." + i
 						+ "\n\n");
 			}
 			else
 			{
-				wf1.write("\nTemps de recherche : " + systeme.Configuration.time + "ms\n\n");
+				wf1.write("\nTemps de recherche : " + time + "ms\n\n");
 			}
 			
-			wf1.write("Liste des chemins matched: " + systeme.Configuration.nodeMatched.toString() + "\n");
+			wf1.write("Liste des chemins matched: " + ControlerNw.search_log.get(key).getNodeMatched() + "\n");
 			wf1.close();
 			
 			for (int i = 0; i < Network.size(); i++)
 			{
-				systeme.Configuration.nodePerServer[i] = 0;
+				ControlerNw.config_log.setNodePerServer(i, 0);
 				
 				Message rep = new Message();
 				rep.setType("overview");
@@ -190,26 +190,27 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get(i), rep, pid);
 			}
 			
-			this.listAnswers.remove(key);
+			ControlerNw.search_log.get(key).removeListAnswer(key);
 		}
 		
+		/*
 		if (data1 != null && data1.size() > 0)
 		{
-			systeme.Configuration.numberOfFilter += data1.size();
+			ControlerNw.config_log.addNumberOfFilters(data1.size());
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_"+key, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_"+key, true);
 			wf.write(date + "       Source : " + message.getSource() + "\n");
 			wf.write("        "+ data1.toString() + "\n\n");
 			wf.close();
 			
-			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_node_" + key, true);
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_node_" + key, true);
 			wf1.write(date + "       Source : " + message.getSource() + "\n");
 			wf1.write("                              " 
-						+ systeme.Configuration.numberOfFilter + " (" + data1.size() +")\n");
+						+ ControlerNw.config_log.getNumberOfFilters() + " (" + data1.size() +")\n");
 			wf1.close();
 		}
-		
+		*/
 	}
 	
 	private void treatSearchExact_OK(Message message, int pid)
@@ -217,15 +218,18 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		BF data1 =(BF) ((Object[])message.getData())[1];
 		
-		systeme.Configuration.time = ((Calendar.getInstance()).getTimeInMillis())- systeme.Configuration.time;
-		System.out.println(systeme.Configuration.time + "ms");
-		
 		if (data1 == null)
 			return;
 		
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(data1.toString());
+		
+		long time = ((Calendar.getInstance()).getTimeInMillis())- ControlerNw.search_log.get(key).getTime();
+		System.out.println(time + "ms");
+		
 		String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF_Exact", true);
+		WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_BF_Exact", true);
 		wf.write(date + "       Source : " + message.getSource() + "\n");
 		wf.write("        "+ data1.toString() + "\n\n");
 		wf.close();
@@ -235,12 +239,12 @@ public class SystemIndexProtocol implements EDProtocol{
 	{
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
-		systeme.Configuration.translate.setLength(19876);
-		int key = systeme.Configuration.translate.translate(bf.toString());
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 
-		if (this.listAnswers.containsKey(key))
+		if (ControlerNw.search_log.get(key).containsKeyListAnswer(key))
 		{
-			Object[] o = (Object[]) this.listAnswers.get(key);
+			Object[] o = (Object[]) ControlerNw.search_log.get(key).getListAnswer(key);
 			int[] received = (int[])o[0];
 			int[] total = (int[])o[1];
 			
@@ -289,7 +293,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		/*
 		//*******LOG*************
 		String date = (new SimpleDateFormat("HH-mm-ss-SSS")).format(new Date());
-		WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG + "_testOK", true);
+		WriteFile wf = new WriteFile(Config.peerSimLOG + "_testOK", true);
 		wf.write(date + "\n");
 		wf.write(" received  total \n");
 		
@@ -316,18 +320,18 @@ public class SystemIndexProtocol implements EDProtocol{
 		String indexName = message.getIndexName();
 		String path = message.getPath();
 		
-		systeme.Configuration.translate.setLength(Network.size());
-		int serverID = systeme.Configuration.translate.translate(path);
+		ControlerNw.config_log.getTranslate().setLength(Network.size());
+		int serverID = ControlerNw.config_log.getTranslate().translate(path);
 		
-		systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-		int indexID = systeme.Configuration.translate.translate(indexName);
+		ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+		int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 		
 		if (serverID == nodeIndex) // c'est bien ce serveur qui gère ce path
 		{	
 			SystemIndexP2P systemIndex;
 			if (!this.listSystemIndexP2P.containsKey(indexID)) // contient pas ce systemIndex
 			{
-				systemIndex = new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+				systemIndex = new SystemIndexP2P(indexName, serverID, Config.gamma);
 				this.listSystemIndexP2P.put(indexID, systemIndex);
 			}
 			else // listSystemIndexP2P.containsKey(indexID)
@@ -335,21 +339,19 @@ public class SystemIndexProtocol implements EDProtocol{
 				systemIndex = this.listSystemIndexP2P.get(indexID);			
 			}
 			
-			SystemNode systemNode = new SystemNode(serverID, path, 
-					(new CalculRang()).getRang(path), systeme.Configuration.gamma);
+			SystemNodeP2P systemNode = new SystemNodeP2P(serverID, path, 
+					(new CalculRang()).getRang(path), Config.gamma);
 			
-			systeme.Configuration.nodeCreated++;
-
 			//****************
 			int rang = systemNode.getRang();
-			if (!systeme.Configuration.indexHeight.containsKey(rang))
+			if (!Config.indexHeight.containsKey(rang))
 			{
-				systeme.Configuration.indexHeight.put(rang, systemNode.getPath());
+				Config.indexHeight.put(rang, systemNode.getPath());
 			}
 			
 			//****************
 			
-			systemIndex.addSystemNode(path, systemNode);
+			systemIndex.addSystemNodeP2P(path, systemNode);
 			
 			ContainerLocal c = (ContainerLocal) message.getData();
 			Iterator<BF> iterator = c.iterator();
@@ -371,7 +373,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			/*
 			//*******LOG*******
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 			wf.write("createNode "+ indexID + " node "+ nodeIndex + "\n"
 					+ message.toString()
 					+ "\n");
@@ -385,7 +387,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 			/*
 			//*******LOG*******
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 			wf.write("createNode forward "+ indexID + " node "+ nodeIndex + "\n"
 					+ message.toString()
 					+ "\n");
@@ -405,11 +407,11 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		if (path.equals("")) // ajout dans la racine, c-à-d la racine est sur le serveur qui stocke systemIndex
 		{
-			systeme.Configuration.translate.setLength(Network.size());	
-			int serverID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());	
+			int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			if (serverID == nodeIndex) //c'est bien le serveur racine qui gère ce systemIndex
 			{
@@ -421,7 +423,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				treatAdd(o, indexName, message, pid);
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("add "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -434,7 +436,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("add forward "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -445,25 +447,24 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		else // path != ""
 		{ 
-			systeme.Configuration.translate.setLength(Network.size());
-			int serverID = systeme.Configuration.translate.translate(path);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int serverID = ControlerNw.config_log.getTranslate().translate(path);
 			
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			if (serverID == nodeIndex) // si contient ce nœud
 			{
 				if (!this.listSystemIndexP2P.containsKey(indexID)) // s'il contient pas ce systemIndex, créez le
 				{
-					SystemIndexP2P systemIndex = new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+					SystemIndexP2P systemIndex = new SystemIndexP2P(indexName, serverID, Config.gamma);
 					systemIndex.add((BF)message.getData(), path);
 					
 					this.listSystemIndexP2P.put(indexID, systemIndex);
-					systeme.Configuration.nodeCreated++;
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("add path "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -479,7 +480,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					treatAdd(o, indexName, message, pid);
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("add path "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -493,7 +494,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("add path forward "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -511,8 +512,8 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		if (o.getClass().getName().equals("java.lang.String")) // adresse d'un nœud
 		{
-			systeme.Configuration.translate.setLength(Network.size());
-			int tmp_nodeID = systeme.Configuration.translate.translate((String)o);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int tmp_nodeID = ControlerNw.config_log.getTranslate().translate((String)o);
 			
 			Message rep = new Message();
 			rep.setType("add");
@@ -528,8 +529,8 @@ public class SystemIndexProtocol implements EDProtocol{
 		{
 			Message o_tmp = (Message)o;
 			
-			systeme.Configuration.translate.setLength(Network.size());
-			int tmp_nodeID = systeme.Configuration.translate.translate(o_tmp.getPath());
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int tmp_nodeID = ControlerNw.config_log.getTranslate().translate(o_tmp.getPath());
 			
 			Message rep = new Message();
 			rep.setType("createNode");
@@ -564,39 +565,46 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 		if (((Object[]) message.getData())[1].getClass().getName().equals("java.lang.String")) // search la racine
 		{	
-			systeme.Configuration.translate.setLength(Network.size());
-			int serverID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			if (nodeIndex == message.getSource())
-			{
-				systeme.Configuration.time = (Calendar.getInstance()).getTimeInMillis();
+			{				
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 				
-				systeme.Configuration.translate.setLength(19876);
-				int key = systeme.Configuration.translate.translate(bf.toString());
-				
-				if (!this.listAnswers.containsKey(key))
+				if (!ControlerNw.search_log.containsKey(key))
 				{
-					Object[] o = new Object[2];
-					int[] received = new int[Network.size()];
-					int[] total = new int[Network.size()];
+					Config config = new Config();
+					config.setTime((Calendar.getInstance()).getTimeInMillis());
 					
-					for (int i = 0; i < Network.size(); i++)
+					if (!config.containsKeyListAnswer(key))
 					{
-						received[i] = (0);
-						total[i] = (0);
+						Object[] o = new Object[2];
+						int[] received = new int[Network.size()];
+						int[] total = new int[Network.size()];
+						
+						for (int i = 0; i < Network.size(); i++)
+						{
+							received[i] = (0);
+							total[i] = (0);
+						}
+						
+						received[nodeIndex] = -1;
+						total[nodeIndex] = -1;
+						
+						o[0] = received;
+						o[1] = total;
+						
+						config.putListAnswer(key, o);
 					}
 					
-					received[nodeIndex] = -1;
-					total[nodeIndex] = -1;
+					ControlerNw.search_log.put(key, config);
 					
-					o[0] = received;
-					o[1] = total;
-					
-					this.listAnswers.put(key, o);
-				}	
+				}
 			}
 			
 			if (serverID == nodeIndex) // ce serveur gère ce systemIndex
@@ -606,16 +614,16 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					//*******LOG*******
 					String s_tmp = new String();
-					for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+					for (int i = 0; i < Config.numberOfFragment; i++)
 					{
 						s_tmp += "/"+ bf.getFragment(i).toInt();
 					}
 					String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 					
-					systeme.Configuration.translate.setLength(19876);
-					int key = systeme.Configuration.translate.translate(bf.toString());
+					ControlerNw.config_log.getTranslate().setLength(1000000);
+					int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 					
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key, false);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path + "_" + key, false);
 					wf1.write(date + "       Node " + nodeIndex + " receive from " + message.getSource() + "\n"
 							+ "        BF " + bf.toString() + "\n"
 							+ "        BF_path : " + s_tmp + "\n"
@@ -628,7 +636,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search racine "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -643,10 +651,10 @@ public class SystemIndexProtocol implements EDProtocol{
 				{
 					
 					//*******LOG*******
-					systeme.Configuration.translate.setLength(19876);
-					int key = systeme.Configuration.translate.translate(bf.toString());
+					ControlerNw.config_log.getTranslate().setLength(1000000);
+					int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 					
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key, true);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path + "_" + key, true);
 					wf1.write("Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 							+ "\n");
 					wf1.close();
@@ -668,7 +676,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search_OK "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -682,16 +690,16 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				//*******LOG*******
 				String s_tmp = new String();
-				for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+				for (int i = 0; i < Config.numberOfFragment; i++)
 				{
 					s_tmp += "/"+ bf.getFragment(i).toInt();
 				}
 				String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-				systeme.Configuration.translate.setLength(19876);
-				int key = systeme.Configuration.translate.translate(bf.toString());
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 				
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path + "_" + key, true);
 				wf1.write(date + "       Node " + nodeIndex + " transfer to " + serverID + "\n"
 						+ "        BF " + bf.toString() + "\n"
 						+ "        BF_path : " + s_tmp + "\n"
@@ -703,10 +711,10 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 				
 				//***********listAnswers*********
-				systeme.Configuration.translate.setLength(19876);
-				int key1 = systeme.Configuration.translate.translate(bf.toString());
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key1 = ControlerNw.config_log.getTranslate().translate(bf.toString());
 				
-				Object[] o = (Object[]) this.listAnswers.get(key1);
+				Object[] o = (Object[]) ControlerNw.search_log.get(key).getListAnswer(key1);
 				
 				int[] total = (int[])o[1];
 				total[serverID] += 1;
@@ -714,7 +722,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("search racine forward "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -725,17 +733,17 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		else // search les fils : ArrayList<String>
 		{
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			
 			//*******LOG*******
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 			
-			systeme.Configuration.translate.setLength(19876);
-			int key = systeme.Configuration.translate.translate(bf.toString());
+			ControlerNw.config_log.getTranslate().setLength(1000000);
+			int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
 
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG_path + "_" + key, true);
 			wf.write(date +"       Node " + nodeIndex + " receive paths"
 				//	+ message.toString() + "\n"
 					+ "\n");
@@ -756,10 +764,10 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					//*******LOG*******
 					
-					systeme.Configuration.translate.setLength(19876);
-					int key1 = systeme.Configuration.translate.translate(bf.toString());
+					ControlerNw.config_log.getTranslate().setLength(1000000);
+					int key1 = ControlerNw.config_log.getTranslate().translate(bf.toString());
 					
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key1, true);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path + "_" + key1, true);
 					wf1.write("        Path : " + path_tmp + "\n");
 					wf1.close();
 					//*****************
@@ -770,7 +778,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search path "+ indexID+ " node "+ nodeIndex  + "\n"
 						+ message.toString()
 						+ "\n");
@@ -796,10 +804,10 @@ public class SystemIndexProtocol implements EDProtocol{
 				//*******LOG*******
 				String date1 = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 				
-				systeme.Configuration.translate.setLength(19876);
-				int key1 = systeme.Configuration.translate.translate(bf.toString());
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key1 = ControlerNw.config_log.getTranslate().translate(bf.toString());
 
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path + "_" + key1, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path + "_" + key1, true);
 				wf1.write(date1 + "       Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 						+ "\n");
 				wf1.close();
@@ -810,7 +818,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search_OK path "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -824,8 +832,8 @@ public class SystemIndexProtocol implements EDProtocol{
 	@SuppressWarnings("unchecked")
 	private void treatSearch(Object o, String indexName, Message message, int pid)
 	{
-		systeme.Configuration.translate.setLength(19876);
-		int key = systeme.Configuration.translate.translate(((BF) ((Object[])message.getData())[0]).toString());
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(((BF) ((Object[])message.getData())[0]).toString());
 		
 		if (o == null)
 		{
@@ -854,22 +862,23 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			//*******LOG*******
 			
-			systeme.Configuration.numberOfFilter += ((ArrayList<BF>) ((Object[])o)[0]).size() ;
+			ControlerNw.config_log.addNumberOfFilters( ((ArrayList<BF>) ((Object[])o)[0]).size() ) ;
 			
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_"+key, true);
+			/*
+			WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_"+key, true);
 			wf.write("BF source " + message.getSource() + "\n"
 					+ ((BF) ((Object[])message.getData())[0]).toString() + "\n\n"
 					+ ((ArrayList<BF>) ((Object[])o)[0]).toString()
 					+ "\n\n");
 			wf.close();
+			*/
 			
-			
-			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_node_" + key, true);
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_node_" + key, true);
 			wf1.write(date + "       Source : " + message.getSource() + "\n");
 			wf1.write("                                  " 
-					+ systeme.Configuration.numberOfFilter 
+					+ ControlerNw.config_log.getNumberOfFilters()
 					+ " (" + ((ArrayList<BF>) ((Object[])o)[0]).size() +")\n");
 			wf1.close();
 			//*****************
@@ -909,7 +918,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			
 			//*******LOG*******
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_test_"+key, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG+"_test_"+key, true);
 			wf.write("search treatSearch " + " node "+ nodeIndex + "\n"
 					+ rep.toString() + "\n"
 					+ "size = " + hsials.size() +"\n"
@@ -941,7 +950,7 @@ public class SystemIndexProtocol implements EDProtocol{
 
 			//*******LOG*******
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
-			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path+ "_"+ key, true);
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG_path+ "_"+ key, true);
 			wf1.write(date + "       Node " + nodeIndex + " search path1 to " + i + "\n"
 					+ "        Path list : " + ((Object[])rep.getData())[1].toString() + "\n"
 					+ "\n");
@@ -953,9 +962,7 @@ public class SystemIndexProtocol implements EDProtocol{
 	}
 	
 	private void treatSearchExact(Message message, int pid)
-	{
-		systeme.Configuration.time = System.currentTimeMillis();
-		
+	{		
 		String indexName = message.getIndexName();
 		BF bf = (BF) ((Object[])message.getData())[0];
 		
@@ -973,15 +980,26 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		
 		if ((String)((Object[]) message.getData())[1] == "") // search la racine
-		{	
-						
-			systeme.Configuration.time = System.currentTimeMillis();
+		{				
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
-			systeme.Configuration.translate.setLength(Network.size());
-			int serverID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			if (nodeIndex == message.getSource())
+			{				
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
+				
+				if (!ControlerNw.search_log.containsKey(key))
+				{
+					Config config = new Config();
+					config.setTime((Calendar.getInstance()).getTimeInMillis());
+					
+					ControlerNw.search_log.put(key, config);	
+				}
+			}
 			
 			if (serverID == nodeIndex) // ce serveur gère ce systemIndex
 			{
@@ -990,13 +1008,13 @@ public class SystemIndexProtocol implements EDProtocol{
 					/*
 					//*******LOG*******
 					String s_tmp = new String();
-					for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+					for (int i = 0; i < Config.numberOfFragment; i++)
 					{
 						s_tmp += "/"+ bf.getFragment(i).toInt();
 					}
 					String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, false);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, false);
 					wf1.write(date + "       Node " + nodeIndex + " receive from " + message.getSource() + "\n"
 							+ "        BF " + bf.toString() + "\n"
 							+ "        BF_path : " + s_tmp + "\n"
@@ -1009,7 +1027,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search racine "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -1026,7 +1044,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					/*
 					//*******LOG*******
 					
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 					wf1.write("Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 							+ "\n");
 					wf1.close();
@@ -1049,7 +1067,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search_OK "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -1063,13 +1081,13 @@ public class SystemIndexProtocol implements EDProtocol{
 				/*
 				//*******LOG*******
 				String s_tmp = new String();
-				for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+				for (int i = 0; i < Config.numberOfFragment; i++)
 				{
 					s_tmp += "/"+ bf.getFragment(i).toInt();
 				}
 				String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write(date + "       Node " + nodeIndex + " transfer to " + serverID + "\n"
 						+ "        BF " + bf.toString() + "\n"
 						+ "        BF_path : " + s_tmp + "\n"
@@ -1082,7 +1100,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("search racine forward "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1093,14 +1111,14 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		else // search les fils : path != ""
 		{
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			/*
 			//*******LOG*******
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG_path, true);
 			wf.write(date +"       Node " + nodeIndex + " receive paths"
 				//	+ message.toString() + "\n"
 					+ "\n");
@@ -1116,7 +1134,7 @@ public class SystemIndexProtocol implements EDProtocol{
 									
 				//*******LOG*******
 				/*	
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write("        Path : " + path_tmp + "\n");
 				wf1.close();
 				//*****************
@@ -1127,7 +1145,7 @@ public class SystemIndexProtocol implements EDProtocol{
 
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search path "+ indexID+ " node "+ nodeIndex  + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1153,7 +1171,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				//*******LOG*******
 				String date1 = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write(date1 + "       Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 						+ "\n");
 				wf1.close();
@@ -1163,7 +1181,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search_OK path "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1198,8 +1216,8 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 		if (o.getClass().getName().equals("java.lang.String"))
 		{
-			systeme.Configuration.translate.setLength(Network.size());
-			int serverID = systeme.Configuration.translate.translate((String)o);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int serverID = ControlerNw.config_log.getTranslate().translate((String)o);
 			
 			Object[] o_tmp = new Object[2];
 			o_tmp[0] = (BF) ((Object[])message.getData())[0];
@@ -1217,11 +1235,16 @@ public class SystemIndexProtocol implements EDProtocol{
 		else // BF
 		{
 			if (message.getSource() == nodeIndex)
-			{
-				systeme.Configuration.time = System.currentTimeMillis() - systeme.Configuration.time;
-				System.out.println(systeme.Configuration.time + "ms");
+			{				
+				ControlerNw.config_log.getTranslate().setLength(1000000);
+				int key = ControlerNw.config_log.getTranslate().translate((((Object[])message.getData())[0]).toString());
+				
+				long time = (Calendar.getInstance()).getTimeInMillis() - ControlerNw.search_log.get(key).getTime();
+				System.out.println(time + "ms");
+				
+				
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_resultat + "_BF_Exact", true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_BF_Exact", true);
 				wf.write("BF source " + message.getSource() + "\n"
 						+ ((BF) ((Object[])message.getData())[0]).toString() + "\n\n"
 						+ ((BF)o).toString()
@@ -1251,11 +1274,11 @@ public class SystemIndexProtocol implements EDProtocol{
 	{
 		String indexName = message.getIndexName();
 		
-		systeme.Configuration.translate.setLength(Network.size());
-		int serverID = systeme.Configuration.translate.translate(indexName);
+		ControlerNw.config_log.getTranslate().setLength(Network.size());
+		int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 		
-		systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-		int indexID = systeme.Configuration.translate.translate(indexName);
+		ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+		int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 		
 		if (serverID == nodeIndex)
 		{
@@ -1271,7 +1294,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 				/*
 				//********test********
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("createIndex "+ indexID + " node "+ nodeIndex + "\n"
 						+ rep.toString()
 						+ "\n");
@@ -1281,7 +1304,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			else // not contains indexID => create
 			{
-				SystemIndexP2P systemIndex =  new SystemIndexP2P(indexName, serverID, systeme.Configuration.gamma);
+				SystemIndexP2P systemIndex =  new SystemIndexP2P(indexName, serverID, Config.gamma);
 				systemIndex.createRoot();
 				
 				listSystemIndexP2P.put(indexID,systemIndex);
@@ -1296,7 +1319,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				t.send(Network.get(nodeIndex), Network.get((int)message.getSource()), rep, pid);
 /*
 				//********test********
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("createIndex "+ indexID + " node "+ nodeIndex + "\n"
 						+ rep.toString()
 						+ "\n");
@@ -1311,7 +1334,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 			/*
 			//********test********
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 			wf.write("createIndex forward "+ indexID+ " node "+ nodeIndex  + "\n"
 					+ message.toString()
 					+ "\n");
@@ -1325,11 +1348,11 @@ public class SystemIndexProtocol implements EDProtocol{
 	{
 		String indexName = message.getIndexName();
 		
-		systeme.Configuration.translate.setLength(Network.size());
-		int serverID = systeme.Configuration.translate.translate(indexName);
+		ControlerNw.config_log.getTranslate().setLength(Network.size());
+		int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 		
-		systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-		int indexID = systeme.Configuration.translate.translate(indexName);
+		ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+		int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 		
 		if (serverID == nodeIndex)
 		{	
@@ -1357,7 +1380,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			/*
 			//********test********
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 			wf.write("removeIndex "+ indexID+ " node "+ nodeIndex  + "\n"
 					+ rep.toString()
 					+ "\n");
@@ -1370,7 +1393,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			t.send(Network.get(nodeIndex), Network.get(serverID), message, pid);
 			/*
 			//********test********
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 			wf.write("removeIndex forward "+ indexID+ " node "+ nodeIndex  + "\n"
 					+ message.toString()
 					+ "\n");
@@ -1401,11 +1424,11 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		if (path == "") // remove à partir de la racine
 		{				
-			systeme.Configuration.translate.setLength(Network.size());
-			int serverID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Network.size());
+			int serverID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			if (serverID == nodeIndex) // ce serveur gère ce systemIndex
 			{
@@ -1414,13 +1437,13 @@ public class SystemIndexProtocol implements EDProtocol{
 					/*
 					//*******LOG*******
 					String s_tmp = new String();
-					for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+					for (int i = 0; i < Config.numberOfFragment; i++)
 					{
 						s_tmp += "/"+ bf.getFragment(i).toInt();
 					}
 					String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, false);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, false);
 					wf1.write(date + "       Node " + nodeIndex + " receive from " + message.getSource() + "\n"
 							+ "        BF " + bf.toString() + "\n"
 							+ "        BF_path : " + s_tmp + "\n"
@@ -1433,7 +1456,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search racine "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -1450,7 +1473,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					/*
 					//*******LOG*******
 					
-					WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+					WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 					wf1.write("Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 							+ "\n");
 					wf1.close();
@@ -1469,7 +1492,7 @@ public class SystemIndexProtocol implements EDProtocol{
 					
 					/*
 					//*******LOG*******
-					WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+					WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 					wf.write("search_OK "+ indexID + " node "+ nodeIndex + "\n"
 							+ message.toString()
 							+ "\n");
@@ -1483,13 +1506,13 @@ public class SystemIndexProtocol implements EDProtocol{
 				/*
 				//*******LOG*******
 				String s_tmp = new String();
-				for (int i = 0; i < systeme.Configuration.numberOfFragment; i++)
+				for (int i = 0; i < Config.numberOfFragment; i++)
 				{
 					s_tmp += "/"+ bf.getFragment(i).toInt();
 				}
 				String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write(date + "       Node " + nodeIndex + " transfer to " + serverID + "\n"
 						+ "        BF " + bf.toString() + "\n"
 						+ "        BF_path : " + s_tmp + "\n"
@@ -1502,7 +1525,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				/*
 				//*******LOG*******
-				WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf = new WriteFile(Config.peerSimLOG, true);
 				wf.write("search racine forward "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1513,14 +1536,14 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		else // remove les fils : path != ""
 		{
-			systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-			int indexID = systeme.Configuration.translate.translate(indexName);
+			ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+			int indexID = ControlerNw.config_log.getTranslate().translate(indexName);
 			
 			/*
 			//*******LOG*******
 			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+			WriteFile wf = new WriteFile(Config.peerSimLOG_path, true);
 			wf.write(date +"       Node " + nodeIndex + " receive paths"
 				//	+ message.toString() + "\n"
 					+ "\n");
@@ -1534,7 +1557,7 @@ public class SystemIndexProtocol implements EDProtocol{
 									
 				//*******LOG*******
 				/*	
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write("        Path : " + path_tmp + "\n");
 				wf1.close();
 				//*****************
@@ -1546,7 +1569,7 @@ public class SystemIndexProtocol implements EDProtocol{
 
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search path "+ indexID+ " node "+ nodeIndex  + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1569,7 +1592,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				//*******LOG*******
 				String date1 = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
 
-				WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG_path, true);
+				WriteFile wf1 = new WriteFile(Config.peerSimLOG_path, true);
 				wf1.write(date1 + "       Node " + nodeIndex + " reply to " + message.getSource() + "\n"
 						+ "\n");
 				wf1.close();
@@ -1580,7 +1603,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				
 				/*
 				//*******LOG*******
-				WriteFile wf2 = new WriteFile(systeme.Configuration.peerSimLOG, true);
+				WriteFile wf2 = new WriteFile(Config.peerSimLOG, true);
 				wf2.write("search_OK path "+ indexID + " node "+ nodeIndex + "\n"
 						+ message.toString()
 						+ "\n");
@@ -1598,8 +1621,8 @@ public class SystemIndexProtocol implements EDProtocol{
 		
 		String path = (String) ((Message)o).getData();
 		
-		systeme.Configuration.translate.setLength(Network.size());
-		int serverID = systeme.Configuration.translate.translate(path);
+		ControlerNw.config_log.getTranslate().setLength(Network.size());
+		int serverID = ControlerNw.config_log.getTranslate().translate(path);
 		
 		if ((String) ((Message)o).getOption1() == "remove") // forward
 		{
@@ -1629,24 +1652,25 @@ public class SystemIndexProtocol implements EDProtocol{
 
 	private void treatOverview(Message message, int pid)
 	{	
-		systeme.Configuration.translate.setLength(systeme.Configuration.indexRand);
-		int indexID = systeme.Configuration.translate.translate(message.getIndexName());
+		ControlerNw.config_log.getTranslate().setLength(Config.indexRand);
+		int indexID = ControlerNw.config_log.getTranslate().translate(message.getIndexName());
 		
 		if (this.listSystemIndexP2P.containsKey(indexID))
 		{
 			// procedure
 			SystemIndexP2P systemIndex = (SystemIndexP2P) this.listSystemIndexP2P.get(indexID);
 			
-			systeme.Configuration.nodePerServer[nodeIndex] =  systemIndex.size();
+			ControlerNw.config_log.setNodePerServer(nodeIndex, systemIndex.size());
+			//Config.nodePerServer[nodeIndex] =  systemIndex.size();
 			
-			Hashtable<String, SystemNode> htss = systemIndex.getListNode();
+			Hashtable<String, SystemNodeP2P> htss = systemIndex.getListNode();
 			Enumeration<String> htEnumeration = htss.keys();
 			
 			while (htEnumeration.hasMoreElements())
 			{
 				String s = htEnumeration.nextElement();
 				
-				SystemNode sn = htss.get(s);
+				SystemNodeP2P sn = htss.get(s);
 				LocalRoute lr = sn.getLocalRoute();
 				Enumeration<Integer> lrEnumeration = lr.getKeyAll();
 				int size = 0;
@@ -1662,8 +1686,8 @@ public class SystemIndexProtocol implements EDProtocol{
 					}
 				}
 				
-				systeme.Configuration.nodeTotal++;
-				systeme.Configuration.filterPerNode += (int) (j / (size == 0 ? 1 : size));
+				Config.nodeTotal++;
+				ControlerNw.config_log.addFilterPerNode((int) (j / (size == 0 ? 1 : size)));
 			}
 		}
 		
@@ -1680,24 +1704,25 @@ public class SystemIndexProtocol implements EDProtocol{
 		recu++;
 		if (recu == Network.size())
 		{
-			WriteFile wf1 = new WriteFile(systeme.Configuration.peerSimLOG + "_overview", true);
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG + "_overview", true);
 			
-			wf1.write("Test nodeTotal = " + systeme.Configuration.nodeTotal);
-			if (systeme.Configuration.nodeCreated > 0)
+			wf1.write("Test nodeTotal = " + Config.nodeTotal + "\n");
+			if (ControlerNw.config_log.getNodeCreated() > 0)
 			{
 				wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
-						+ systeme.Configuration.filterPerNode / systeme.Configuration.nodeCreated + " filtres\n");
+						+ ControlerNw.config_log.getFilterPerNode() / ControlerNw.config_log.getNodeCreated() + " filtres\n");
 			}
 			else
 			{
 				wf1.write("Nombre de filtres stockés en moyenne sur chaque nœud : " 
-						+ systeme.Configuration.filterPerNode + " filtres (0 nœud crée)\n");
+						+ ControlerNw.config_log.getFilterPerNode() + " filtres (0 nœud crée)\n");
 			}
 			
 			int j = 0;
 			for (int i = 0; i < Network.size(); i++)
 			{
-				j += systeme.Configuration.nodePerServer[i];
+				j += ControlerNw.config_log.getNodePerServer(i);
+				//j += Config.nodePerServer[i];
 			}
 			
 			wf1.write("Nombre moyen de nœuds par serveur : " + j / Network.size() + " nœuds\n");

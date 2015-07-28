@@ -1,4 +1,4 @@
-package systeme;
+package peerSimTest;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,14 +8,12 @@ import java.util.Hashtable;
 import peersim.core.Network;
 import serveur.NameToID;
 
-public class Configuration {
+public class Config {
 
 	private ArrayList<String> nodeMatched = new ArrayList<String>();
-	public static Hashtable<Integer, ArrayList<String>> graph = new Hashtable<Integer, ArrayList<String>>();
-	public static Hashtable<Integer, ArrayList<String>> dispo = new Hashtable<Integer, ArrayList<String>>();
 	public static Hashtable<Integer, String> indexHeight = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
-	public static int[] nodePerServer = new int[Network.size()];
+	private int[] nodePerServer = new int[Network.size()];
 	
 	public static int indexRand = 99999999;
 	public static int doublon = 0;
@@ -30,7 +28,7 @@ public class Configuration {
 	private int nodeCreated = 0;
 	private long time = 0;
 	private int numberOfFilter = 0;
-	public static int filterPerNode = 0;
+	private int filterPerNode = 0;
 	public static int nodeTotal = 0;
 	
 	public static String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
@@ -38,12 +36,10 @@ public class Configuration {
 	public static String peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date+ "_resultat_log";
 	public static String peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "_path_log";
 	
-	public Configuration()
+	public Config()
 	{
 		nodeVisited = 0;
 		nodeMatched = new ArrayList<String>();
-		graph = new Hashtable<Integer, ArrayList<String>>();
-		dispo = new Hashtable<Integer, ArrayList<String>>();
 		indexHeight = new Hashtable<Integer, String>();
 		listAnswers = new Hashtable<Integer, Object>();
 		doublon = 0;
@@ -153,6 +149,26 @@ public class Configuration {
 	public NameToID getTranslate()
 	{
 		return this.translate;
+	}
+	
+	public synchronized void addFilterPerNode(int i)
+	{
+		this.filterPerNode += i;
+	}
+	
+	public int getFilterPerNode()
+	{
+		return this.filterPerNode;
+	}
+	
+	public synchronized void setNodePerServer(int index, int i)
+	{
+		this.nodePerServer[index] = i;
+	}
+	
+	public int getNodePerServer(int index)
+	{
+		return this.nodePerServer[index];
 	}
 	
 }

@@ -109,7 +109,8 @@ public class ObserverNw implements Control {
 			
 			try {
 				ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
-				for (int i = 0; i < rf.size(); i++)
+				
+				for (int i = 0; i < 1; i++) //rf.size(); i++)
 				{
 					Message message = new Message();
 					message.setIndexName("dcs");
@@ -128,16 +129,19 @@ public class ObserverNw implements Control {
 					o[1] = "";
 					
 					message.setData(o);
-
+					
 					EDSimulator.add(0, message, n, pid);
 				}
-			} catch (FileNotFoundException e) {
+				System.out.println("NOMBRE de requete = " + rf.size());
+			} 
+			catch (FileNotFoundException e)
+			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			ok2 = false;
-			ok3 = true;
+			//ok3 = true;
 		}
 		
 		if (ok3)

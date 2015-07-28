@@ -1,11 +1,16 @@
-package systeme;
+package peerSimTest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-public class SystemNode implements Serializable{
+import systeme.BF;
+import systeme.ContainerLocal;
+import systeme.Fragment;
+import systeme.LocalRoute;
+
+public class SystemNodeP2P implements Serializable{
 	/**
 	 * 
 	 */
@@ -16,7 +21,7 @@ public class SystemNode implements Serializable{
 	private LocalRoute localRoute;
 	private int limit;
 	
-	public SystemNode(int server, String path, int rang, int limit) {
+	public SystemNodeP2P(int server, String path, int rang, int limit) {
 		// TODO Auto-generated constructor stub
 		this.server = server;
 		this.path = path;
@@ -73,6 +78,9 @@ public class SystemNode implements Serializable{
 		ArrayList<Object> rep = new ArrayList<Object>();
 		Enumeration<Integer> list = localRoute.getKeyAll();
 		
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
+		
 		if (systeme.Configuration.graph.containsKey(rang))
 		{
 			((ArrayList<String>)(systeme.Configuration.graph.get(rang))).add(path);
@@ -102,7 +110,7 @@ public class SystemNode implements Serializable{
 					ContainerLocal c = (ContainerLocal) bf_tmp;
 					Iterator<BF> iterator = c.iterator();
 					
-					//boolean ok = true;
+				//	boolean ok = true;
 					while (iterator.hasNext())
 					{
 						BF tmp = iterator.next();
@@ -110,7 +118,7 @@ public class SystemNode implements Serializable{
 						if (bf.in(tmp))
 						{
 							rep.add(tmp);
-							systeme.SystemIndexCentral.config.addNodeMatched(this.path);
+							ControlerNw.search_log.get(key).addNodeMatched(this.path);
 							/*
 							if (ok)
 							{
@@ -136,6 +144,9 @@ public class SystemNode implements Serializable{
 	
 	public Object searchExact(BF bf)
 	{
+		ControlerNw.config_log.getTranslate().setLength(1000000);
+		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
+		
 		Fragment f = bf.getFragment(rang);
 		if (localRoute.contains(f))
 		{
@@ -146,8 +157,8 @@ public class SystemNode implements Serializable{
 			}else{
 				if (((ContainerLocal)o).contains(bf))
 				{
-					systeme.SystemIndexCentral.config.addNodeMatched(this.path);
-					//systeme.Configuration.nodeMatched.add(this.path);
+					ControlerNw.search_log.get(key).addNodeMatched(this.path);
+				//	systeme.Configuration.nodeMatched.add(this.path);
 					return ((ContainerLocal)o);
 				}
 				return null;

@@ -18,6 +18,7 @@ public class SystemIndexCentral implements Serializable{
 	private int serverID;
 	private int gamma;
 	private Hashtable<String, SystemNode> listNode;
+	public static Configuration config = new Configuration();
 	
 	public SystemIndexCentral(int indexID, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
@@ -78,7 +79,8 @@ public class SystemIndexCentral implements Serializable{
 		SystemNode n = (SystemNode)listNode.get("");
 		ArrayList<BF> resultat = new ArrayList<BF>();
 		ArrayList<Object> list = (ArrayList<Object>) n.search(bf);
-		systeme.Configuration.nodeVisited++;
+		config.addNodeVisited(1);
+		//systeme.Configuration.nodeVisited++;
 		
 		int i = 0;
 		while (i < list.size())
@@ -90,7 +92,8 @@ public class SystemIndexCentral implements Serializable{
 				resultat.add((BF)o);
 			}else{
 				SystemNode node_tmp = (SystemNode)listNode.get((String)o);
-				systeme.Configuration.nodeVisited++;
+				config.addNodeVisited(1);
+				//systeme.Configuration.nodeVisited++;
 				
 				list.addAll((ArrayList<Object>) node_tmp.search(bf));
 			}
@@ -105,7 +108,8 @@ public class SystemIndexCentral implements Serializable{
 		@SuppressWarnings("unused")
 		Configuration c = new Configuration();
 		SystemNode n = (SystemNode)listNode.get("");
-		systeme.Configuration.nodeMatched.add("");
+		config.addNodeMatched("");
+		//systeme.Configuration.nodeMatched.add("");
 		Object o = n.searchExact(bf);
 		
 		while(o != null)
@@ -113,8 +117,10 @@ public class SystemIndexCentral implements Serializable{
 			if (((o.getClass()).getName()).equals("java.lang.String"))
 			{
 				n = listNode.get((String)o);
-				systeme.Configuration.nodeVisited++;
-				systeme.Configuration.nodeMatched.add((String)o);
+				config.addNodeVisited(1);
+				//systeme.Configuration.nodeVisited++;
+				config.addNodeMatched((String)o);
+			//	systeme.Configuration.nodeMatched.add((String)o);
 				o = n.searchExact(bf);
 			}else{
 				Iterator<BF> iterator = ((ContainerLocal)o).iterator();

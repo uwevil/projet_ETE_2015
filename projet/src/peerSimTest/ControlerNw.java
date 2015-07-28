@@ -3,6 +3,7 @@ package peerSimTest;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Hashtable;
 
 import peersim.config.Configuration;
 import peersim.core.Control;
@@ -14,6 +15,9 @@ import systeme.BF;
 
 public class ControlerNw implements Control {
 	private static final String PAR_PROTOCOL = "protocol";
+	
+	public static Config config_log = new Config();
+	public static Hashtable<Integer, Config> search_log = new Hashtable<Integer, Config>();
 
 	@SuppressWarnings("unused")
 	private String prefix;
@@ -77,18 +81,18 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
-						systeme.Configuration.totalFilterAdded++;
+						ControlerNw.config_log.addTotalFilterAdded(1);;
 						EDSimulator.add(0, message, n, pid);
 					}
 					
-					if (line == 2000000)
+					if (line == 2000)
 						break;
 				}
 				reader.close();
 				ok2 = false;
 				
 				/**************/
-				ok3 = true;
+			//	ok3 = true;
 				/**************/
 				
 				System.out.println("Fini de lecture " + line + " lignes");
@@ -130,7 +134,7 @@ public class ControlerNw implements Control {
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
-						systeme.Configuration.totalFilterAdded++;
+						ControlerNw.config_log.addTotalFilterAdded(1);;
 						EDSimulator.add(0, message, n, pid);
 					}
 				}
