@@ -54,7 +54,7 @@ public class ControlerNw implements Control {
 		}
 		else if (ok2)
 		{
-			System.out.println("Lecture 2M premières lignes");
+			System.out.println("Lecture n°1");
 			n = Network.get(23);
 			try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikiDocs<60")))
 			{
@@ -72,12 +72,12 @@ public class ControlerNw implements Control {
 						BFP2P bf_tmp = new BFP2P(config_log.sizeOfBF, 
 								config_log.sizeOfBF/config_log.numberOfFragment);
 						bf_tmp.addAll(tmp[1]);
-						//bf_tmp.add("" + line);
+						//bf_tmp.add("/" + line);
 						Message message = new Message();
 
 						message.setType("add");
 						message.setIndexName("dcs");
-						message.setPath("");
+						message.setPath("/");
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
@@ -85,14 +85,16 @@ public class ControlerNw implements Control {
 						EDSimulator.add(0, message, n, pid);
 					}
 					
-					if (line == 20000)
+					if (line == 1600000)
 						break;
 				}
 				reader.close();
 				ok2 = false;
 				
 				/**************/
-			//	ok3 = true;
+				ok3 = true;
+			//	Config.ObserverNw_OK = true;
+
 				/**************/
 				
 				System.out.println("Fini de lecture " + line + " lignes");
@@ -131,7 +133,7 @@ public class ControlerNw implements Control {
 
 						message.setType("add");
 						message.setIndexName("dcs");
-						message.setPath("");
+						message.setPath("/");
 						message.setData(bf_tmp);
 						message.setDestinataire(23);
 						line++;
@@ -142,6 +144,7 @@ public class ControlerNw implements Control {
 				reader.close();
 				ok3 = false;
 				System.out.println("Fini de lecture " + line + " lignes");
+				Config.ObserverNw_OK = true;
 			}
 			catch (IOException e)
 			{

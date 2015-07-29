@@ -9,7 +9,7 @@ public class CalculRangP2P {
 	
 	public int getRang(String path)
 	{
-		if (path == "")
+		if (path == "/")
 			return 0;
 		
 		String[] tmp = path.split("/");

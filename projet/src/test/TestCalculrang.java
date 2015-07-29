@@ -8,7 +8,7 @@ public class TestCalculrang {
 		// TODO Auto-generated method stub
 		CalculRang c = new CalculRang();
 		
-		System.out.println(c.getRang("/11"));
+		System.out.println(c.getRang("/10/11"));
 	}
 
 }

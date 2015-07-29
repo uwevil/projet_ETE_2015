@@ -1,7 +1,10 @@
 package peerSimTest;
 
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
 
 import exception.ErrorException;
 import peersim.config.Configuration;
@@ -18,7 +21,8 @@ public class ObserverNw implements Control {
 
 	private static final String PAR_PROTOCOL = "protocol";
 	private int pid;
-	private boolean ok = true, ok2 = false, ok3 = false;
+	private boolean ok = true, ok2 = false;
+	private int experience = 0;
 	
 	public ObserverNw(String prefix)
 	{
@@ -35,81 +39,24 @@ public class ObserverNw implements Control {
 			ok2 = true;
 			return false;
 		}
-		else if (ok2)
+		else if (ok2 && ControlerNw.config_log.getExperience_OK() && Config.ObserverNw_OK)
 		{
-	
 			Node n = Network.get(37);
-	/*		
-			Message message = new Message();
-			message.setIndexName("dcs");
-			message.setSource(37);
-			message.setDestinataire(37);
 			
-			message.setType("search");
+			System.out.println("Expérience n° " + experience);
 			
-			String requete = "view";
-			BF bf = new BF(systeme.Configuration.sizeOfBF, 
-					systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
-			
-			bf.addAll(requete);
-			
-			Object[] o = new Object[2];
-			o[0] = bf;
-			o[1] = "";
-			
-			message.setData(o);
-			System.out.println("Lancement de la requête : " + requete);
-			EDSimulator.add(0, message, n, pid);
-			
-			
-			/*
-			String tmp = "10000001000011111011111100101101100001110000111100000001101101010000011000000110000010011000000010100000100100101001000101000101011000011101101001111000010110001100010001010000111000000000100110100111000001010100101010011010010100000100101000000000000110101001000000101011010101000100000011100111000000001101000011001000001001110010000011011101000010010010010000011001010010100010001001010100000101010010000000000000011010000110001010011010100000010100101101100001000010001001001110001000100110110000011000100001";
-			BF bf1 = null;
-			try {
-				bf1 = new BF(tmp, systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
-			} catch (ErrorException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			Message message = new Message();
-			message = new Message();
-			message.setIndexName("dcs");
-			message.setSource(37);
-			message.setDestinataire(37);
-			
-			message.setType("searchExact");
-			
-			Object[] o = new Object[2];
-			o[0] = bf1;
-			o[1] = "";
-			
-			message.setData(o);
-			System.out.println("Lancement de la requête exact : " + tmp);
-			EDSimulator.add(0, message, n, pid);
-			
-			Message message1 = new Message();
-			message1 = new Message();
-			message1.setIndexName("dcs");
-			message1.setSource(37);
-			message1.setDestinataire(37);
-			
-			message1.setType("remove");
-			
-			message1.setData(bf1);
-			message1.setPath("");
-			
-			System.out.println("Lancement de la suppression exact : " + tmp);
-			EDSimulator.add(0, message1, n, pid);
-			
-			System.out.println("Lancement de la requête exact : " + tmp);
-			EDSimulator.add(0, message, n, pid);
-	*/
-			
-			try {
+			try 
+			{
 				ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
 				
-				for (int i = 0; i < 1; i++) //rf.size(); i++)
+				int j = 0;
+				
+				String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
+				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/" + experience + "_log";
+				Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/" + experience + "_resultat_log";
+				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/" + experience + "_path_log";
+		
+				for (int i = experience*10; i < rf.size() && j < 10; i++)
 				{
 					Message message = new Message();
 					message.setIndexName("dcs");
@@ -125,12 +72,14 @@ public class ObserverNw implements Control {
 					
 					Object[] o = new Object[2];
 					o[0] = bf;
-					o[1] = "";
+					o[1] = "/";
 					
 					message.setData(o);
-					
+					j++;
 					EDSimulator.add(0, message, n, pid);
 				}
+				experience++;
+				
 				System.out.println("NOMBRE de requete = " + rf.size());
 			} 
 			catch (FileNotFoundException e)
@@ -139,15 +88,20 @@ public class ObserverNw implements Control {
 				e.printStackTrace();
 			}
 			
-			ok2 = false;
-		//	ok3 = true;
+			ControlerNw.config_log.setExperience_OK(false);
+			
+			if (experience*10 >= 500)
+			{
+				ok2 = false;
+			}
 		}
 		
-		if (ok3)
+		if (ControlerNw.config_log.getEnd_OK())
 		{
+			/*
 			//*******************
 			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_indexHeight", false);
-			Enumeration<Integer> enumeration = systeme.Configuration.indexHeight.keys();
+			Enumeration<Integer> enumeration = ControlerNw.config_log.getIndexHeight().keys();
 			
 			while (enumeration.hasMoreElements())
 			{
@@ -164,8 +118,58 @@ public class ObserverNw implements Control {
 			
 			wf.close();
 			//*******************
+			*/
 			
-			ok3 = false;
+			
+			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_time", false);
+			wf.write("RequeteID temps(ms)\n");
+			
+			Enumeration<Integer> enumeration = ControlerNw.config_log.getTimeGlobal().keys();
+			long time = 0;
+			int size = 0;
+			
+			while (enumeration.hasMoreElements())
+			{
+				Integer i = enumeration.nextElement();
+				
+				long tmp = ControlerNw.config_log.getTimeGlobal().get(i);
+				time += tmp;
+				if (i.toString().length() == 5)
+				{
+					wf.write(i + "   " + tmp + " ms\n");
+				}
+				else if (i.toString().length() == 4)
+				{
+					wf.write(i + "    " + tmp + " ms\n");
+				}
+				else if (i.toString().length() == 6)
+				{
+					wf.write(i + "  " + tmp + " ms\n");
+				}
+				size++;
+			}
+			
+			long i = time/size;
+			long hours = TimeUnit.MILLISECONDS.toHours(i);
+			i -= TimeUnit.HOURS.toMillis(hours);
+			long minutes = TimeUnit.MILLISECONDS.toMinutes(i);
+			i -= TimeUnit.MINUTES.toMillis(minutes);
+			long seconds = TimeUnit.MILLISECONDS.toSeconds(i);
+			i -= TimeUnit.SECONDS.toMillis(seconds);
+			
+			wf.write("\n"
+					+ "Temps total        : " + time + " ms\n"
+					+ "Nombre de requetes : " + size + " requêtes\n"
+					+ "Temps moyen        : " + time/size + " ms == "
+					+ hours + " h " + minutes + " m " + seconds + " s " + i + " ms"
+					+ "\n\n");
+			
+			wf.close();
+			
+			System.out.println("setExpérience_OK = true");
+			ControlerNw.config_log.setEnd_OK(false);
+			ControlerNw.config_log.setExperience_OK(true);
+
 		}
 		
 		return false;
