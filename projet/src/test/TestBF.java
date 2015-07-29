@@ -25,20 +25,22 @@ public class TestBF {
 		BF test = new BF("00000000000000000100000001000000000000100000000000000000001000000000000000001010000000000000000000100000010001010000000000000000000001000000001000000000000000000100000010010000000010000000001000010000001000000000000000001000000000000000000000000010000000000000000100100000110000010100000001001000000000001000000000000000001000000000000000000000000000000000000010100000001000000000000000010000000000000010010000000000010000000000010000001000100000000010000000000100000000000000100001010000000010100000000000000000", 512/64);
 		bf1.addAll("regional,north,america,united,states,oregon");
 		
+		bf2 = new BF(bf1.toString(), 512/64);
 		
 		Fragment f = bf1.getFragment(3);
 		Fragment f2 = (new Fragment(0)).intToFragment(bf.getBitsPerElement(), 7);
 		
 		System.out.println(bf1.toString());
+		System.out.println(bf2.toString());
 		System.out.println(f.toString() + " " + f.toInt());
 		System.out.println(f2.toString() + " " + f2.toInt());
 		System.out.println("f in f2 = " + f.in(f2));
 		
-		//System.out.println(bf1.getFragment(10).toString());
-		//System.out.println(test.getFragment(2).toString());
-		//System.out.println(bf1.in(test));
+		System.out.println(bf1.getFragment(10).toString());
+		System.out.println(test.getFragment(2).toString());
+		System.out.println(bf2.equals(bf1) + " LOLL");
 		
-		System.out.println(bf2.in(bf) + " "+  bf2.getClass());
+		System.out.println(bf2.in(bf1) + " "+  bf2.getClass());
 		System.out.println(bf2.getClass().getName().equals(bf2.getClass().getName()));
 	}
 

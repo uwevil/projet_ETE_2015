@@ -9,7 +9,6 @@ import test.WriteFile;
 public class GenerationRequest {
 	
 	public static int numberOfRequestPerFile = 10;
-	public static int step = 2;
 	public static int numberOfWord = 5;
 	
 	public static void main(String[] args) {

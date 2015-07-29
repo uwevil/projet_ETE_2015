@@ -15,6 +15,7 @@ public class Config {
 	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
 	private int[] nodePerServer = new int[Network.size()];
 	private boolean[] peerCreated = new boolean[Network.size()];
+	private Hashtable<Integer, Long> timeGlobal = new Hashtable<Integer, Long>();
 	
 	public static int indexRand = 99999999;
 	public static int doublon = 0;
@@ -23,6 +24,8 @@ public class Config {
 	public static int numberOfFragment = 64;
 	public static int gamma = 1000;
 	private NameToID translate = new NameToID(0);
+	private boolean end_OK = false;
+	public static boolean ObserverNw_OK = false;
 
 	private int nodeVisited = 0;
 	private int totalFilterCreated = 0;
@@ -30,7 +33,8 @@ public class Config {
 	private int nodeCreated = 0;
 	private long time = 0;
 	private int numberOfFilter = 0;
-	private int filterPerNode = 0;
+	
+	private boolean experience_OK = true;
 	
 	public static String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
 	public static String peerSimLOG = "/Users/dcs/vrac/test/"+ date + "_log";
@@ -55,7 +59,6 @@ public class Config {
 		time = 0;
 		totalFilterCreated = 0;
 		nodeCreated = 0;
-		filterPerNode = 0;
 		nodePerServer = new int[Network.size()];
 		
 		for (int i = 0; i < Network.size(); i++)
@@ -167,16 +170,6 @@ public class Config {
 		return this.translate;
 	}
 	
-	public synchronized void addFilterPerNode(int i)
-	{
-		this.filterPerNode += i;
-	}
-	
-	public int getFilterPerNode()
-	{
-		return this.filterPerNode;
-	}
-	
 	public synchronized void setNodePerServer(int index, int i)
 	{
 		this.nodePerServer[index] = i;
@@ -200,5 +193,30 @@ public class Config {
 	public Hashtable<Integer, String> getIndexHeight()
 	{
 		return this.indexHeight;
+	}
+	
+	public synchronized void setExperience_OK(boolean val)
+	{
+		this.experience_OK = val;
+	}
+	
+	public boolean getExperience_OK()
+	{
+		return this.experience_OK;
+	}
+	
+	public Hashtable<Integer, Long> getTimeGlobal()
+	{
+		return this.timeGlobal;
+	}
+	
+	public synchronized void setEnd_OK(boolean val)
+	{
+		this.end_OK = val;
+	}
+	
+	public boolean getEnd_OK()
+	{
+		return this.end_OK;
 	}
 }

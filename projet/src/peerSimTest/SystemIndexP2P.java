@@ -9,7 +9,6 @@ import java.util.Iterator;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import serveur.Message;
-
 import test.WriteFile;
 
 @SuppressWarnings("unused")
@@ -40,7 +39,7 @@ public class SystemIndexP2P implements Serializable{
 	{
 		ControlerNw.config_log.addNodeCreated(1);
 		
-		listNode.put("", new SystemNodeP2P(serverID, "", 0, gamma));
+		listNode.put("/", new SystemNodeP2P(serverID, "/", 0, gamma));
 	}
 	
 	public Object add(BFP2P bf, String path)
@@ -95,7 +94,16 @@ public class SystemIndexP2P implements Serializable{
 		Iterator<BFP2P> iterator = c.iterator();
 		BFP2P bf = c.get(0);
 		FragmentP2P f = bf.getFragment(father.getRang());
-		String path = father.getPath() + "/" + f.toInt();
+		
+		String path;
+		if (father.getPath() == "/")
+		{
+			path = father.getPath() + f.toInt();
+		}
+		else
+		{
+			path = father.getPath() + "/" + f.toInt();
+		}
 		
 		Message rep = new Message();
 		
@@ -113,6 +121,14 @@ public class SystemIndexP2P implements Serializable{
 			{
 				ControlerNw.config_log.getIndexHeight().put(rang, n.getPath());
 			}
+			
+			//*******LOG*******
+			WriteFile wf = new WriteFile(Config.peerSimLOG+"_createNode", true);
+			wf.write("createNode "+ indexName + " node "+ serverID + "\n"
+					+ "PathLocal : " + path
+					+ "\n\n");
+			wf.close();
+			//*****************
 			
 			ControlerNw.config_log.addNodeCreated(1);
 			
@@ -266,7 +282,7 @@ public class SystemIndexP2P implements Serializable{
 		Object o = n.remove(bf);
 		if (o == null)
 			return null;
-		if (path == "")
+		if (path == "/")
 			return null;
 		
 		Message rep = new Message();
@@ -290,7 +306,7 @@ public class SystemIndexP2P implements Serializable{
 				String path_tmp = n.getPath();
 				int rang_tmp = n.getRang();
 
-				if (path_tmp == "")
+				if (path_tmp == "/")
 					return null;
 				
 				listNode.remove(path_tmp);
@@ -317,7 +333,7 @@ public class SystemIndexP2P implements Serializable{
 						path_tmp = n.getPath();
 						rang_tmp = n.getRang();
 
-						if (path_tmp == "")
+						if (path_tmp == "/")
 							return null;
 						
 						listNode.remove(path);
