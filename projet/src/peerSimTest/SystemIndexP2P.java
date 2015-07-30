@@ -65,10 +65,8 @@ public class SystemIndexP2P implements Serializable{
 			
 			while (o != null)
 			{
-				
 				if (((o.getClass()).getName()).equals("java.lang.String"))
-				{
-					
+				{	
 					if (listNode.containsKey(o))
 					{
 						n = (SystemNodeP2P)listNode.get(o);
@@ -221,7 +219,7 @@ public class SystemIndexP2P implements Serializable{
 					list.addAll((ArrayList<Object>) node_tmp.search(bf));
 				}
 			}
-			else
+			else // o == BF
 			{
 				((ArrayList<BFP2P>) resultat[0]).add((BFP2P)o);
 			}

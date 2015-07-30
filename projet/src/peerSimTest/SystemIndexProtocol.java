@@ -127,6 +127,34 @@ public class SystemIndexProtocol implements EDProtocol{
 		ControlerNw.config_log.getTranslate().setLength(1000000);
 		int key = ControlerNw.config_log.getTranslate().translate(BFP2P.toString());
 		
+		ArrayList<BFP2P> data1 = (ArrayList<BFP2P>) ((Object[])message.getData())[1];
+		
+		if (data1 != null && data1.size() > 0)
+		{
+			if (ControlerNw.search_log.get(key) == null)
+			{
+				System.out.println("nulllll");
+				return;
+			}
+			
+			ControlerNw.search_log.get(key).addNumberOfFilters(data1.size());
+			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
+			
+			WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_"+key, true);
+			
+			for (int i = 0; i < data1.size(); i++)
+			{
+				wf.write(((BFP2P)(data1.get(i))).toString() + "\n");
+			}
+			wf.close();
+			
+			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_node_" + key, true);
+			wf1.write(date + "       Source : " + message.getSource() + "\n");
+			wf1.write("                              " 
+						+ ControlerNw.search_log.get(key).getNumberOfFilters() + " (" + data1.size() +")\n");
+			wf1.close();
+		}
+		
 		if (treatListAnswer(message))
 		{
 			long time = Calendar.getInstance().getTimeInMillis() - ControlerNw.search_log.get(key).getTime();
@@ -195,34 +223,6 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			
 			ControlerNw.search_log.remove(key);
-		}
-		
-		ArrayList<BFP2P> data1 = (ArrayList<BFP2P>) ((Object[])message.getData())[1];
-		
-		if (data1 != null && data1.size() > 0)
-		{
-			if (ControlerNw.search_log.get(key) == null)
-			{
-				System.out.println("nulllll");
-				return;
-			}
-			ControlerNw.search_log.get(key).addNumberOfFilters(data1.size());
-			String date = (new SimpleDateFormat("mm-ss-SSS")).format(new Date());
-
-			
-			WriteFile wf = new WriteFile(Config.peerSimLOG_resultat + "_"+key, true);
-			
-			for (int i = 0; i < data1.size(); i++)
-			{
-				wf.write(((BFP2P)(data1.get(i))).toString() + "\n");
-			}
-			wf.close();
-			
-			WriteFile wf1 = new WriteFile(Config.peerSimLOG_resultat + "_node_" + key, true);
-			wf1.write(date + "       Source : " + message.getSource() + "\n");
-			wf1.write("                              " 
-						+ ControlerNw.search_log.get(key).getNumberOfFilters() + " (" + data1.size() +")\n");
-			wf1.close();
 		}
 		
 		if (ControlerNw.search_log.isEmpty())
@@ -731,7 +731,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				ControlerNw.config_log.getTranslate().setLength(1000000);
 				int key1 = ControlerNw.config_log.getTranslate().translate(BFP2P.toString());
 				
-				Object[] o = (Object[]) ControlerNw.search_log.get(key).getListAnswer(key1);
+				Object[] o = (Object[]) ControlerNw.search_log.get(key1).getListAnswer(key1);
 				
 				int[] total = (int[])o[1];
 				total[serverID] += 1;

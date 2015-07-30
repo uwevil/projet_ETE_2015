@@ -195,9 +195,8 @@ public class CalculRepartitionBit {
 				tmp2[4] = b[4];
 				tmp2[5] = b[5];
 				
-				if (testDup(tmp1) && !hs.containsKey(s2) && !hs.containsKey(s))
+				if (testDup(tmp1) && !hs.containsKey(s2))
 				{
-					hs.put(s, 11);
 					hs.put(s2, 11);
 					WriteFile wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_DUP_sang", true);
 					wf.write(s + ";" 
@@ -212,9 +211,8 @@ public class CalculRepartitionBit {
 					wf.close();
 				}
 				
-				if (testDup(tmp2) && !hb.containsKey(s2) && !hb.containsKey(s))
+				if (testDup(tmp2) && !hb.containsKey(s2))
 				{
-					hb.put(s, 11);
 					hb.put(s2, 11);
 					WriteFile wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_DUP_bassirou", true);
 					wf.write(s + ";" 
@@ -227,9 +225,11 @@ public class CalculRepartitionBit {
 			 			   + "," + tmp2[5]
 						   + "\n");
 					wf.close();
-				}
-				
+				}	
 			}
+			hs.put(s, 11);
+			hb.put(s, 11);
+
 		}
 		
 		Enumeration<String> enumeration3 = hs.keys();
