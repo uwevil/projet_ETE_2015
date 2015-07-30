@@ -122,6 +122,7 @@ public class SystemIndexP2P implements Serializable{
 				ControlerNw.config_log.getIndexHeight().put(rang, n.getPath());
 			}
 			
+			/*
 			//*******LOG*******
 			WriteFile wf = new WriteFile(Config.peerSimLOG+"_createNode", true);
 			wf.write("createNode "+ indexName + " node "+ serverID + "\n"
@@ -129,6 +130,7 @@ public class SystemIndexP2P implements Serializable{
 					+ "\n\n");
 			wf.close();
 			//*****************
+			*/
 			
 			ControlerNw.config_log.addNodeCreated(1);
 			

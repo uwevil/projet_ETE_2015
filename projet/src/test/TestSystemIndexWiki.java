@@ -1,7 +1,6 @@
 package test;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -71,27 +70,27 @@ public class TestSystemIndexWiki {
 		
 		System.out.println("Serializable OK");
 	
-		String requete = "";
+		String requete = "view";
 		BF bf = null;
-		try {
-			ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
+		//try {
+			//ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
 			
-			for (int j = 0; j < 1; j++) //rf.size(); i++)
-			{
+	//		for (int j = 0; j < 1; j++) //rf.size(); i++)
+		//	{
 				bf = new BF(systeme.Configuration.sizeOfBF, 
 						systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
 				
-				requete = rf.getDescription(j);
+			//	requete = rf.getDescription(j);
 				bf.addAll(requete);
 				
-			}
-			System.out.println("NOMBRE de requete = " + rf.size());
-		} 
-		catch (FileNotFoundException e)
-		{
+		//	}
+	//		System.out.println("NOMBRE de requete = " + rf.size());
+		//} 
+	//	catch (FileNotFoundException e)
+		//{
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			//e.printStackTrace();
+		//}
 				
 		String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
 		

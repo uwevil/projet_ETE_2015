@@ -29,7 +29,6 @@ public class ObserverNw implements Control {
 		pid = Configuration.getPid(prefix+ "." + PAR_PROTOCOL);
 	}
 	
-	
 	@Override
 	public boolean execute() {
 		// TODO Auto-generated method stub
@@ -44,7 +43,7 @@ public class ObserverNw implements Control {
 			Node n = Network.get(37);
 			
 			System.out.println("Expérience n° " + experience);
-			
+			/*
 			try 
 			{
 				ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
@@ -94,6 +93,28 @@ public class ObserverNw implements Control {
 			{
 				ok2 = false;
 			}
+			*/
+			
+			Message message = new Message();
+			message.setIndexName("dcs");
+			message.setSource(37);
+			message.setDestinataire(37);
+			
+			message.setType("search");
+			
+			BFP2P bf = new BFP2P(systeme.Configuration.sizeOfBF, 
+					systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+			
+			bf.addAll("view");
+			
+			Object[] o = new Object[2];
+			o[0] = bf;
+			o[1] = "/";
+			
+			message.setData(o);
+			EDSimulator.add(0, message, n, pid);
+			ok2 = false;
+			ControlerNw.config_log.setExperience_OK(false);
 		}
 		
 		if (ControlerNw.config_log.getEnd_OK())

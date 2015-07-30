@@ -1,1 +1,4 @@
 /bin/
+projet/bin/
+latex/*.dvi
+latex/*.eps
