@@ -266,7 +266,10 @@ public class SystemIndexP2P implements Serializable{
 				{
 					BFP2P tmp = iterator.next();
 					if (bf.equals(tmp))
+					{
+						ControlerNw.search_log.get(key).addNumberOfFilters(1);
 						return tmp;
+					}
 				}
 			}
 		}
@@ -353,6 +356,36 @@ public class SystemIndexP2P implements Serializable{
 			}
 		}
 		return null;
+	}
+	
+	public String removeNode(FragmentP2P f, String path)
+	{
+		String path_tmp = path;
+		
+		while (true)
+		{
+			SystemNodeP2P n = (SystemNodeP2P)listNode.get(path_tmp);
+			if (n == null)
+				return null;
+			
+			if (n.remove(f))
+			{
+				ControlerNw.config_log.addNodeCreated(-1);
+				return null;
+			}
+				
+			int endIndex = path_tmp.lastIndexOf('/');	
+
+			path_tmp = path_tmp.substring(0, endIndex);
+					
+			if (path_tmp == "/")
+				return null;
+			
+			if (!this.listNode.containsKey(path_tmp))
+			{
+				return path_tmp;
+			}
+		}
 	}
 	
 	public int size()

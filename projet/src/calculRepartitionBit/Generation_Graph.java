@@ -95,8 +95,6 @@ public class Generation_Graph {
 		{
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	@SuppressWarnings("unused")

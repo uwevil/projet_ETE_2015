@@ -70,8 +70,8 @@ public class ObserverNw implements Control {
 					
 					message.setType("search");
 					
-					BFP2P bf = new BFP2P(systeme.Configuration.sizeOfBF, 
-							systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+					BFP2P bf = new BFP2P(Config.sizeOfBF, 
+							Config.sizeOfBF/Config.numberOfFragment);
 					
 					bf.addAll(rf.getDescription(i));
 					
@@ -108,8 +108,8 @@ public class ObserverNw implements Control {
 			
 			message.setType("search");
 			
-			BFP2P bf = new BFP2P(systeme.Configuration.sizeOfBF, 
-					systeme.Configuration.sizeOfBF/systeme.Configuration.numberOfFragment);
+			BFP2P bf = new BFP2P(Config.sizeOfBF, 
+					Config.sizeOfBF/Config.numberOfFragment);
 			
 			bf.addAll("view");
 			
@@ -128,7 +128,7 @@ public class ObserverNw implements Control {
 		{
 			/*
 			//*******************
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_indexHeight", false);
+			WriteFile wf = new WriteFile(Config.peerSimLOG+"_indexHeight", false);
 			Enumeration<Integer> enumeration = ControlerNw.config_log.getIndexHeight().keys();
 			
 			while (enumeration.hasMoreElements())
@@ -136,11 +136,11 @@ public class ObserverNw implements Control {
 				Integer i = enumeration.nextElement();
 				if (i <= 9)
 				{
-					wf.write(i + "  " + systeme.Configuration.indexHeight.get(i) + "\n");
+					wf.write(i + "  " + Config.indexHeight.get(i) + "\n");
 				}
 				else
 				{
-					wf.write(i + " " + systeme.Configuration.indexHeight.get(i) + "\n");
+					wf.write(i + " " + Config.indexHeight.get(i) + "\n");
 				}
 			}
 			
@@ -149,7 +149,7 @@ public class ObserverNw implements Control {
 			*/
 			
 			
-			WriteFile wf = new WriteFile(systeme.Configuration.peerSimLOG+"_time", false);
+			WriteFile wf = new WriteFile(Config.peerSimLOG+"_time", false);
 			wf.write("RequeteID temps(ms)\n");
 			
 			Enumeration<Integer> enumeration = ControlerNw.config_log.getTimeGlobal().keys();
