@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.util.BitSet;
@@ -12,21 +12,32 @@ public class FragmentP2P implements Serializable{
 	private BitSet bitset;
 	private int size;
 	
+	/* 
+	 * Créer un fragment vide de taille nbits
+	 * */
+	
 	public FragmentP2P(int nbits)
 	{
 		bitset = new BitSet(nbits);
 		this.size = nbits;
 	}
 	
+	/* 
+	 * Rendre le fragment sous forme un BitSet
+	 * */
+	
 	public BitSet getBitSet()
 	{
 		return this.bitset;
 	}
 	
+	/* 
+	 * Mettre le bit à la position 'index' la valeur 'value'
+	 **/
+	
 	public void setBit(int index, boolean value)
 	{
-		bitset.set(index, value);
-			
+		bitset.set(index, value);	
 	}
 	
 	public String toString()
@@ -40,6 +51,10 @@ public class FragmentP2P implements Serializable{
 		
 		return s;
 	}
+	
+	/* 
+	 * Test si le fragment contient un autre
+	 * */
 	
 	public boolean in(Object o)
 	{
@@ -59,6 +74,10 @@ public class FragmentP2P implements Serializable{
 		return true;
 	}
 	
+	/* 
+	 * Test l'égalité entre 2 fragments
+	 * */
+	
 	public boolean equals(Object o)
 	{
 		if (o == null)
@@ -75,6 +94,10 @@ public class FragmentP2P implements Serializable{
 		return true;
 	}
 	
+	/* 
+	 * Convertir le fragment en entier
+	 * */
+	
 	public int toInt()
 	{
 		int res = 0;
@@ -84,6 +107,10 @@ public class FragmentP2P implements Serializable{
 		}
 		return res;
 	}
+	
+	/* 
+	 * Convertir un entier 'a' en fragment de taille 'nbits'
+	 * */
 	
 	public FragmentP2P intToFragment(int nbits, int a)
 	{
@@ -102,16 +129,21 @@ public class FragmentP2P implements Serializable{
 		return f;
 	}
 	
+	/* 
+	 * Rendre la valeur d'un bit à la position 'index'
+	 * */
+	
 	public boolean get(int index)
 	{
 		return bitset.get(index);
 	}
 	
+	/* 
+	 * Rendre la taille du fragment
+	 * */
+	
 	public int size()
 	{
 		return this.size;
 	}
-	
-	
-
 }

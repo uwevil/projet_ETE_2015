@@ -14,7 +14,7 @@ public class BBF_test {
 		long hash64 = MurmurHash.hash64(value);
 		// apply the less hashing technique
 		int hash1 = (int) hash64;
-		int hash2 = (int) (hash64 >> 32);
+		int hash2 = (int) (hash64 >>> 32);
 		//System.out.println("valeur hash1 du mot: "+value+ " est: "+hash1);
 		//System.out.println("valeur hash2 du mot: "+value+ " est: "+hash2);
 		int pos = -1;

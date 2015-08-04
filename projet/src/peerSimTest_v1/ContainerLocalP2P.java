@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,44 +12,67 @@ public class ContainerLocalP2P implements Serializable{
 	private int limit;
 	private ArrayList<BFP2P> container;
 	
+	/* Un conteneur local doit stocker la limite(gamma) et une liste de filtre
+	 * */
+	
 	public ContainerLocalP2P(int limit) {
 		// TODO Auto-generated constructor stub
 		this.limit = limit;
 		container = new ArrayList<BFP2P>(limit);
 	}
 	
+	/* 
+	 * Mettre la limite du conteneur
+	 * */
+	
 	public int limit()
 	{
 		return this.limit;
 	}
+	
+	/* 
+	 * Rendre le nombre d'éléments stockés dans le conteneur
+	 * */
 	
 	public int getNumberOfElements()
 	{
 		return this.container.size();
 	}
 	
+	/* 
+	 * Ajouter un filtre 'e' dans le conteneur
+	 * Si réussi, renvoyer true
+	 * Si échec, renvoyer false
+	 * */
+	
 	public boolean add(BFP2P e)
 	{
 		if (this.container.size() == this.limit)
 		{
 			container.add(e);
-			ControlerNw.config_log.addTotalFilterAdded(-this.limit);
 			return false;
 		}
 			
 		if (!this.container.contains(e))
 		{
 			container.add(e);
-			ControlerNw.config_log.addTotalFilterAdded(1);
 			return true;
 		}
 		return true;
 	}
 	
+	/* 
+	 * Renvoyer true si ce conteneur est vide, false sinon
+	 * */
+	
 	public boolean isEmpty()
 	{
 		return this.container.isEmpty();
 	}
+	
+	/* 
+	 * Rendre le filtre à la position 'index' dans la liste des filtres
+	 * */
 	
 	public BFP2P get(int index)
 	{
@@ -66,6 +89,10 @@ public class ContainerLocalP2P implements Serializable{
 		return container.get(index);
 	}
 	
+	/* 
+	 * Supprimer un filtre dans le conteneur
+	 * */
+	
 	public void remove(BFP2P e)
 	{
 		if (!container.contains(e))
@@ -73,10 +100,18 @@ public class ContainerLocalP2P implements Serializable{
 		container.remove(e);
 	}
 	
+	/* 
+	 * Renvoyer true si le filtre 'e' existe dans la liste, false sinon
+	 * */
+	
 	public boolean contains(BFP2P e)
 	{
 		return container.contains(e);
 	}
+	
+	/* 
+	 * Renvoyer true si le filtre à la position 'index' existe dans la liste, false sinon
+	 * */
 	
 	public boolean contains(int index)
 	{

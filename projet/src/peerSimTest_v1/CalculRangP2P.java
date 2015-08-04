@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 public class CalculRangP2P {
 	

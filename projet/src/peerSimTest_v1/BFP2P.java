@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
@@ -17,12 +17,21 @@ public class BFP2P implements Serializable
 	private int bitsPerElement;
 	private int bitSetSize;
 	
+	/* 
+	 * Créer un filtre vide avec la taille bitSetSize et la taille d'un fragment btsPerElement
+	 * */
+	
 	public BFP2P(int bitSetSize, int bitsPerElement)
 	{
 		this.bitset = new BitSet(bitSetSize);
 		this.bitSetSize = bitSetSize;
 		this.bitsPerElement = bitsPerElement;
 	}
+	
+	/* 
+	 * Créer un filtre à partir d'une chaîne de caractère : 0 et 1 et avec la taille d'un fragment bitsPerElement
+	 * lever Exception quand la chaîne contient les autres caractères.
+	 * */
 	
 	public BFP2P(String chaineBits, int bitsPerElement) throws ErrorException
 	{
@@ -43,6 +52,10 @@ public class BFP2P implements Serializable
 		}
 	}
 	
+	/* 
+	 * Test l'égalité entre 2 filtres
+	 * */
+	
 	public boolean equals(Object o)
 	{
 		if (o == null)
@@ -59,6 +72,10 @@ public class BFP2P implements Serializable
 			return false;
 		return true;
 	}
+	
+	/* 
+	 * Ajout une chaîne de description sous forme: mot1,mot2,mot3... dans le filtre
+	 * */
 	
 	public void addAll(String description)
 	{		
@@ -108,6 +125,10 @@ public class BFP2P implements Serializable
 		}
 	}
 	
+	/* 
+	 * Ajout un mot dans le filtre
+	 * */
+	
 	public void add(String a)
 	{
 		if (a.equals(""))
@@ -150,20 +171,36 @@ public class BFP2P implements Serializable
 		}
 	}
 	
+	/*
+	 *  Mettre le bit à la position 'index' une valeur 'v'
+	 **/
+	
 	public void setBit(int index, boolean v)
 	{
 		bitset.set(index, v);
 	}
+	
+	/* 
+	 * Rendre la valeur d'un bit à la position 'index'
+	 * */
 	
 	public boolean getBit(int index)
 	{
 		return bitset.get(index);
 	}
 	
+	/* 
+	 * Rendre la taille du filtre
+	 * */
+	
 	public int size()
 	{
 		return bitSetSize;
 	}
+	
+	/* 
+	 * Rendre la valeur du filtre sous forme un BitSet
+	 * */
 	
 	public BitSet getBitSet(int start, int stop)
 	{
@@ -174,6 +211,10 @@ public class BFP2P implements Serializable
 				
 		return res;
 	}
+	
+	/* 
+	 * Rendre la taille d'un fragment
+	 * */
 	
 	public int getBitsPerElement()
 	{
@@ -191,6 +232,10 @@ public class BFP2P implements Serializable
 		
 		return s;
 	}
+	
+	/* 
+	 * Test si le filtre contient un autre filtre
+	 * */
 	
 	public boolean in(Object o)
 	{
@@ -210,6 +255,10 @@ public class BFP2P implements Serializable
 				return false;
 		return true;
 	}
+	
+	/* 
+	 * Rendre le fragment à la position 'index'
+	 * */
 	
 	public FragmentP2P getFragment(int index)
 	{

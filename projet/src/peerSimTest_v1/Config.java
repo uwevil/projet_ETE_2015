@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,8 +14,9 @@ public class Config {
 	private Hashtable<Integer, String> indexHeight = new Hashtable<Integer, String>();
 	private Hashtable<Integer, Object> listAnswers = new Hashtable<Integer, Object>();
 	private int[] nodePerServer = new int[Network.size()];
-	private boolean[] peerCreated = new boolean[Network.size()];
+	private Hashtable<String, Integer> filterPerNode = new Hashtable<String, Integer>();
 	private Hashtable<Integer, Long> timeGlobal = new Hashtable<Integer, Long>();
+	private Hashtable<Integer, Long> timeCalcul = new Hashtable<Integer, Long>();
 	
 	public static int indexRand = 99999999;
 	public static int doublon = 0;
@@ -26,11 +27,13 @@ public class Config {
 	private NameToID translate = new NameToID(0);
 	private boolean end_OK = false;
 	public static boolean ObserverNw_OK = false;
+	private boolean config_OK = true;
+	
+	private long time_calcul = 0;
+	private long time_route = 0;
 
 	private int nodeVisited = 0;
 	private int totalFilterCreated = 0;
-	private int totalFilterAdded = 0;
-	private int nodeCreated = 0;
 	private long time = 0;
 	private int numberOfFilter = 0;
 	
@@ -45,9 +48,10 @@ public class Config {
 	{
 		for (int i = 0; i < Network.size(); i++)
 		{
-			peerCreated[i] = false;
 			nodePerServer[i] = 0;
 		}
+		timeCalcul = new Hashtable<Integer, Long>();
+		timeGlobal = new Hashtable<Integer, Long>();
 		
 		nodeVisited = 0;
 		nodeMatched = new ArrayList<String>();
@@ -55,46 +59,31 @@ public class Config {
 		listAnswers = new Hashtable<Integer, Object>();
 		doublon = 0;
 		numberOfBF = 0;
-		date = (new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss")).format(new Date());
+		date = (new SimpleDateFormat("dd/MM/yyyy/HH-mm-ss")).format(new Date());
 		time = 0;
 		totalFilterCreated = 0;
-		nodeCreated = 0;
 		nodePerServer = new int[Network.size()];
 		
 		for (int i = 0; i < Network.size(); i++)
 			nodePerServer[i] = 0;
 		
 		numberOfFilter = 0;
-	}
-	
-	public synchronized void addNodeCreated(int i)
-	{
-		nodeCreated += i;
-	}
-	
-	public int getNodeCreated()
-	{
-		return this.nodeCreated;
+		
+		time_calcul = 0;
+		time_route = 0;
+		
+		config_OK = true;
 	}
 	
 	public synchronized void addTotalFilterCreated(int i)
 	{
-		this.totalFilterCreated += i;
+		if (this.getConfig_OK())
+			this.totalFilterCreated += i;
 	}
 	
 	public int getTotalFilterCreated()
 	{
 		return this.totalFilterCreated;
-	}
-	
-	public synchronized void addTotalFilterAdded(int i)
-	{
-		this.totalFilterAdded += i;
-	}
-	
-	public int getTotalFilterAdded()
-	{
-		return this.totalFilterAdded;
 	}
 	
 	public synchronized void addNumberOfFilters(int i)
@@ -172,22 +161,13 @@ public class Config {
 	
 	public synchronized void setNodePerServer(int index, int i)
 	{
-		this.nodePerServer[index] = i;
+		if (this.getConfig_OK())
+			this.nodePerServer[index] = i;
 	}
 	
 	public int getNodePerServer(int index)
 	{
 		return this.nodePerServer[index];
-	}
-	
-	public synchronized void setPeerCreated(int index, boolean value)
-	{
-		this.peerCreated[index] =  value;
-	}
-	
-	public boolean getPeerCreated(int index)
-	{
-		return this.peerCreated[index];
 	}
 	
 	public Hashtable<Integer, String> getIndexHeight()
@@ -210,6 +190,25 @@ public class Config {
 		return this.timeGlobal;
 	}
 	
+	public synchronized void addTimeCalcul(Integer key, long t)
+	{
+		if (this.timeCalcul.containsKey(key))
+		{
+			long tmp = this.timeCalcul.get(key);
+			this.timeCalcul.remove(key);
+			this.timeCalcul.put(key, tmp + t);
+		}
+		else
+		{
+			this.timeCalcul.put(key, t);
+		}
+	}
+	
+	public long getTimeCalcul(Integer key)
+	{
+		return (this.timeCalcul.get(key) == null ? 0 : this.timeCalcul.get(key));
+	}
+	
 	public synchronized void setEnd_OK(boolean val)
 	{
 		this.end_OK = val;
@@ -218,5 +217,40 @@ public class Config {
 	public boolean getEnd_OK()
 	{
 		return this.end_OK;
+	}
+	
+	public synchronized void setConfig_OK(boolean value)
+	{
+		this.config_OK = value;
+	}
+	
+	public boolean getConfig_OK()
+	{
+		return this.config_OK;
+	}
+	
+	public synchronized void addTime_calcul(long t)
+	{
+		this.time_calcul += t;
+	}
+	
+	public long getTime_calcul()
+	{
+		return this.time_calcul;
+	}
+	
+	public synchronized void addTime_route(long t)
+	{
+		this.time_route += t;
+	}
+	
+	public long getTime_route()
+	{
+		return this.time_route;
+	}
+	
+	public Hashtable<String, Integer> getFilterPerNode()
+	{
+		return this.filterPerNode;
 	}
 }

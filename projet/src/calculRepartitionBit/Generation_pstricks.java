@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
-import peerSimTest.Config;
+import peerSimTest_v1.Config;
 import test.WriteFile;
 
 public class Generation_pstricks {

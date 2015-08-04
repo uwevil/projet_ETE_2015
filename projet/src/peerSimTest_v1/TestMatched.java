@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -135,8 +135,7 @@ public class TestMatched {
 				System.out.println("End experience n° " + experience);
 
 				experience++;
-			}
-				
+			}		
 		}
 		catch (IOException e)
 		{

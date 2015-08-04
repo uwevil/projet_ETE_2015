@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
@@ -49,11 +49,12 @@ public class ObserverNw implements Control {
 				ReadFile rf = new ReadFile("/Users/dcs/vrac/test/wikiDocs<60_500_request");
 				
 				int j = 0;
-				
-		//		String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
-		//		Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/" + experience + "_log";
-		//		Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/" + experience + "_resultat_log";
-		//		Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/" + experience + "_path_log";
+				/*
+				String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
+				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/" + experience + "_log";
+				Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/" + experience + "_resultat_log";
+				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/" + experience + "_path_log";
+				*/
 				
 				int essai = 0;
 				String date = (new SimpleDateFormat("dd-MM-yyyy")).format(new Date());
@@ -61,6 +62,7 @@ public class ObserverNw implements Control {
 				Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/Essai" + essai + "/" + experience + "_resultat_log";
 				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/Essai" + essai + "/" + experience + "_path_log";
 		
+				
 				for (int i = experience*10; i < rf.size() && j < 10; i++)
 				{
 					Message message = new Message();
@@ -153,7 +155,7 @@ public class ObserverNw implements Control {
 			wf.write("RequeteID temps(ms)\n");
 			
 			Enumeration<Integer> enumeration = ControlerNw.config_log.getTimeGlobal().keys();
-			long time = 0;
+			long time = 0, time2 = 0;
 			int size = 0;
 			
 			while (enumeration.hasMoreElements())
@@ -162,17 +164,19 @@ public class ObserverNw implements Control {
 				
 				long tmp = ControlerNw.config_log.getTimeGlobal().get(i);
 				time += tmp;
+				time2 +=  ControlerNw.config_log.getTimeCalcul(i);
+				
 				if (i.toString().length() == 5)
 				{
-					wf.write(i + "   " + tmp + " ms\n");
+					wf.write(i + "   " + tmp + "  " + ControlerNw.config_log.getTimeCalcul(i) + "\n");
 				}
 				else if (i.toString().length() == 4)
 				{
-					wf.write(i + "    " + tmp + " ms\n");
+					wf.write(i + "    " + tmp + "  " + ControlerNw.config_log.getTimeCalcul(i) + "\n");
 				}
 				else if (i.toString().length() == 6)
 				{
-					wf.write(i + "  " + tmp + " ms\n");
+					wf.write(i + "  " + tmp + "  " + ControlerNw.config_log.getTimeCalcul(i) + "\n");
 				}
 				size++;
 			}
@@ -186,18 +190,16 @@ public class ObserverNw implements Control {
 			i -= TimeUnit.SECONDS.toMillis(seconds);
 			
 			wf.write("\n"
-					+ "Temps total        : " + time + " ms\n"
+					+ "Temps total        : " + time + " ms " + time2 + "ms\n"
 					+ "Nombre de requetes : " + size + " requêtes\n"
 					+ "Temps moyen        : " + time/size + " ms == "
-					+ hours + " h " + minutes + " m " + seconds + " s " + i + " ms"
+					+ hours + " h " + minutes + "m" + seconds + "s" + i + "ms " + time2/size + "ms"
 					+ "\n\n");
 			
 			wf.close();
 			
-			System.out.println("setExpérience_OK = true");
 			ControlerNw.config_log.setEnd_OK(false);
 			ControlerNw.config_log.setExperience_OK(true);
-
 		}
 		
 		return false;

@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,6 +22,10 @@ public class SystemIndexP2P implements Serializable{
 	private int gamma;
 	private Hashtable<String, SystemNodeP2P> listNode;
 	
+	/*
+	 * Initialiser le système avec l'indexName, le serveur hébergé, gamma et une liste des nœuds qu'il gère
+	 * */
+	
 	public SystemIndexP2P(String indexName, int serverID, int gamma) {
 		// TODO Auto-generated constructor stub
 		this.indexName = indexName;
@@ -35,12 +39,20 @@ public class SystemIndexP2P implements Serializable{
 		return this.indexName;
 	}
 	
+	/*
+	 * Créer le nœud root "/"
+	 * */
+	
 	public void createRoot()
 	{
-		ControlerNw.config_log.addNodeCreated(1);
-		
 		listNode.put("/", new SystemNodeP2P(serverID, "/", 0, gamma));
 	}
+	
+	/*
+	 * Ajouter un filtre dans le nœud identifié par 'path'
+	 * 
+	 * Retourner soit null, soit une chaîne de caractère, soit un conteneur local(split)
+	 * */
 	
 	public Object add(BFP2P bf, String path)
 	{
@@ -50,9 +62,6 @@ public class SystemIndexP2P implements Serializable{
 		{
 			n = new SystemNodeP2P(serverID, path, (new CalculRangP2P()).getRang(path), gamma);
 			n.add(bf);
-			
-			ControlerNw.config_log.addNodeCreated(1);
-			
 			this.listNode.put(path, n);
 			return null;
 		}
@@ -87,6 +96,15 @@ public class SystemIndexP2P implements Serializable{
 		return null;
 	}
 
+	/*
+	 * Split prend 2 arguments comme le nœud père et le conteneur local
+	 * 
+	 * Retourner soit null, soit un message vers le serveur hébergé contient: 
+	 * - indexName
+	 * - une chaîne de caractère (chemin)
+	 * - le conteneur local
+	 * */
+	
 	private Object split(SystemNodeP2P father, ContainerLocalP2P c)
 	{
 		Iterator<BFP2P> iterator = c.iterator();
@@ -115,11 +133,13 @@ public class SystemIndexP2P implements Serializable{
 			SystemNodeP2P n = new SystemNodeP2P(serverID, path, father.getRang() + 1, gamma);
 			
 			int rang = n.getRang();
+			
+			//***********************Calculer le profondeur du système************
 			if (!ControlerNw.config_log.getIndexHeight().containsKey(rang))
 			{
 				ControlerNw.config_log.getIndexHeight().put(rang, n.getPath());
 			}
-			
+			//********************************************************************
 			/*
 			//*******LOG*******
 			WriteFile wf = new WriteFile(Config.peerSimLOG+"_createNode", true);
@@ -129,9 +149,7 @@ public class SystemIndexP2P implements Serializable{
 			wf.close();
 			//*****************
 			*/
-			
-			ControlerNw.config_log.addNodeCreated(1);
-			
+		
 			while (iterator.hasNext())
 			{
 				bf = iterator.next();
@@ -142,7 +160,7 @@ public class SystemIndexP2P implements Serializable{
 			return null;
 		}
 		else
-		{ // rep to noeud local : creer SystemNodeP2P, path, rang, containerlocal
+		{ // rep to noeud local : creer SystemNodeP2P, path, containerlocal
 			rep.setIndexName(indexName);
 			rep.setData(c);
 			rep.setPath(path);
@@ -151,20 +169,25 @@ public class SystemIndexP2P implements Serializable{
 		return rep;
 	}
 	
+	/*
+	 * Ajouter un nœud dans le système
+	 * */
+	
 	public void addSystemNodeP2P(String path, SystemNodeP2P node)
 	{
 		if (!this.listNode.containsKey(path))
 		{
-			ControlerNw.config_log.addNodeCreated(1);
-			
 			this.listNode.put(path, node);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	
+	/*
+	 * Rechercher le filtre dans le chemin précis
+	 * */
 	// search RETURN tableau 
-	// 0 : ArrayList<BF>
+	// 0 : ArrayList<BFP2P>
 	// 1 : Hashtable<Integer, ArrayList<String>>
 	
 	public Object search(BFP2P bf, String path)
@@ -176,9 +199,9 @@ public class SystemIndexP2P implements Serializable{
 		
 		ControlerNw.config_log.getTranslate().setLength(1000000);
 		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
-		
+		//****************Compteur un nœud visité************
 		ControlerNw.search_log.get(key).addNodeVisited(1);
-
+		//***************************************************
 		Object[] resultat = new Object[2];
 		resultat[0] = new ArrayList<BFP2P>();
 		resultat[1] = new Hashtable<Integer, ArrayList<String>>();
@@ -213,9 +236,9 @@ public class SystemIndexP2P implements Serializable{
 				else // this.listNode.containsKey((String)o)
 				{
 					SystemNodeP2P node_tmp = (SystemNodeP2P)listNode.get((String)o);
-					
+					//****************Compteur un nœud visité************
 					ControlerNw.search_log.get(key).addNodeVisited(1);
-					
+					//***************************************************
 					list.addAll((ArrayList<Object>) node_tmp.search(bf));
 				}
 			}
@@ -229,6 +252,12 @@ public class SystemIndexP2P implements Serializable{
 		return resultat;
 	}
 	 
+	/*
+	 * Rechercher exact le filtre dans le chemin précis
+	 * 
+	 * Retourner soit une chaîne de caractères(chemin), soit un filtre
+	 * */
+	
 	public Object searchExact(BFP2P bf, String path)
 	{
 		ControlerNw.config_log.getTranslate().setLength(1000000);
@@ -267,7 +296,9 @@ public class SystemIndexP2P implements Serializable{
 					BFP2P tmp = iterator.next();
 					if (bf.equals(tmp))
 					{
+						//***********Compter un filtre trouvé***************
 						ControlerNw.search_log.get(key).addNumberOfFilters(1);
+						//***************************************************
 						return tmp;
 					}
 				}
@@ -275,6 +306,14 @@ public class SystemIndexP2P implements Serializable{
 		}
 		return null;
 	}
+	
+	/*
+	 * Supprimer le filtre dans le chemin précis
+	 * 
+	 * Retourner soit null, soit un message vers le serveur hébergé
+	 * il y a 2 type de message : remove(supprimer le filtre) et removeNode(supprimer un nœud)
+	 * 	contient une chaîne de caractères
+	 * */
 	
 	public Object remove(BFP2P bf, String path)
 	{
@@ -358,6 +397,12 @@ public class SystemIndexP2P implements Serializable{
 		return null;
 	}
 	
+	/*
+	 * Supprimer le nœud précis dans le système
+	 * 
+	 * Retourner soit null, soit une chaîne de caractères
+	 * */
+	
 	public String removeNode(FragmentP2P f, String path)
 	{
 		String path_tmp = path;
@@ -370,7 +415,6 @@ public class SystemIndexP2P implements Serializable{
 			
 			if (n.remove(f))
 			{
-				ControlerNw.config_log.addNodeCreated(-1);
 				return null;
 			}
 				
@@ -392,6 +436,10 @@ public class SystemIndexP2P implements Serializable{
 	{
 		return this.listNode.size();
 	}
+	
+	/*
+	 * Rendre une liste des nœuds stockés dans le système
+	 * */
 	
 	public Hashtable<String, SystemNodeP2P> getListNode()
 	{

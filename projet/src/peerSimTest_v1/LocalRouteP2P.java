@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -14,15 +14,26 @@ public class LocalRouteP2P implements Serializable{
 	private int limit;
 	private Hashtable<Integer, Object> localRoute;
 	
+	/* Initialiser avec la limite (gamma) pour chaque conteneur et une hashtable 'localRoute'
+	 * 
+	 * localRoute contient soit une chaîne de caractères soit un conteneur local 
+	 * 	identifiés par la valeur du fragment en entier
+	 * */
+	
 	public LocalRouteP2P(int limit) {
 		// TODO Auto-generated constructor stub
 		this.limit = limit;
 		localRoute = new Hashtable<Integer, Object>();
 	}
 	
+	/*
+	 * Ajouter le filtre 'bf' à l'entrée correspondante au fragment f
+	 * 
+	 * Renvoyer true si réussit, false sinon
+	 * */
+	
 	public boolean add(FragmentP2P f, BFP2P bf)
-	{	
-		
+	{		
 		if (!this.contains(f))
 		{
 			ContainerLocalP2P c = new ContainerLocalP2P(limit);
@@ -39,6 +50,10 @@ public class LocalRouteP2P implements Serializable{
 		}
 	}
 	
+	/* 
+	 * Ajouter une chaîne de caractère 'path' à l'entrée correspondante au frament 'f'
+	 * */
+	
 	public void add(FragmentP2P f, String path)
 	{
 		if (!this.contains(f))
@@ -50,6 +65,10 @@ public class LocalRouteP2P implements Serializable{
 		}
 	}
 	
+	/* 
+	 * Rendre une valeur correspondante à l'entrée 'f' dans la table de routage
+	 * */
+	
 	public Object get(FragmentP2P f)
 	{
 		if (this.contains(f))
@@ -59,6 +78,10 @@ public class LocalRouteP2P implements Serializable{
 			return null;
 		}
 	}
+	
+	/* 
+	 * Rendre une valeur correspondantes à la position 'index' dans la table de routage
+	 * */
 	
 	public Object get(int index)
 	{
@@ -70,25 +93,45 @@ public class LocalRouteP2P implements Serializable{
 		}
 	}
 	
+	/* 
+	 * Renvoyer true si la table de routage contient une valeur à la position 'f'
+	 * */
+	
 	public boolean contains(FragmentP2P f)
 	{
 		return localRoute.containsKey(f.toInt());
 	}
+	
+	/* 
+	 * Renvoyer true si la table de routage contient une valeur à la position 'index'
+	 * */
 	
 	public boolean contains(int index)
 	{
 		return localRoute.containsKey(index);
 	}
 	
+	/* 
+	 * Supprimer l'entrée 'f' dans la table de routage
+	 * */
+	
 	public void remove(FragmentP2P f)
 	{
 		this.localRoute.remove(f.toInt());
 	}
 	
+	/* 
+	 * Supprimer l'entrée 'index' dans la table de routage
+	 * */
+	
 	public void remove(int index)
 	{
 		this.localRoute.remove(index);
 	}
+	
+	/* 
+	 * Rendre une liste des entrées non vides dans la table de routage
+	 * */
 	
 	public Enumeration<Integer> getKeyAll()
 	{

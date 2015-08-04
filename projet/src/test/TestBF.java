@@ -1,6 +1,6 @@
 package test;
 
-import peerSimTest.BFP2P;
+import peerSimTest_v1.BFP2P;
 import exception.ErrorException;
 
 public class TestBF {

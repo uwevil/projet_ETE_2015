@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -23,7 +23,6 @@ public class ControlerNw implements Control {
 	private int pid;
 	private boolean ok = true, ok2 = true, ok3 = false;
 	private int line = 0;
-
 	
 	public ControlerNw(String prefix)
 	{
@@ -94,7 +93,6 @@ public class ControlerNw implements Control {
 				/**************/
 				ok3 = true;
 			//	Config.ObserverNw_OK = true;
-
 				/**************/
 				
 				System.out.println("Fini de lecture " + line + " lignes");

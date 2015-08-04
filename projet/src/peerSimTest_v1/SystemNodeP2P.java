@@ -1,4 +1,4 @@
-package peerSimTest;
+package peerSimTest_v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,6 +16,12 @@ public class SystemNodeP2P implements Serializable{
 	private LocalRouteP2P localRoute;
 	private int limit;
 	
+	/*
+	 * Initiliser un nœud avec le server hébergé, l'identifiant sous forme une chaîne de caractères, le rang et la limite
+	 * 	une talbe de routage
+	 * */
+	
+	
 	public SystemNodeP2P(int server, String path, int rang, int limit) {
 		// TODO Auto-generated constructor stub
 		this.server = server;
@@ -25,30 +31,56 @@ public class SystemNodeP2P implements Serializable{
 		localRoute = new LocalRouteP2P(limit);
 	}
 	
+	/*
+	 * Rendre l'identifiant de ce nœud
+	 * */
+	
 	public String getPath()
 	{
 		return this.path;
 	}
+	
+	/*
+	 * Rendre le server hébergé
+	 * */
 	
 	public int getServer()
 	{
 		return this.server;
 	}
 	
+	/*
+	 * Rendre le rang de ce nœud
+	 * */
+	
 	public int getRang()
 	{
 		return this.rang;
 	}
+	
+	/*
+	 * Rendre la table de routage de ce nœud
+	 * */
 	
 	public LocalRouteP2P getLocalRoute()
 	{
 		return this.localRoute;
 	}
 	
+	/*
+	 * Rendre la limite(pour le conteneur local) stockée dans ce nœud
+	 * */
+	
 	public int getLimit()
 	{
 		return this.limit;
 	}
+	
+	/*
+	 * Ajouter le filtre dans le nœud
+	 * 
+	 * Retourner null si réussit, sinon soit une chaîne de caractères soit un conteneur local
+	 * */
 	
 	public Object add(BFP2P bf)
 	{	
@@ -62,10 +94,20 @@ public class SystemNodeP2P implements Serializable{
 		return localRoute.get(f);
 	}
 	
+	/*
+	 * Ajouter une chaîne de caractère à l'entrée correspondante au filtre 'bf'
+	 * */
+	
 	public void add(BFP2P bf, String path)
 	{
 		localRoute.add(bf.getFragment(rang), path);
 	}
+	
+	/*
+	 * Rechercher tous les filtres qui contiennent le filtre de la requete 'bf'
+	 * 
+	 * Retourner une liste mélangée de filtres et de chaîne de caractères(chemin)
+	 * */
 	
 	public Object search(BFP2P bf)
 	{
@@ -75,18 +117,6 @@ public class SystemNodeP2P implements Serializable{
 		
 		ControlerNw.config_log.getTranslate().setLength(1000000);
 		int key = ControlerNw.config_log.getTranslate().translate(bf.toString());
-		/*
-		if (systeme.Configuration.graph.containsKey(rang))
-		{
-			((ArrayList<String>)(systeme.Configuration.graph.get(rang))).add(path);
-		}
-		else
-		{
-			ArrayList<String> als = new ArrayList<String>();
-			als.add(path);
-			systeme.Configuration.graph.put(rang, als);
-		}
-			*/
 		
 		while (list.hasMoreElements())
 		{
@@ -106,7 +136,6 @@ public class SystemNodeP2P implements Serializable{
 					ContainerLocalP2P c = (ContainerLocalP2P) bf_tmp;
 					Iterator<BFP2P> iterator = c.iterator();
 					
-				//	boolean ok = true;
 					while (iterator.hasNext())
 					{
 						BFP2P tmp = iterator.next();
@@ -114,7 +143,10 @@ public class SystemNodeP2P implements Serializable{
 						if (bf.in(tmp))
 						{
 							rep.add(tmp);
+							//***********Ajouter ce chemin dans la liste des chemins distincts qui contiennent la réponse
+							// pour cette requête
 							ControlerNw.search_log.get(key).addNodeMatched(this.path);
+							//*******************************
 						}
 					}
 				}
@@ -123,6 +155,12 @@ public class SystemNodeP2P implements Serializable{
 		
 		return rep;
 	}
+	
+	/*
+	 * Rechercher le filtre précise
+	 * 
+	 * Retourner soit vide soit une chaîne de caractère soit un conteneur local
+	 * */
 	
 	public Object searchExact(BFP2P bf)
 	{
@@ -139,7 +177,9 @@ public class SystemNodeP2P implements Serializable{
 			}else{
 				if (((ContainerLocalP2P)o).contains(bf))
 				{
+					//************Ajouter ce nœud dans la liste de nœuds trouvés
 					ControlerNw.search_log.get(key).addNodeMatched(this.path);
+					//******************************
 					return ((ContainerLocalP2P)o);
 				}
 				return null;
@@ -148,13 +188,23 @@ public class SystemNodeP2P implements Serializable{
 		return null;
 	}
 	
+	/*
+	 * Supprimer le filtre dans le nœud
+	 * 
+	 * Retourner soit vide, soit une chaîne de caractères, soit une table de routage
+	 * */
+	
 	public Object remove(BFP2P bf)
 	{
 		FragmentP2P f = bf.getFragment(rang);
 		if (!localRoute.contains(f))
 			return null;
 		
-		if ((((localRoute.get(f)).getClass()).getName()).equals("peerSimTest.ContainerLocalP2P"))
+		if ((((localRoute.get(f)).getClass()).getName()).equals("java.lang.String"))
+		{
+			return localRoute.get(f);
+		}
+		else
 		{
 			ContainerLocalP2P c = (ContainerLocalP2P) localRoute.get(f);
 			c.remove(bf);
@@ -166,8 +216,13 @@ public class SystemNodeP2P implements Serializable{
 				return localRoute;
 			return null;
 		}
-		return localRoute.get(f);
 	}
+	
+	/*
+	 * Supprimer l'entrée 'f' dans la table de routage
+	 * 
+	 * Retourner true si réussit, false sinon
+	 * */
 	
 	public boolean remove(FragmentP2P f)
 	{
@@ -187,7 +242,6 @@ public class SystemNodeP2P implements Serializable{
 			 + "Rang : " + rang + "\n"
 			 + localRoute.toString();
 	}
-	
 }
 
 

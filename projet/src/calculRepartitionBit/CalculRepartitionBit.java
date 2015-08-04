@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import peerSimTest.Config;
+import peerSimTest_v1.Config;
 import test.WriteFile;
 
 @SuppressWarnings("unused")
@@ -37,6 +37,8 @@ public class CalculRepartitionBit {
 			sang[i] = 0;
 			bassirou[i] = 0;
 		}
+		
+		String date = (new SimpleDateFormat("dd-MM-yyyy/")).format(new Date());
 
 		try(BufferedReader reader = new BufferedReader(new FileReader("/Users/dcs/vrac/test/wikDistinctTerm.csv")))
 		{	
@@ -77,7 +79,7 @@ public class CalculRepartitionBit {
 								
 				repartition.put(s, o);
 				/*
-				WriteFile wf = new WriteFile("/Users/dcs/vrac/test/29-07_tab_repartition", true);
+				WriteFile wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_tab_repartition", true);
 				wf.write(s + ";" + o[0] 
 						   + "," + o[1]
 						   + "," + o[2]
@@ -101,8 +103,8 @@ public class CalculRepartitionBit {
 		//Serializer serializer = new Serializer();
 		//serializer.writeObject(repartition, "/Users/dcs/vrac/test/29-07_serializer_repartition");
 
-		String date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
-		/*
+		date = (new SimpleDateFormat("dd-MM-yyyy/HH-mm-ss")).format(new Date());
+		
 		
 		float f = 0, f2 = 0;
 		for (int i = 0; i < 512; i++)
@@ -155,7 +157,7 @@ public class CalculRepartitionBit {
 		wf1.write("Pourcentage total : " + f2 + "%\n");
 		wf1.write("Pourcentage moyen : " + f2 + "/" + 512 + " ~ " + (f2/line) + "%\n");
 		wf1.close();
-		*/
+		
 		
 		Hashtable<String, Integer> hs = new Hashtable<String, Integer>();
 		Hashtable<String, Integer> hb = new Hashtable<String, Integer>();

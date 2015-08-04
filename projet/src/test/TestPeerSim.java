@@ -5,8 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import exception.ErrorException;
-import peerSimTest.BFP2P;
-import peerSimTest.Config;
+import peerSimTest_v1.BFP2P;
+import peerSimTest_v1.Config;
 
 public class TestPeerSim {
 
