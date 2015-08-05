@@ -215,7 +215,7 @@ public class SystemIndexProtocol implements EDProtocol{
 				wf1.write("\nTemps de recherche : " + time + "ms\n");
 			}
 			
-			wf1.write("Temps de calcul : " + ControlerNw.search_log.get(key).getTime_calcul() + "ms\n\n");
+			wf1.write("Temps de calcul    : " + ControlerNw.search_log.get(key).getTime_calcul() + "ms\n\n");
 			
 			wf1.write("Trouvé : " + ControlerNw.search_log.get(key).getNumberOfFilters() + " filtres\n\n");
 			
@@ -2055,6 +2055,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		t.send(Network.get(nodeIndex), Network.get(message.getSource()), rep, pid);
 	}
 
+	@SuppressWarnings("static-access")
 	private void treatOverview_OK(Message message, int pid)
 	{
 		if (recu_OK)
@@ -2073,12 +2074,16 @@ public class SystemIndexProtocol implements EDProtocol{
 		}
 		
 		ControlerNw.config_log.setConfig_OK(false);
-		
-		int m = 0;
-		
+				
 		//*******************
 		WriteFile wf = new WriteFile(Config.peerSimLOG+"_indexHeight", false);
 		Enumeration<Integer> enumeration = ControlerNw.config_log.getIndexHeight().keys();
+		
+		wf.write("Taille du filtre    : " + ControlerNw.config_log.sizeOfBF + "\n");
+		wf.write("Nombre de fragments : " + ControlerNw.config_log.numberOfFragment + "\n");
+		wf.write("Taille du fragment  : " 
+				+ ControlerNw.config_log.sizeOfBF/ControlerNw.config_log.numberOfFragment+ "\n");
+		wf.write("Gamma               : " + ControlerNw.config_log.gamma + "\n");
 		
 		while (enumeration.hasMoreElements())
 		{
@@ -2090,10 +2095,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			else
 			{
 				wf.write(i + " " + ControlerNw.config_log.getIndexHeight().get(i) + "\n");
-			}
-			
-			if (m < i)
-				m = i;
+			}			
 		}
 		
 		wf.close();
@@ -2153,6 +2155,7 @@ public class SystemIndexProtocol implements EDProtocol{
 		j = 0;
 		k = 0;
 				
+		Hashtable<Integer, ArrayList<String>> hias = new Hashtable<Integer, ArrayList<String>>();
 		while (enumeration2.hasMoreElements())
 		{
 			String s_tmp = enumeration2.nextElement();
@@ -2171,22 +2174,173 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			if (i < 10)
 			{
-				wf1.write(i + "       " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "\n");
+				wf1.write(i + "       " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "    " + s_tmp +  "\n");
 			}
 			else if (i < 100)
 			{ 
-				wf1.write(i + "      " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "\n");
+				wf1.write(i + "      " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "    " + s_tmp + "\n");
 			}
 			else
 			{					
-				wf1.write(i + "     " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "\n");
+				wf1.write(i + "     " + ControlerNw.config_log.getFilterPerNode().get(s_tmp) + "    " + s_tmp + "\n");
 			}
 			i++;
 			k++;
+			
+			if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 1000)
+			{
+				if (hias.containsKey(1000))
+				{
+					hias.get(1000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(1000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 5000)
+			{
+				if (hias.containsKey(5000))
+				{
+					hias.get(5000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(5000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 10000)
+			{
+				if (hias.containsKey(10000))
+				{
+					hias.get(10000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(10000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 15000)
+			{
+				if (hias.containsKey(15000))
+				{
+					hias.get(15000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(15000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 20000)
+			{
+				if (hias.containsKey(20000))
+				{
+					hias.get(20000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(20000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 30000)
+			{
+				if (hias.containsKey(30000))
+				{
+					hias.get(30000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(30000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 40000)
+			{
+				if (hias.containsKey(40000))
+				{
+					hias.get(40000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(40000, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) >= 40000)
+			{
+				if (hias.containsKey(50000))
+				{
+					hias.get(50000).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(50000, als);
+				}
+			}
 		}
 		
 		wf1.write("Total : " + k + "/" + i+ "\n");
-		wf1.write("Moyen : " + j + "/" + k + " = " + (j/k) + "\n");
+		wf1.write("Moyen : " + j + "/" + k + " = " + (j/k) + "\n\n");
+		
+		int m = hias.get(1000) == null ? 0 : hias.get(1000).size();
+		float n = 0;
+		
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<1000   = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		n += (float)((float)m/(float)k)*100;
+		m = hias.get(5000) == null ? 0 : hias.get(5000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<5000   = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(10000) == null ? 0 : hias.get(10000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<10000  = " + m + "  " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(15000) == null ? 0 : hias.get(15000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<15000  = " + m + "  " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(20000) == null ? 0 : hias.get(20000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<20000  = " + m + "   " + (float)((float)m/(float)k)*100 + "%\n");
+		if (m > 0)
+			wf1.write("         " + hias.get(20000).toString() + "\n");
+		
+		m = hias.get(30000) == null ? 0 : hias.get(30000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<30000  = " + m + "   " + (float)((float)m/(float)k)*100 + "%\n");
+		if (m > 0)
+			wf1.write("         " + hias.get(30000).toString() + "\n");
+		
+		m = hias.get(40000) == null ? 0 : hias.get(40000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("<40000  = " + m + "   " + (float)((float)m/(float)k)*100 + "%\n");
+		if (m > 0)
+			wf1.write("         " + hias.get(40000).toString() + "\n");
+		
+		m = hias.get(50000) == null ? 0 : hias.get(50000).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write(">=40000 = " + m + "   " + (float)((float)m/(float)k)*100 + "%\n");
+		if (m > 0)
+			wf1.write("         " + hias.get(50000).toString() + "\n");
+		
+		wf1.write("            = " + n + "%\n");
+		
 		wf1.close();
 		
 		recu_OK = true;

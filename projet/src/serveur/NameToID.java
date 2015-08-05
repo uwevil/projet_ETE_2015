@@ -13,12 +13,12 @@ public class NameToID {
 	
 	public int translate(String s)
 	{
-		MessageDigest md256;
+		MessageDigest md;
 		int res = -1;
 		try 
 		{
-			md256 = MessageDigest.getInstance("SHA-256");
-			byte[] tmp = md256.digest(s.getBytes("UTF-8"));
+			md = MessageDigest.getInstance("SHA-1");
+			byte[] tmp = md.digest(s.getBytes("UTF-8"));
 			double n = 0;
 
 			for (int j = 0; j < tmp.length; j++)

@@ -58,9 +58,12 @@ public class ObserverNw implements Control {
 				
 				int essai = 0;
 				String date = (new SimpleDateFormat("dd-MM-yyyy")).format(new Date());
-				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/Essai" + essai + "/" + experience + "_log";
-				Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/Essai" + essai + "/" + experience + "_resultat_log";
-				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/Essai" + essai + "/" + experience + "_path_log";
+				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/Essai" + essai 
+						+ "/" + experience + "_log";
+				Config.peerSimLOG_resultat = "/Users/dcs/vrac/test/" + date + "/Essai" + essai 
+						+ "/" + experience + "_resultat_log";
+				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/Essai" + essai 
+						+ "/" + experience + "_path_log";
 		
 				
 				for (int i = experience*10; i < rf.size() && j < 10; i++)

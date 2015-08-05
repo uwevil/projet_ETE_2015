@@ -19,7 +19,6 @@ public class Config {
 	private Hashtable<Integer, Long> timeCalcul = new Hashtable<Integer, Long>();
 	
 	public static int indexRand = 99999999;
-	public static int doublon = 0;
 	public static int numberOfBF = 0;
 	public static int sizeOfBF = 512;
 	public static int numberOfFragment = 64;
@@ -57,7 +56,6 @@ public class Config {
 		nodeMatched = new ArrayList<String>();
 		indexHeight = new Hashtable<Integer, String>();
 		listAnswers = new Hashtable<Integer, Object>();
-		doublon = 0;
 		numberOfBF = 0;
 		date = (new SimpleDateFormat("dd/MM/yyyy/HH-mm-ss")).format(new Date());
 		time = 0;

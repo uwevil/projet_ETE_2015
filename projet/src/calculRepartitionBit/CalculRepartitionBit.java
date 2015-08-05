@@ -114,7 +114,7 @@ public class CalculRepartitionBit {
 			
 			f += ps[i];
 			f2 += pb[i];
-			
+			/*
 			WriteFile wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_sang", true);
 			if (i < 10)
 			{
@@ -129,36 +129,37 @@ public class CalculRepartitionBit {
 				wf.write(i + " " + ps[i] + " " + sang[i] + "\n");
 			}
 			wf.close();
-			
-			wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_bassirou", true);
+			*/
+			WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_bassirou", true);
 			if (i < 10)
 			{
-				wf.write(i + "   " + pb[i] + " " + bassirou[i] + "\n");
+				wf1.write(i + "   " + pb[i] + " " + bassirou[i] + "\n");
 			}
 			else if (i >= 10 && i < 100)
 			{
-				wf.write(i + "  " + pb[i] + " " + bassirou[i] + "\n");
+				wf1.write(i + "  " + pb[i] + " " + bassirou[i] + "\n");
 			}
 			else
 			{
-				wf.write(i + " " + pb[i] + " " + bassirou[i] + "\n");
+				wf1.write(i + " " + pb[i] + " " + bassirou[i] + "\n");
 			}
-			wf.close();
+			wf1.close();
 		}
 		
-		WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_sang", true);
-		wf1.write("Nombre total de mots : " + line + "\n");
-		wf1.write("Pourcentage total : " + f + "%\n");
-		wf1.write("Pourcentage moyen : " + f + "/" + 512 + " ~ " + (f/line) + "%\n");
-		wf1.close();
-		
-		wf1 = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_bassirou", true);
+		/*
+		WriteFile wf = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_sang", true);
+		wf.write("Nombre total de mots : " + line + "\n");
+		wf.write("Pourcentage total : " + f + "%\n");
+		wf.write("Pourcentage moyen : " + f + "/" + 512 + " ~ " + (f/line) + "%\n");
+		wf.close();
+		*/
+		WriteFile wf1 = new WriteFile("/Users/dcs/vrac/test/" + date + "_pourcentage_bassirou", true);
 		wf1.write("Nombre total de mots : " + line + "\n");
 		wf1.write("Pourcentage total : " + f2 + "%\n");
 		wf1.write("Pourcentage moyen : " + f2 + "/" + 512 + " ~ " + (f2/line) + "%\n");
 		wf1.close();
 		
-		
+		/*
 		Hashtable<String, Integer> hs = new Hashtable<String, Integer>();
 		Hashtable<String, Integer> hb = new Hashtable<String, Integer>();
 		
@@ -244,7 +245,7 @@ public class CalculRepartitionBit {
 		}
 		
 		System.out.println("End " + line + " ?= " + k);
-		
+		*/
 	//	System.out.println("End " + line);
 		
 	}
