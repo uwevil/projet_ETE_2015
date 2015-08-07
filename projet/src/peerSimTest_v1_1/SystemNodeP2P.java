@@ -1,4 +1,4 @@
-package peerSimTest_v1;
+package peerSimTest_v1_1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,7 +14,8 @@ public class SystemNodeP2P implements Serializable{
 	private String path;
 	private int rang;
 	private LocalRouteP2P localRoute;
-	private int limit;
+	
+	private Integer gamma = 0;
 	
 	/*
 	 * Initiliser un nœud avec le server hébergé, l'identifiant sous forme une chaîne de caractères, le rang et la limite
@@ -22,13 +23,18 @@ public class SystemNodeP2P implements Serializable{
 	 * */
 	
 	
-	public SystemNodeP2P(int server, String path, int rang, int limit) {
+	public SystemNodeP2P(int server, String path, int rang) {
 		// TODO Auto-generated constructor stub
 		this.server = server;
 		this.path = path;
-		this.limit = limit;
 		this.rang = rang;
-		localRoute = new LocalRouteP2P(limit);
+		this.gamma = 0;
+		localRoute = new LocalRouteP2P();
+	}
+	
+	public synchronized Integer getGamma()
+	{
+		return this.gamma;
 	}
 	
 	/*
@@ -68,15 +74,6 @@ public class SystemNodeP2P implements Serializable{
 	}
 	
 	/*
-	 * Rendre la limite(pour le conteneur local) stockée dans ce nœud
-	 * */
-	
-	public int getLimit()
-	{
-		return this.limit;
-	}
-	
-	/*
 	 * Ajouter le filtre dans le nœud
 	 * 
 	 * Retourner null si réussit, sinon soit une chaîne de caractères soit un conteneur local
@@ -86,7 +83,7 @@ public class SystemNodeP2P implements Serializable{
 	{	
 		FragmentP2P f = bf.getFragment(rang);
 		
-		if(localRoute.add(f, bf))
+		if(localRoute.add(f, bf, gamma))
 		{
 			return null;
 		}

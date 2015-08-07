@@ -1,4 +1,4 @@
-package peerSimTest_v1;
+package peerSimTest_v1_1;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -11,7 +11,6 @@ public class LocalRouteP2P implements Serializable{
 	private static final long serialVersionUID = 1L;
 	/* LocalRoute contient soit un Container soit un String 
 	 * */
-	private int limit;
 	private Hashtable<Integer, Object> localRoute;
 	
 	/* Initialiser avec la limite (gamma) pour chaque conteneur et une hashtable 'localRoute'
@@ -20,9 +19,8 @@ public class LocalRouteP2P implements Serializable{
 	 * 	identifiés par la valeur du fragment en entier
 	 * */
 	
-	public LocalRouteP2P(int limit) {
+	public LocalRouteP2P() {
 		// TODO Auto-generated constructor stub
-		this.limit = limit;
 		localRoute = new Hashtable<Integer, Object>();
 	}
 	
@@ -32,12 +30,12 @@ public class LocalRouteP2P implements Serializable{
 	 * Renvoyer true si réussit, false sinon
 	 * */
 	
-	public boolean add(FragmentP2P f, BFP2P bf)
+	public boolean add(FragmentP2P f, BFP2P bf, Integer gamma)
 	{		
 		if (!this.contains(f))
 		{
-			LocalContainerP2P c = new LocalContainerP2P(limit);
-			c.add(bf);
+			LocalContainerP2P c = new LocalContainerP2P();
+			c.add(bf, gamma);
 			localRoute.put(f.toInt(), c);
 			return true;
 		}else{
@@ -45,7 +43,7 @@ public class LocalRouteP2P implements Serializable{
 			{
 				return false;
 			}else{
-				return ((LocalContainerP2P) this.get(f)).add(bf);
+				return ((LocalContainerP2P) this.get(f)).add(bf, gamma);
 			}
 		}
 	}

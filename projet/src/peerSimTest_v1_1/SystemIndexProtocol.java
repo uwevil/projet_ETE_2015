@@ -1,4 +1,4 @@
-package peerSimTest_v1;
+package peerSimTest_v1_1;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -466,7 +466,7 @@ public class SystemIndexProtocol implements EDProtocol{
 			}
 			
 			SystemNodeP2P systemNode = new SystemNodeP2P(serverID, path, 
-					(new CalculRangP2P()).getRang(path), Config.gamma);
+					(new CalculRangP2P()).getRang(path));
 			
 			//*********Calculer le profondeur du système*********
 			int rang = systemNode.getRang();
@@ -520,10 +520,9 @@ public class SystemIndexProtocol implements EDProtocol{
 			 * 
 			 */
 		}
-		
 	}
 
-	/*
+	/**
 	 * Traiter le message d'ajout dans le système
 	 * 
 	 * Ce message contient indexName, chaîne de caractères(path), filtre
@@ -660,22 +659,45 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
 		}
-		else // Message split()
+		else // nœud
 		{
-			Message o_tmp = (Message)o;
+			SystemNodeP2P n = (SystemNodeP2P)o;
+			LocalRouteP2P localRouteP2P = n.getLocalRoute();
 			
-			ControlerNw.config_log.getTranslate().setLength(Network.size());
-			int tmp_nodeID = ControlerNw.config_log.getTranslate().translate(o_tmp.getPath());
+			Enumeration<Integer> enumeration = localRouteP2P.getKeyAll();
 			
-			Message rep = new Message();
-			rep.setType("createNode");
-			rep.setIndexName(indexName);
-			rep.setPath(o_tmp.getPath());
-			rep.setData(o_tmp.getData());
-			rep.setSource(nodeIndex);
-			rep.setDestinataire(tmp_nodeID);
-			
-			t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
+			while (enumeration.hasMoreElements())
+			{
+				Integer i = enumeration.nextElement();
+				
+				if (localRouteP2P.get(i) == null || localRouteP2P.get(i).getClass().getName().contains("String"))
+					continue; 
+				
+				String path = new String();
+				if (n.getPath() == "/")
+				{
+					path = n.getPath() + i;
+				}
+				else
+				{
+					path = n.getPath() + "/" + i;
+				}
+								
+				ControlerNw.config_log.getTranslate().setLength(Network.size());
+				int tmp_nodeID = ControlerNw.config_log.getTranslate().translate(path);
+				
+				n.add(((LocalContainerP2P)localRouteP2P.get(i)).get(0), path);
+				
+				Message rep = new Message();
+				rep.setType("createNode");
+				rep.setIndexName(indexName);
+				rep.setPath(path);
+				rep.setData((LocalContainerP2P)localRouteP2P.get(i));
+				rep.setSource(nodeIndex);
+				rep.setDestinataire(tmp_nodeID);
+				
+				t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
+			}
 		}
 	}
 		

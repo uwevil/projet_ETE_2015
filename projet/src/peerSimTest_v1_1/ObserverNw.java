@@ -1,4 +1,4 @@
-package peerSimTest_v1;
+package peerSimTest_v1_1;
 
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
@@ -56,7 +56,7 @@ public class ObserverNw implements Control {
 				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/" + experience + "_path_log";
 				*/
 				
-				int essai = 1;
+				String essai = "_v1_1";
 				String date = (new SimpleDateFormat("dd-MM-yyyy")).format(new Date());
 				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/Essai" + essai 
 						+ "/" + experience + "_log";

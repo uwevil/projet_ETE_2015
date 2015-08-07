@@ -1,4 +1,4 @@
-package peerSimTest_v1;
+package peerSimTest_v1_1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,7 +19,6 @@ public class SystemIndexP2P implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private String indexName;
 	private int serverID;
-	private int gamma;
 	private Hashtable<String, SystemNodeP2P> listNode;
 	
 	/*
@@ -30,7 +29,6 @@ public class SystemIndexP2P implements Serializable{
 		// TODO Auto-generated constructor stub
 		this.indexName = indexName;
 		this.serverID = serverID;
-		this.gamma = gamma;
 		listNode = new Hashtable<String, SystemNodeP2P>();
 	}
 	
@@ -45,13 +43,13 @@ public class SystemIndexP2P implements Serializable{
 	
 	public void createRoot()
 	{
-		listNode.put("/", new SystemNodeP2P(serverID, "/", 0, gamma));
+		listNode.put("/", new SystemNodeP2P(serverID, "/", 0));
 	}
 	
-	/*
+	/**
 	 * Ajouter un filtre dans le nœud identifié par 'path'
 	 * 
-	 * Retourner soit null, soit une chaîne de caractère, soit un conteneur local(split)
+	 * Retourner soit null, soit une chaîne de caractère, soit un nœud
 	 * */
 	
 	public Object add(BFP2P bf, String path)
@@ -60,7 +58,7 @@ public class SystemIndexP2P implements Serializable{
 		
 		if (n == null)
 		{
-			n = new SystemNodeP2P(serverID, path, (new CalculRangP2P()).getRang(path), gamma);
+			n = new SystemNodeP2P(serverID, path, (new CalculRangP2P()).getRang(path));
 			n.add(bf);
 			this.listNode.put(path, n);
 			return null;
@@ -86,10 +84,10 @@ public class SystemIndexP2P implements Serializable{
 						return o;
 					}
 				}
-				else
+				
+				if (n.getGamma() == Config.gamma)
 				{		
-					o = this.split(n, (LocalContainerP2P)o);
-					return o;
+					return n;
 				} 
 			}
 		}
@@ -104,7 +102,7 @@ public class SystemIndexP2P implements Serializable{
 	 * - une chaîne de caractère (chemin)
 	 * - le conteneur local
 	 * */
-	
+	/*
 	private Object split(SystemNodeP2P father, LocalContainerP2P c)
 	{
 		Iterator<BFP2P> iterator = c.iterator();
@@ -130,7 +128,7 @@ public class SystemIndexP2P implements Serializable{
 		
 		if (tmp_serverID == serverID)
 		{
-			SystemNodeP2P n = new SystemNodeP2P(serverID, path, father.getRang() + 1, gamma);
+			SystemNodeP2P n = new SystemNodeP2P(serverID, path, father.getRang() + 1);
 			
 			int rang = n.getRang();
 			
@@ -149,7 +147,7 @@ public class SystemIndexP2P implements Serializable{
 			wf.close();
 			//*****************
 			*/
-		
+		/*
 			while (iterator.hasNext())
 			{
 				bf = iterator.next();
@@ -168,6 +166,8 @@ public class SystemIndexP2P implements Serializable{
 		
 		return rep;
 	}
+	*/
+	
 	
 	/*
 	 * Ajouter un nœud dans le système

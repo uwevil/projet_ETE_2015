@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class ContainerLocalP2P implements Serializable{
+public class LocalContainerP2P implements Serializable{
 	/**
 	 * 
 	 */
@@ -15,7 +15,7 @@ public class ContainerLocalP2P implements Serializable{
 	/* Un conteneur local doit stocker la limite(gamma) et une liste de filtre
 	 * */
 	
-	public ContainerLocalP2P(int limit) {
+	public LocalContainerP2P(int limit) {
 		// TODO Auto-generated constructor stub
 		this.limit = limit;
 		container = new ArrayList<BFP2P>(limit);
