@@ -32,7 +32,7 @@ public class ObserverNw implements Control {
 	@Override
 	public boolean execute() {
 		// TODO Auto-generated method stub
-		if (ok)
+		if (ok && Config.ObserverNw_OK)
 		{
 			ok = false;
 			ok2 = true;

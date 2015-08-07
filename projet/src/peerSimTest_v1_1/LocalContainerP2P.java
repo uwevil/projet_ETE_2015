@@ -34,13 +34,11 @@ public class LocalContainerP2P implements Serializable{
 	 * Si échec, renvoyer false
 	 * */
 	
-	public boolean add(BFP2P e, Integer gamma)
-	{		
+	public boolean add(BFP2P e)
+	{
 		if (!this.container.contains(e))
-		{
 			container.add(e);
-			gamma++;
-		}
+		
 		return true;
 	}
 	
@@ -58,7 +56,7 @@ public class LocalContainerP2P implements Serializable{
 	 * */
 	
 	public BFP2P get(int index)
-	{	
+	{
 		try
 		{
 			container.get(index);

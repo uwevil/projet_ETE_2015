@@ -32,7 +32,7 @@ public class ObserverNw implements Control {
 	@Override
 	public boolean execute() {
 		// TODO Auto-generated method stub
-		if (ok)
+		if (ok && Config.ObserverNw_OK)
 		{
 			ok = false;
 			ok2 = true;
@@ -56,7 +56,7 @@ public class ObserverNw implements Control {
 				Config.peerSimLOG_path = "/Users/dcs/vrac/test/" + date + "/" + experience + "_path_log";
 				*/
 				
-				String essai = "_v1_1";
+				String essai = "0_v1_1";
 				String date = (new SimpleDateFormat("dd-MM-yyyy")).format(new Date());
 				Config.peerSimLOG = "/Users/dcs/vrac/test/"+ date + "/Essai" + essai 
 						+ "/" + experience + "_log";

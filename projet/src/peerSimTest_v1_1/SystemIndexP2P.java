@@ -19,6 +19,7 @@ public class SystemIndexP2P implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private String indexName;
 	private int serverID;
+	private int gamma;
 	private Hashtable<String, SystemNodeP2P> listNode;
 	
 	/*
@@ -29,6 +30,7 @@ public class SystemIndexP2P implements Serializable{
 		// TODO Auto-generated constructor stub
 		this.indexName = indexName;
 		this.serverID = serverID;
+		this.gamma = gamma;
 		listNode = new Hashtable<String, SystemNodeP2P>();
 	}
 	
@@ -46,10 +48,10 @@ public class SystemIndexP2P implements Serializable{
 		listNode.put("/", new SystemNodeP2P(serverID, "/", 0));
 	}
 	
-	/**
+	/*
 	 * Ajouter un filtre dans le nœud identifié par 'path'
 	 * 
-	 * Retourner soit null, soit une chaîne de caractère, soit un nœud
+	 * Retourner soit null, soit une chaîne de caractère, soit un conteneur local(split)
 	 * */
 	
 	public Object add(BFP2P bf, String path)
@@ -68,8 +70,26 @@ public class SystemIndexP2P implements Serializable{
 			Object o = n.add(bf);
 			
 			if (o == null)
+			{
+				LocalRouteP2P localRouteP2P = n.getLocalRoute();
+				
+				Enumeration<Integer> enumeration = localRouteP2P.getKeyAll();
+				int total = 0;
+				while (enumeration.hasMoreElements())
+				{
+					Integer i = enumeration.nextElement();
+					
+					Object o_tmp = localRouteP2P.get(i);
+					
+					if (o_tmp.getClass().getName().contains("LocalContainerP2P"))
+						total += ((LocalContainerP2P)o_tmp).getNumberOfElements();
+				}
+				
+				if (total == Config.gamma)
+					return n;
+				
 				return null;
-			
+			}
 			while (o != null)
 			{
 				if (((o.getClass()).getName()).equals("java.lang.String"))
@@ -84,12 +104,29 @@ public class SystemIndexP2P implements Serializable{
 						return o;
 					}
 				}
-				
-				if (n.getGamma() == Config.gamma)
+			/*	else
 				{		
-					return n;
-				} 
+					o = this.split(n, (LocalContainerP2P)o);
+					return o;
+				} */
 			}
+			
+			LocalRouteP2P localRouteP2P = n.getLocalRoute();
+			
+			Enumeration<Integer> enumeration = localRouteP2P.getKeyAll();
+			int total = 0;
+			while (enumeration.hasMoreElements())
+			{
+				Integer i = enumeration.nextElement();
+				
+				Object o_tmp = localRouteP2P.get(i);
+				
+				if (o_tmp.getClass().getName().contains("LocalContainerP2P"))
+					total += ((LocalContainerP2P)o_tmp).getNumberOfElements();
+			}
+			
+			if (total == Config.gamma)
+				return n;
 		}
 		return null;
 	}
@@ -167,8 +204,6 @@ public class SystemIndexP2P implements Serializable{
 		return rep;
 	}
 	*/
-	
-	
 	/*
 	 * Ajouter un nœud dans le système
 	 * */

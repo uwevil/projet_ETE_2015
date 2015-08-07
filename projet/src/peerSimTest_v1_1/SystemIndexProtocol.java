@@ -520,9 +520,10 @@ public class SystemIndexProtocol implements EDProtocol{
 			 * 
 			 */
 		}
+		
 	}
 
-	/**
+	/*
 	 * Traiter le message d'ajout dans le système
 	 * 
 	 * Ce message contient indexName, chaîne de caractères(path), filtre
@@ -659,9 +660,10 @@ public class SystemIndexProtocol implements EDProtocol{
 			
 			t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
 		}
-		else // nœud
+		else // Message split()
 		{
 			SystemNodeP2P n = (SystemNodeP2P)o;
+			
 			LocalRouteP2P localRouteP2P = n.getLocalRoute();
 			
 			Enumeration<Integer> enumeration = localRouteP2P.getKeyAll();
@@ -670,34 +672,40 @@ public class SystemIndexProtocol implements EDProtocol{
 			{
 				Integer i = enumeration.nextElement();
 				
-				if (localRouteP2P.get(i) == null || localRouteP2P.get(i).getClass().getName().contains("String"))
-					continue; 
+				Object o_tmp = localRouteP2P.get(i);
+				
+				if (o_tmp == null || o_tmp.getClass().getName().contains("String"))
+					continue;
+				
+				LocalContainerP2P localContainerP2P = (LocalContainerP2P)o_tmp;
+				BFP2P bf = localContainerP2P.get(0);
+				FragmentP2P f = bf.getFragment(n.getRang());
 				
 				String path = new String();
 				if (n.getPath() == "/")
 				{
-					path = n.getPath() + i;
+					path = n.getPath() + f.toInt();
 				}
 				else
 				{
-					path = n.getPath() + "/" + i;
+					path = n.getPath() + "/" + f.toInt();
 				}
+								
+				n.add(bf,path);
 								
 				ControlerNw.config_log.getTranslate().setLength(Network.size());
 				int tmp_nodeID = ControlerNw.config_log.getTranslate().translate(path);
-				
-				n.add(((LocalContainerP2P)localRouteP2P.get(i)).get(0), path);
 				
 				Message rep = new Message();
 				rep.setType("createNode");
 				rep.setIndexName(indexName);
 				rep.setPath(path);
-				rep.setData((LocalContainerP2P)localRouteP2P.get(i));
+				rep.setData(localContainerP2P);
 				rep.setSource(nodeIndex);
 				rep.setDestinataire(tmp_nodeID);
 				
 				t.send(Network.get(nodeIndex), Network.get(tmp_nodeID), rep, pid);
-			}
+			}			
 		}
 	}
 		

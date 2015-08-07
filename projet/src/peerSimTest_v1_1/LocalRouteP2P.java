@@ -30,12 +30,12 @@ public class LocalRouteP2P implements Serializable{
 	 * Renvoyer true si réussit, false sinon
 	 * */
 	
-	public boolean add(FragmentP2P f, BFP2P bf, Integer gamma)
+	public boolean add(FragmentP2P f, BFP2P bf)
 	{		
 		if (!this.contains(f))
 		{
 			LocalContainerP2P c = new LocalContainerP2P();
-			c.add(bf, gamma);
+			c.add(bf);
 			localRoute.put(f.toInt(), c);
 			return true;
 		}else{
@@ -43,7 +43,7 @@ public class LocalRouteP2P implements Serializable{
 			{
 				return false;
 			}else{
-				return ((LocalContainerP2P) this.get(f)).add(bf, gamma);
+				return ((LocalContainerP2P) this.get(f)).add(bf);
 			}
 		}
 	}

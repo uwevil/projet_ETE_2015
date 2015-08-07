@@ -15,8 +15,6 @@ public class SystemNodeP2P implements Serializable{
 	private int rang;
 	private LocalRouteP2P localRoute;
 	
-	private Integer gamma = 0;
-	
 	/*
 	 * Initiliser un nœud avec le server hébergé, l'identifiant sous forme une chaîne de caractères, le rang et la limite
 	 * 	une talbe de routage
@@ -28,13 +26,7 @@ public class SystemNodeP2P implements Serializable{
 		this.server = server;
 		this.path = path;
 		this.rang = rang;
-		this.gamma = 0;
 		localRoute = new LocalRouteP2P();
-	}
-	
-	public synchronized Integer getGamma()
-	{
-		return this.gamma;
 	}
 	
 	/*
@@ -83,7 +75,7 @@ public class SystemNodeP2P implements Serializable{
 	{	
 		FragmentP2P f = bf.getFragment(rang);
 		
-		if(localRoute.add(f, bf, gamma))
+		if(localRoute.add(f, bf))
 		{
 			return null;
 		}
