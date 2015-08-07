@@ -2302,7 +2302,6 @@ public class SystemIndexProtocol implements EDProtocol{
 		n += (float)((float)m/(float)k)*100;
 		wf1.write("  <1000 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
 		
-		n += (float)((float)m/(float)k)*100;
 		m = hias.get(5000) == null ? 0 : hias.get(5000).size();
 		n += (float)((float)m/(float)k)*100;
 		wf1.write("  <5000 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");

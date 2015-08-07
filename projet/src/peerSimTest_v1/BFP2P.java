@@ -64,7 +64,7 @@ public class BFP2P implements Serializable
 			return false;
 		final BFP2P other = (BFP2P) o;
 		
-		if (this.bitSetSize != other.bitSetSize)
+		if (this.bitSetSize != other.size())
 			return false;
 		if (this.bitsPerElement != other.bitsPerElement)
 			return false;
