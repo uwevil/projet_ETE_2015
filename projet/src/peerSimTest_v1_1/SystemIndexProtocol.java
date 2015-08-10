@@ -2225,7 +2225,47 @@ public class SystemIndexProtocol implements EDProtocol{
 			i++;
 			k++;
 			
-			if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 1000)
+			
+			if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 50)
+			{
+				if (hias.containsKey(50))
+				{
+					hias.get(50).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(50, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 100)
+			{
+				if (hias.containsKey(100))
+				{
+					hias.get(100).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(100, als);
+				}
+			}
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 500)
+			{
+				if (hias.containsKey(500))
+				{
+					hias.get(500).add(s_tmp);
+				}
+				else
+				{
+					ArrayList<String> als = new ArrayList<String>();
+					als.add(s_tmp);
+					hias.put(500, als);
+				}
+			} 
+			else if (ControlerNw.config_log.getFilterPerNode().get(s_tmp) < 1000)
 			{
 				if (hias.containsKey(1000))
 				{
@@ -2334,9 +2374,21 @@ public class SystemIndexProtocol implements EDProtocol{
 		wf1.write("Total : " + k + "/" + i+ "\n");
 		wf1.write("Moyen : " + j + "/" + k + " = " + (j/k) + "\n\n");
 		
-		int m = hias.get(1000) == null ? 0 : hias.get(1000).size();
 		float n = 0;
 		
+		int m = hias.get(50) == null ? 0 : hias.get(50).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("    <50 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(100) == null ? 0 : hias.get(100).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("   <100 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(500) == null ? 0 : hias.get(500).size();
+		n += (float)((float)m/(float)k)*100;
+		wf1.write("   <500 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
+		
+		m = hias.get(1000) == null ? 0 : hias.get(1000).size();
 		n += (float)((float)m/(float)k)*100;
 		wf1.write("  <1000 = " + m + " " + (float)((float)m/(float)k)*100 + "%\n");
 		
